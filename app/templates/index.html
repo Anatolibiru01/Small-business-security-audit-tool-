@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ app_title }} | Security Dashboard</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+
+<!-- AUTHENTICATION OVERLAY (First Login) -->
+<div id="authOverlay" class="auth-overlay">
+  <div class="auth-window">
+    <div class="auth-header">
+      <h2>Lynislens - Initial Setup</h2>
+    </div>
+    <div class="auth-body">
+      <p>Welcome to Lynislens. Please authenticate to access the platform.</p>
+      <div class="form-group">
+        <label for="ownerPassword">Owner Password</label>
+        <input type="password" id="ownerPassword" class="form-input" placeholder="Set or enter owner password">
+      </div>
+      <button id="btnAuthLogin" class="btn btn-primary">Login to Platform</button>
+    </div>
+  </div>
+</div>
+
+<div class="app-layout">
+  <!-- TOP MENU BAR -->
+  <div class="menu-bar">
+    <div class="menu-item" style="font-weight: 700;">Lynislens</div>
+    <div class="menu-item" id="menuView" style="position: relative;">
+      View
+      <!-- Dropdown -->
+      <div id="viewDropdown" class="dropdown-menu hidden" style="width: 200px;">
+        <div class="dropdown-item" id="btnOpenDoc">Lynis Documentation</div>
+        <div class="dropdown-item" id="btnOpenAbout">About Lynis</div>
+      </div>
+    </div>
+    <div class="menu-item" id="menuHelp" style="position: relative;">
+      Help
+      <!-- Dropdown -->
+      <div id="helpDropdown" class="dropdown-menu hidden">
+        <strong>Lynislens Help</strong><br><br>
+        • Click <strong>Run New Audit</strong> to scan.<br>
+        • Check <strong>Dashboard</strong> for scores.<br>
+        • Use <strong>Findings</strong> to copy fixes.<br><br>
+        <span style="color: var(--text-muted);">Version 1.0.0</span>
+      </div>
+    </div>
+    <div class="menu-right">
+      <span id="systemStatusText" class="status-text" style="margin-right: 15px;">Checking Host...</span>
+      <button id="btnLogout" class="btn btn-sm btn-secondary">Logout</button>
+    </div>
+  </div>
+
+  <!-- TOOLBAR / TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-target="dashboardTab">Dashboard</button>
+    <button class="tab-btn" data-target="findingsTab">Findings & Remediation</button>
+    <button class="tab-btn" data-target="historyTab">Audit History</button>
+    
+    <div class="tab-actions">
+      <button id="btnTriggerScan" class="btn btn-sm btn-primary">Run New Audit</button>
+      <button id="btnOpenExport" class="btn btn-sm btn-secondary">Export PDF/HTML</button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT AREA -->
+  <div class="main-content">
+
+    <!-- DASHBOARD TAB -->
+    <div id="dashboardTab" class="tab-pane active">
+      <div id="emptyState" class="state-container active">
+        <div class="empty-message">
+          <h3>No Audit Results Loaded</h3>
+          <p>Run a new audit to generate a security scorecard and populate the charts.</p>
+          <button id="btnStartFirstScan" class="btn btn-primary">Start Security Audit Now</button>
+        </div>
+      </div>
+
+      <div id="scanningState" class="state-container">
+        <div class="scan-progress-window">
+          <h3>Auditing Linux Security Posture</h3>
+          
+          <div class="stepper-container">
+            <div class="stepper">
+              <div class="step active" id="step1">
+                <div class="step-circle">1</div>
+                <div class="step-label">Initializing</div>
+              </div>
+              <div class="step-line" id="line1"></div>
+              <div class="step" id="step2">
+                <div class="step-circle">2</div>
+                <div class="step-label">System Checks</div>
+              </div>
+              <div class="step-line" id="line2"></div>
+              <div class="step" id="step3">
+                <div class="step-circle">3</div>
+                <div class="step-label">Analyzing Logs</div>
+              </div>
+              <div class="step-line" id="line3"></div>
+              <div class="step" id="step4">
+                <div class="step-circle">4</div>
+                <div class="step-label">Scoring</div>
+              </div>
+            </div>
+          </div>
+
+          <p id="radarStageTitle" style="margin-top:20px; font-weight:600;">Connecting to scanner...</p>
+          <div id="radarTickerMessage" class="log-window">Starting Lynis execution worker...</div>
+        </div>
+      </div>
+
+      <div id="resultsState" class="state-container">
+        <div class="dashboard-grid">
+          <!-- Summary Panel -->
+          <div class="panel summary-panel">
+            <div class="panel-header">Executive Summary</div>
+            <div class="panel-body">
+              <div class="score-display">
+                <div class="score-value" id="scoreNumber">--</div>
+                <div class="score-label">Overall Score</div>
+                <div class="grade-badge" id="gradeBadge">Grade --</div>
+              </div>
+              <div class="meta-info">
+                <div><strong>Host:</strong> <span id="hostNameVal">--</span></div>
+                <div><strong>OS:</strong> <span id="osNameVal">--</span></div>
+                <div><strong>Kernel:</strong> <span id="kernelVal">--</span></div>
+                <div><strong>Risk Level:</strong> <span id="riskLevelPill">--</span></div>
+                <div><strong>Firewall:</strong> <span id="metricFirewall">--</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Panel -->
+          <div class="panel chart-panel">
+            <div class="panel-header">Findings Distribution</div>
+            <div class="panel-body chart-container">
+              <canvas id="severityPieChart"></canvas>
+            </div>
+          </div>
+
+          <div class="panel chart-panel">
+            <div class="panel-header">Category Breakdown</div>
+            <div class="panel-body chart-container">
+              <canvas id="categoryBarChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINDINGS TAB -->
+    <div id="findingsTab" class="tab-pane">
+      <div class="panel split-view">
+        <div class="sidebar-filters">
+          <div class="panel-header">Filters</div>
+          <div class="panel-body">
+            <label>Severity</label>
+            <select id="severityFilterSelect" class="form-input">
+              <option value="ALL">All Severities</option>
+              <option value="Critical">Critical</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+            
+            <label style="margin-top:10px; display:block;">Category</label>
+            <select id="categoryFilterSelect" class="form-input">
+              <option value="ALL">All Categories</option>
+              <option value="Network & Perimeter">Network & Perimeter</option>
+              <option value="Identity & Access Control">Identity & Access Control</option>
+              <option value="Patch & Package Management">Patch & Package Management</option>
+              <option value="Logging & Forensics">Logging & Forensics</option>
+              <option value="System & Kernel">System & Kernel</option>
+            </select>
+            
+            <label style="margin-top:10px; display:block;">Search</label>
+            <input type="text" id="searchInput" class="form-input" placeholder="Search tasks...">
+          </div>
+        </div>
+        
+        <div class="findings-content">
+          <div class="panel-header">Prioritized Remediation Tasks</div>
+          <div id="remediationFeed" class="remediation-list">
+            <div class="empty-message">No findings to display. Run an audit first.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORY TAB -->
+    <div id="historyTab" class="tab-pane">
+      <div class="panel">
+        <div class="panel-header">Audit History</div>
+        <div class="panel-body">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Host</th>
+                <th>OS</th>
+                <th>Findings</th>
+                <th>Score</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <tr><td colspan="6" style="text-align:center;">No history loaded.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div> <!-- End Main Content -->
+</div> <!-- End App Layout -->
+
+<!-- MODAL: Scan Launcher -->
+<div id="scanModal" class="modal-overlay">
+  <div class="modal-window">
+    <div class="modal-header">
+      <h3>Launch Security Audit</h3>
+      <button id="btnCloseScanModal" class="btn-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="modalPreflightAlert" class="alert alert-info">
+        <strong>Host Pre-Flight Check:</strong> <span id="preflightAlertMsg">Inspecting...</span>
+      </div>
+      <form id="scanForm">
+        <div class="form-group">
+          <label for="sudoUsername">Linux System User</label>
+          <input type="text" id="sudoUsername" class="form-input" placeholder="e.g. ubuntu, root, admin" value="root">
+        </div>
+        <div class="form-group">
+          <label for="sudoPassword">Root / Sudo Password</label>
+          <input type="password" id="sudoPassword" class="form-input" placeholder="Enter password for sudo execution">
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btnCancelScan" class="btn btn-secondary">Cancel</button>
+          <button type="submit" id="btnSubmitScan" class="btn btn-primary">Start Audit Scan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Lynis Documentation -->
+<div id="docModal" class="modal-overlay">
+  <div class="modal-window" style="width: 700px; max-height: 80vh; overflow-y: auto;">
+    <div class="modal-header" style="position: sticky; top: 0; z-index: 10;">
+      <h3>Lynis In-Depth Documentation</h3>
+      <button id="btnCloseDocModal" class="btn-close">&times;</button>
+    </div>
+    <div class="modal-body" style="line-height: 1.6;">
+      <p><strong>1. Core Architecture & Operation</strong><br>
+      Lynis is an open-source, host-based security auditing tool for Unix-like systems. Unlike network vulnerability scanners (which scan from the outside), Lynis runs locally on the host. It performs a deeply intrusive analysis by reading local files, evaluating kernel parameters, checking daemon configurations, and analyzing installed software.</p>
+      
+      <p style="margin-top: 15px;"><strong>2. The Auditing Process</strong><br>
+      When a Lynis audit is initiated, it proceeds through several distinct phases:
+      <ul style="margin-left: 20px; margin-top: 5px;">
+        <li><strong>Initialization:</strong> Loads profiles, custom plugins, and detects the host OS (Linux, macOS, FreeBSD, etc.).</li>
+        <li><strong>System Checks:</strong> Executes hundreds of individual shell-based checks. It verifies boot loaders, kernel security modules (like AppArmor/SELinux), and file system integrity.</li>
+        <li><strong>Scoring & Reporting:</strong> Generates a Hardening Index (a score out of 100) and compiles a list of warnings (critical issues) and suggestions (hardening advice).</li>
+      </ul></p>
+
+      <p style="margin-top: 15px;"><strong>3. Key Security Domains Analyzed</strong><br>
+      <ul style="margin-left: 20px; margin-top: 5px;">
+        <li><strong>Authentication & Identity:</strong> Password aging, PAM configuration, SSH key security, and root login policies.</li>
+        <li><strong>Networking & Firewalls:</strong> Open ports, active listeners, IP forwarding, and firewall presence (iptables, ufw).</li>
+        <li><strong>Patch Management:</strong> Detects vulnerable or outdated packages via local package managers (apt, yum, pacman).</li>
+        <li><strong>Logging & Auditing:</strong> Ensures tools like sysstat, auditd, and syslog are actively recording security events.</li>
+      </ul></p>
+      
+      <p style="margin-top: 15px;"><strong>4. Compliance & Hardening Mapping</strong><br>
+      Lynis does not just identify vulnerabilities; it maps them to official compliance frameworks. It is heavily utilized by sysadmins to prepare servers for audits under strict standards such as <strong>PCI DSS</strong> (Payment Card Industry Data Security Standard), <strong>HIPAA</strong>, and <strong>ISO27001</strong>.</p>
+      
+      <p style="margin-top: 15px; font-size: 11px; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 10px;">
+        * Note: This documentation is adapted from the official CISIS Lynis manual and tailored for the Lynislens platform.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: About Lynis -->
+<div id="aboutModal" class="modal-overlay">
+  <div class="modal-window" style="width: 600px;">
+    <div class="modal-header">
+      <h3>About Lynislens</h3>
+      <button id="btnCloseAboutModal" class="btn-close">&times;</button>
+    </div>
+    <div class="modal-body" style="line-height: 1.6;">
+      <p><strong>The Core Engine: Lynis</strong><br>
+      Lynis is a battle-tested, enterprise-grade security tool for systems running Linux, macOS, or Unix-based operating systems. It is highly respected in the cybersecurity industry for its deep, intrusive system audits.</p>
+      
+      <p style="margin-top: 15px;"><strong>The Solution: Lynislens</strong><br>
+      While Lynis is incredibly powerful, its raw terminal output is dense and designed for senior system administrators. <strong>Lynislens</strong> was built to bridge this gap, specifically tailored for small businesses and non-security experts who still require robust server protection.</p>
+      
+      <p style="margin-top: 15px;"><strong>Key Features of Lynislens:</strong></p>
+      <ul style="margin-left: 20px; margin-top: 5px;">
+        <li><strong>Executive Summaries:</strong> Translates hundreds of raw terminal logs into a clear, A-F letter grade and overall security score out of 100.</li>
+        <li><strong>Actionable Intelligence:</strong> Strips away technical jargon, providing simple plain-English explanations of vulnerabilities alongside one-click, copy-paste terminal commands for instant remediation.</li>
+        <li><strong>Visual Analytics:</strong> Transforms complex data sets into intuitive pie and bar charts to easily identify risk distribution across the server.</li>
+        <li><strong>Delivery-Level UX:</strong> Built with a sleek, professional "desktop software" aesthetic (inspired by tools like Burp Suite) to provide a premium user experience without the complexity.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notifications -->
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>

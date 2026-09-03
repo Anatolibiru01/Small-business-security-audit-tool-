@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Executive Security Posture Report - {{ scorecard.hostname }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --bg-light: #f8fafc;
+      --crit-color: #e11d48;
+      --high-color: #ea580c;
+      --med-color: #d97706;
+      --low-color: #0284c7;
+      --ok-color: #16a34a;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text-dark);
+      background-color: #ffffff;
+      padding: 2.5rem;
+      line-height: 1.5;
+    }
+    .report-container {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+    .report-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid var(--text-dark);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .brand-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
+    .report-sub {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+    .print-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+    .btn-print {
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 0.6rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .btn-print:hover {
+      background: #1d4ed8;
+    }
+    .scorecard-banner {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 2rem;
+      background: var(--bg-light);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.75rem;
+      margin-bottom: 2rem;
+      align-items: center;
+    }
+    .score-badge {
+      text-align: center;
+      padding: 1rem;
+      background: #ffffff;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+    }
+    .score-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .score-ok { color: var(--ok-color); }
+    .score-med { color: var(--med-color); }
+    .score-crit { color: var(--crit-color); }
+    .score-grade {
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-top: 0.25rem;
+      color: var(--text-muted);
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .meta-item {
+      font-size: 0.85rem;
+    }
+    .meta-label {
+      color: var(--text-muted);
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+    .meta-val {
+      font-weight: 600;
+    }
+    .section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      margin-top: 2rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+    }
+    .category-table, .rem-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
+    .category-table th, .category-table td,
+    .rem-table th, .rem-table td {
+      border: 1px solid var(--border-color);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    .category-table th, .rem-table th {
+      background: var(--bg-light);
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .badge-Critical { background: #fee2e2; color: var(--crit-color); }
+    .badge-High { background: #ffedd5; color: var(--high-color); }
+    .badge-Medium { background: #fef3c7; color: var(--med-color); }
+    .badge-Low { background: #e0f2fe; color: var(--low-color); }
+    .code-snippet {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      background: #f1f5f9;
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      margin-top: 0.5rem;
+      word-break: break-all;
+      white-space: pre-wrap;
+    }
+    @media print {
+      body { padding: 0; }
+      .btn-print { display: none; }
+      .scorecard-banner { break-inside: avoid; }
+      .category-table, .rem-table { break-inside: auto; }
+      tr { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="report-container">
+  <header class="report-header">
+    <div>
+      <h1 class="brand-title">Executive Security Posture Report</h1>
+      <p class="report-sub">Automated Lynis Audit & Hardening Assessment | {{ app_title }} v{{ version }}</p>
+    </div>
+    <div class="print-actions">
+      <button onclick="window.print()" class="btn-print">Print / Save as PDF</button>
+    </div>
+  </header>
+
+  <section class="scorecard-banner">
+    <div class="score-badge">
+      <div class="score-value {% if scorecard.overall_score >= 80 %}score-ok{% elif scorecard.overall_score >= 60 %}score-med{% else %}score-crit{% endif %}">{{ scorecard.overall_score }}</div>
+      <div class="score-grade">Grade: {{ scorecard.letter_grade }}</div>
+      <div style="font-size: 0.8rem; font-weight: 700; margin-top: 0.4rem; color: var(--text-dark);">{{ scorecard.risk_level }}</div>
+    </div>
+    <div>
+      <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Executive Summary</h2>
+      <p style="color: #334155; font-size: 0.95rem;">{{ scorecard.executive_summary }}</p>
+      
+      <div class="meta-grid">
+        <div class="meta-item">
+          <span class="meta-label">Hostname</span>
+          <span class="meta-val">{{ scorecard.hostname }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Operating System</span>
+          <span class="meta-val">{{ scorecard.os_name }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Kernel Version</span>
+          <span class="meta-val">{{ scorecard.os_kernel_version or 'N/A' }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Lynis Hardening Index</span>
+          <span class="meta-val">{{ scorecard.hardening_index }}/100</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Firewall Active</span>
+          <span class="meta-val">{% if scorecard.firewall_active %}Yes (Active){% else %}No (Disabled){% endif %}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Total Findings</span>
+          <span class="meta-val">{{ scorecard.total_findings }} ({{ scorecard.critical_count }} Critical, {{ scorecard.high_count }} High)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <h2 class="section-title">Security Domain Health Breakdown</h2>
+  <table class="category-table">
+    <thead>
+      <tr>
+        <th>Domain Category</th>
+        <th>Score</th>
+        <th>Total Issues</th>
+        <th>Critical / High</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for name, cat in scorecard.categories.items() %}
+      <tr>
+        <td><strong>{{ name }}</strong></td>
+        <td><strong>{{ cat.score }}/100</strong></td>
+        <td>{{ cat.total_issues }}</td>
+        <td>{{ cat.critical_count }} Crit / {{ cat.high_count }} High</td>
+        <td>
+          <span class="badge {% if cat.score >= 80 %}badge-Low{% elif cat.score >= 60 %}badge-Medium{% else %}badge-Critical{% endif %}">
+            {{ cat.status_label }}
+          </span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2 class="section-title">Prioritized Remediation Checklist</h2>
+  <table class="rem-table">
+    <thead>
+      <tr>
+        <th style="width: 90px;">Severity</th>
+        <th style="width: 100px;">Test ID</th>
+        <th>Finding & Business Impact</th>
+        <th style="width: 320px;">Remediation Command</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in scorecard.remediation_feed %}
+      <tr>
+        <td>
+          <span class="badge badge-{{ item.severity }}">{{ item.severity }}</span>
+        </td>
+        <td><code>{{ item.test_id }}</code></td>
+        <td>
+          <strong>{{ item.title }}</strong>
+          <p style="font-size: 0.85rem; color: #475569; margin: 0.25rem 0;">{{ item.plain_english }}</p>
+          <p style="font-size: 0.8rem; color: #b91c1c;"><strong>Impact:</strong> {{ item.business_impact }}</p>
+        </td>
+        <td>
+          <div class="code-snippet">{{ item.remediation_cmd }}</div>
+          {% if item.rollback_note %}
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;"><em>Rollback: {{ item.rollback_note }}</em></div>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      {% if scorecard.remediation_feed|length == 0 %}
+      <tr>
+        <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+          No outstanding remediation items. System satisfies security baseline requirements.
+        </td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>
