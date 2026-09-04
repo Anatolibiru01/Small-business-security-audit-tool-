@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="/static/img/favicon.png">
   <style>
     :root {
       --text-dark: #0f172a;
@@ -186,9 +187,12 @@
 
 <div class="report-container">
   <header class="report-header">
-    <div>
-      <h1 class="brand-title">Executive Security Posture Report</h1>
-      <p class="report-sub">Automated Lynis Audit & Hardening Assessment | {{ app_title }} v{{ version }}</p>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <img src="/static/img/logo.png" alt="Lynislens Logo" style="height: 52px; width: auto; object-fit: contain;">
+      <div>
+        <h1 class="brand-title">Executive Security Posture Report</h1>
+        <p class="report-sub">Automated Lynis Audit & Hardening Assessment | {{ app_title }} v{{ version }}</p>
+      </div>
     </div>
     <div class="print-actions">
       <button onclick="window.print()" class="btn-print">Print / Save as PDF</button>

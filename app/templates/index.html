@@ -13,6 +13,9 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <!-- App Favicon -->
+  <link rel="icon" type="image/png" href="/static/img/favicon.png">
+  
   <!-- App Stylesheet -->
   <link rel="stylesheet" href="/static/css/dashboard.css">
 </head>
@@ -22,7 +25,10 @@
 <div id="authOverlay" class="auth-overlay">
   <div class="auth-window">
     <div class="auth-header">
-      <h2>Lynislens - Initial Setup</h2>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="/static/img/logo.png" alt="Lynislens Logo" style="height: 24px; width: auto; object-fit: contain;">
+        <h2>Lynislens - Initial Setup</h2>
+      </div>
     </div>
     <div class="auth-body">
       <p>Welcome to Lynislens. Please authenticate to access the platform.</p>
@@ -38,13 +44,16 @@
 <div class="app-layout">
   <!-- TOP MENU BAR -->
   <div class="menu-bar">
-    <div class="menu-item" style="font-weight: 700;">Lynislens</div>
+    <div class="menu-brand">
+      <img src="/static/img/logo.png" alt="Lynislens Logo" class="brand-logo">
+      <span class="brand-title">Lynislens</span>
+    </div>
     <div class="menu-item" id="menuView" style="position: relative;">
       View
       <!-- Dropdown -->
       <div id="viewDropdown" class="dropdown-menu hidden" style="width: 200px;">
         <div class="dropdown-item" id="btnOpenDoc">Lynis Documentation</div>
-        <div class="dropdown-item" id="btnOpenAbout">About Lynis</div>
+        <div class="dropdown-item" id="btnOpenAbout">About Lynislens</div>
       </div>
     </div>
     <div class="menu-item" id="menuHelp" style="position: relative;">
@@ -83,6 +92,7 @@
     <div id="dashboardTab" class="tab-pane active">
       <div id="emptyState" class="state-container active">
         <div class="empty-message">
+          <img src="/static/img/logo.png" alt="Lynislens Logo" style="height: 64px; width: auto; margin-bottom: 16px; object-fit: contain;">
           <h3>No Audit Results Loaded</h3>
           <p>Run a new audit to generate a security scorecard and populate the charts.</p>
           <button id="btnStartFirstScan" class="btn btn-primary">Start Security Audit Now</button>
@@ -297,7 +307,10 @@
 <div id="aboutModal" class="modal-overlay">
   <div class="modal-window" style="width: 600px;">
     <div class="modal-header">
-      <h3>About Lynislens</h3>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <img src="/static/img/logo.png" alt="Lynislens Logo" style="height: 26px; width: auto; object-fit: contain;">
+        <h3>About Lynislens</h3>
+      </div>
       <button id="btnCloseAboutModal" class="btn-close">&times;</button>
     </div>
     <div class="modal-body" style="line-height: 1.6;">

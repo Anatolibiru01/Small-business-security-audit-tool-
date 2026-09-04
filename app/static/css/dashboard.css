@@ -91,9 +91,29 @@ body {
   background-color: var(--bg-window);
   border-bottom: 1px solid var(--border-color);
   display: flex;
-  padding: 4px 10px;
+  padding: 3px 10px;
   font-size: 12px;
   align-items: center;
+}
+.menu-brand {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 2px 10px 2px 2px;
+  font-weight: 700;
+  color: var(--text-main);
+  user-select: none;
+}
+.menu-brand .brand-logo {
+  height: 20px;
+  width: auto;
+  object-fit: contain;
+  vertical-align: middle;
+}
+.menu-brand .brand-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
 }
 .menu-item {
   padding: 4px 10px;
