@@ -214,6 +214,9 @@
     const btnDoneAgent = document.getElementById('btnDoneAgent');
 
     function openServerModal() {
+      if (typeof window.fetchEnrollmentToken === 'function') {
+        window.fetchEnrollmentToken();
+      }
       if (serverModal) serverModal.classList.add('active');
     }
     function closeServerModal() {

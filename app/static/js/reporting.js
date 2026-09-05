@@ -5,6 +5,11 @@
 
 (function() {
   function triggerExport(format) {
+    if (!window.LynislensState.currentScorecard || !window.LynislensState.currentScorecard.overall_score) {
+      window.showToast('No active agent or audit results available. Please run an audit or select a connected agent first.', 'error');
+      return;
+    }
+
     let url = `/api/export/${format}`;
     if (window.LynislensState.currentServerId) {
       url += `?server_id=${window.LynislensState.currentServerId}`;

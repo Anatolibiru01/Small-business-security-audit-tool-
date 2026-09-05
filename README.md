@@ -19,7 +19,7 @@ When launching Lynislens for the first time, authenticate using the default mast
 | **Default Master Password** | `lynislens` |
 
 > [!IMPORTANT]
-> **Changing Master Password**: Once authenticated, you can change your master password at any time via the **Auditor Profile Dropdown** (`Change Master Password`) in the top-right corner, or under **Suite Settings & Policies** -> **Master Access Credentials & Security**. Updated passwords are automatically saved and enforced for all subsequent sessions.
+> **Changing Master Password**: Once authenticated, you can change your master password at any time via the **Auditor Profile Dropdown** (`Change Master Password`) in the top-right corner, or under **Suite Settings & Policies** -> **Master Access Credentials & Security**. Updated passwords are automatically encrypted, saved, and enforced for all subsequent sessions.
 
 ---
 
@@ -35,51 +35,76 @@ Lynislens is built with deep appreciation for **[Lynis](https://cisofy.com/lynis
 - **Enterprise Visual Orchestration**: Converts terminal-based text output into an interactive, real-time visual dashboard with historical trends, radar maturity charts, and exposure matrices.
 - **Intelligent Knowledge Base & Governance**: Expands cryptic test IDs (e.g., `PKGS-7392`, `SSH-7408`, `KRNL-5820`) into plain-English risk rationales, precise CLI fix commands, configuration diff previews, and rollback procedures.
 - **5-Tier Regulatory Compliance Mapping**: Automatically cross-references Lynis findings against **CIS Benchmarks**, **NIST CSF v2.0**, **ISO 27001**, **PCI-DSS 4.0**, **SOC 2**, and **HIPAA**.
-- **Fleet Push & Pull Management**: Supports direct SSH remote execution as well as zero-inbound-port **Enterprise Push Agents** deployed via a 1-line cron script.
+- **Fleet Push & Pull Management**: Supports direct SSH remote execution as well as zero-inbound-port **Enterprise Push Agents** deployed via a 1-line curl onboarding script.
 - **1-Click Remediation Playbooks**: Compiles selected findings into executable Shell scripts (`.sh`) or Ansible playbooks (`.yml`).
 - **Executive PDF Reporting & Webhooks**: Generates C-level and auditor-ready PDF reports and broadcasts instant SecOps alerts to Slack, Discord, MS Teams, or SIEM endpoints.
 
 ---
 
-## 🚀 Key Features & Capabilities
+## 🏗️ Multi-File Component Architecture
+
+Lynislens is engineered with a modular, security-focused multi-file component design decoupling presentation, state, and business logic:
 
 ```
-  ┌─────────────────────────────────────────────────────────────────────────┐
-  │                           LYNISLENS ENTERPRISE                          │
-  ├───────────────────┬───────────────────────────────┬─────────────────────┤
-  │ 🛡️ Local Auditing │ 🔌 Remote SSH Direct Auditing │ 🚀 Fleet Push Agent │
-  └─────────┬─────────┴───────────────┬───────────────┴──────────┬──────────┘
-            │                         │                          │
-            └─────────────────────────┼──────────────────────────┘
-                                      ▼
-             ┌─────────────────────────────────────────────────┐
-             │       Enterprise Orchestration Core (FastAPI)   │
-             ├─────────────────────────────────────────────────┤
-             │ • SSE Live Streaming Engine                     │
-             │ • Knowledge Base (700+ Lynis Control Mappings)  │
-             │ • 5-Tier Compliance Matrix Engine               │
-             │ • Scoring, Hardening Index & Grade Calculator   │
-             │ • Automated Playbook & Diff Generator           │
-             │ • SQLite History & Time-Series DB               │
-             └────────────────────────┬────────────────────────┘
-                                      ▼
-             ┌─────────────────────────────────────────────────┐
-             │      Desktop & Cloud Control Dashboard (SPA)    │
-             ├─────────────────────────────────────────────────┤
-             │ • Executive Summary & Hardening Index Scorecard │
-             │ • Findings & Remediation Checklist with Diffs   │
-             │ • Regulatory Compliance Matrix (CIS, NIST, etc.)│
-             │ • Automated Prioritized Improvement Roadmap     │
-             │ • Agent & Fleet Asset Management                │
-             │ • Audit Run Archive & Time-Series Trend Line    │
-             │ • Cyber Dark & Executive Light Themes           │
-             └─────────────────────────────────────────────────┘
+app/
+├── core/
+│   ├── agent_installer.py    # Generates 1-line curl setup bash script
+│   ├── executor.py           # Local audit runner & preflight checks
+│   ├── history.py            # SQLite audit history & time-series storage
+│   ├── knowledge_base.py     # 700+ Lynis controls & compliance crosswalk
+│   ├── parser.py             # Raw /var/log/lynis-report.dat parser
+│   ├── scorer.py             # Hardening Index & multi-vector risk engine
+│   ├── servers.py            # Fleet asset registry & cryptographic tokens
+│   └── ssh_client.py         # Paramiko direct SSH execution engine
+├── static/
+│   ├── css/
+│   │   └── dashboard.css     # Complete design system & dual-theme tokens
+│   └── js/
+│       ├── app.js            # Main bootstrap entrypoint
+│       ├── auth.js           # Authentication & password management
+│       ├── compliance.js     # Multi-framework compliance matrix
+│       ├── dashboard.js      # Executive charts & metrics
+│       ├── documentation.js  # In-app architecture documentation modal
+│       ├── findings.js       # Findings checklist & batch playbooks
+│       ├── improvement.js    # 3-Phase prioritized remediation roadmap
+│       ├── palette.js        # Global Command Palette (Ctrl+K)
+│       ├── reporting.js      # PDF/dat/JSON report export triggers
+│       ├── router.js         # HTML5 history & tab routing
+│       ├── settings.js       # Tokens, webhooks & auditor profile
+│       ├── sse.js            # Server-Sent Events live scan streaming
+│       ├── state.js          # Shared state & toast notifications
+│       ├── systems.js        # Fleet server inventory & setup guides
+│       └── theme.js          # Cyber Dark & Executive Light theme toggle
+└── templates/
+    ├── components/
+    │   ├── auth_overlay.html    # Master login window
+    │   ├── drawer.html          # Left navigation drawer
+    │   ├── header.html          # Software menu bar & profile pill
+    │   ├── modal_about.html     # About & version modal
+    │   ├── modal_doc.html       # Architecture & Lynis doc modal
+    │   ├── modal_palette.html   # Command Palette modal (Ctrl+K)
+    │   ├── modal_password.html  # Change password modal
+    │   ├── modal_playbook.html  # Batch playbook modal
+    │   ├── modal_scan.html      # Privileged scan confirmation modal
+    │   ├── modal_server.html    # Connect remote server modal
+    │   ├── tab_compliance.html  # Compliance matrix tab
+    │   ├── tab_dashboard.html   # Executive summary & charts tab
+    │   ├── tab_improvement.html # Improvement plan tab
+    │   ├── tab_reporting.html   # Reporting hub tab
+    │   ├── tab_settings.html    # Suite settings tab
+    │   └── tab_systems.html     # Agent inventory & setup tab
+    ├── index.html               # Main modular parent template
+    └── report_export.html       # Printable executive PDF report template
 ```
+
+---
+
+## 🚀 Key Features & Capabilities
 
 ### 1. Multi-Target Auditing Pipeline
 - **Local Native Engine**: Executes privileged Lynis scans locally with real-time SSE progress streaming.
 - **Direct SSH Remote Audits**: Connects securely to remote Linux servers using SSH key or password authentication.
-- **Outbound Push Agents**: For firewalled or NAT-isolated instances, lightweight push agents execute automated cron audits and post JSON reports back to the Lynislens endpoint.
+- **Outbound Push Agents**: For firewalled or NAT-isolated instances, lightweight push agents execute automated cron audits and post JSON reports back to the central dashboard.
 
 ### 2. Deep Remediation Intelligence
 - Every finding includes:
@@ -108,7 +133,7 @@ Lynislens is built with deep appreciation for **[Lynis](https://cisofy.com/lynis
 
 ### Prerequisites
 - **Python 3.8+**
-- **Lynis**: Installed on the audit host (`sudo apt install lynis` or `sudo yum install lynis`)
+- **Lynis**: Installed on the audit host (`sudo apt install lynis` or `sudo dnf install lynis`)
 - Linux / WSL / macOS environment for direct scanning (Windows supported via WSL or Remote SSH targets).
 
 ### Quickstart Installation
@@ -132,7 +157,7 @@ Lynislens is built with deep appreciation for **[Lynis](https://cisofy.com/lynis
 
 4. **Launch the Lynislens Enterprise Server**:
    ```bash
-   python -m app.main
+   uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
    ```
    *The server will start at `http://localhost:8000`.*
 
@@ -145,12 +170,12 @@ Lynislens is built with deep appreciation for **[Lynis](https://cisofy.com/lynis
 
 For air-gapped, NATed, or cloud-hosted instances (AWS EC2, GCP, DigitalOcean, Hetzner, on-prem), deploy the lightweight push agent:
 
-1. Navigate to **Suite Settings** in the dashboard to view your active enrollment token.
-2. Run the single-line deployment command on your remote Linux server:
+1. Navigate to **Suite Settings** or **Agent Overview** in the dashboard to copy your active 1-line installer command.
+2. Run the command with root privileges on any remote Linux node:
    ```bash
-   curl -sSL "http://<YOUR_LYNISLENS_IP>:8000/api/agent/install.sh?token=<ENROLLMENT_TOKEN>&interval=daily" | sudo bash
+   curl -sSL http://<YOUR_LYNISLENS_IP>:8000/install.sh | sudo bash -s -- --token <ENROLLMENT_TOKEN> --server http://<YOUR_LYNISLENS_IP>:8000 --cron daily
    ```
-3. The agent installs a secure cron daemon, performs scheduled Lynis audits, and transmits cryptographic reports back to your Lynislens hub.
+3. The installer deploys standalone Lynis into `/opt/lynis`, schedules non-interactive cron audits, and transmits cryptographic reports back to your central dashboard.
 
 ---
 
@@ -166,23 +191,20 @@ For air-gapped, NATed, or cloud-hosted instances (AWS EC2, GCP, DigitalOcean, He
 | `GET` | `/reporting` | Reporting Hub, Audit Archives & PDF/HTML Exports |
 | `GET` | `/settings` | Suite Settings, Tokens, Servers & Webhook Notifications |
 | `GET` | `/documentation` | In-App Architectural Specification & Lynis Documentation Explorer |
-| `POST` | `/api/scan/start` | Initiates a local or remote Lynis audit execution |
+| `GET` | `/install.sh` | Dynamic 1-line curl agent installation bash script |
+| `POST` | `/api/scan/trigger` | Initiates a local or remote Lynis audit execution |
 | `GET` | `/api/scan/stream` | Real-time Server-Sent Events (SSE) audit progress ticker |
-| `GET` | `/api/scan/latest` | Retrieves the latest scorecard data |
+| `GET` | `/api/scan/latest` | Retrieves the latest scorecard payload |
 | `GET` | `/api/history` | Returns historical audit run records |
-| `GET` | `/api/history/{id}` | Retrieves a specific historical scorecard by ID |
-| `GET` | `/api/history/{id}/export/dat` | Downloads raw `/var/log/lynis-report.dat` archive |
 | `GET` | `/api/servers` | Lists all registered infrastructure assets |
 | `POST` | `/api/servers` | Registers a new remote SSH target server |
 | `DELETE` | `/api/servers/{id}` | Decommissions and deletes a registered server |
-| `POST` | `/api/servers/{id}/test` | Tests SSH credentials, latency, and Lynis presence |
-| `GET` | `/api/agent/token` | Fetches active enrollment token for remote push agents |
-| `POST` | `/api/agent/token/refresh`| Rotates and generates a new agent enrollment token |
+| `GET` | `/api/token` | Fetches active enrollment token for remote push agents |
+| `POST` | `/api/token/rotate` | Rotates and generates a new cryptographic enrollment token |
 | `POST` | `/api/agent/push` | Ingestion endpoint for remote push agent report payloads |
-| `POST` | `/api/notifications/test` | Dispatches test alert payload to configured webhook |
-| `POST` | `/api/notifications/config`| Saves webhook provider URL and alert threshold policies |
-| `GET` | `/export/pdf` | Renders and downloads formal Executive PDF report |
-| `GET` | `/export/html` | Renders stand-alone executive HTML security report |
+| `POST` | `/api/webhook/test` | Dispatches test alert payload to configured webhook endpoint |
+| `GET` | `/report` | Renders stand-alone executive printable report |
+| `GET` | `/api/export/{format}` | Exports report in `pdf`, `raw` (.dat), or `json` format |
 
 ---
 

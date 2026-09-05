@@ -34,10 +34,20 @@
 
     if (btnCloseDocModal) btnCloseDocModal.addEventListener('click', closeDocModal);
     if (btnDocClose) btnDocClose.addEventListener('click', closeDocModal);
-    if (drawerBtnDoc) drawerBtnDoc.addEventListener('click', openDocModal);
+    if (drawerBtnDoc) {
+      drawerBtnDoc.addEventListener('click', () => {
+        if (typeof window.closeLeftDrawer === 'function') window.closeLeftDrawer();
+        openDocModal();
+      });
+    }
 
     if (btnCloseAboutModal) btnCloseAboutModal.addEventListener('click', closeAboutModal);
-    if (drawerBtnAbout) drawerBtnAbout.addEventListener('click', openAboutModal);
+    if (drawerBtnAbout) {
+      drawerBtnAbout.addEventListener('click', () => {
+        if (typeof window.closeLeftDrawer === 'function') window.closeLeftDrawer();
+        openAboutModal();
+      });
+    }
 
     // Sub-tab switcher inside Documentation Modal
     const docTabBtns = document.querySelectorAll('.doc-tab-btn[data-doc-tab]');

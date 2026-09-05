@@ -283,6 +283,14 @@
     }
 
     if (btnMenuLogout) btnMenuLogout.addEventListener('click', handleLogout);
+    
+    const drawerBtnLogout = document.getElementById('drawerBtnLogout');
+    if (drawerBtnLogout) {
+      drawerBtnLogout.addEventListener('click', () => {
+        if (typeof window.closeLeftDrawer === 'function') window.closeLeftDrawer();
+        handleLogout();
+      });
+    }
 
     // Initial check
     checkAuth();

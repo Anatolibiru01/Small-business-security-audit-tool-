@@ -461,7 +461,11 @@
     const btnOpenExport = document.getElementById('btnOpenExport');
     if (btnOpenExport) {
       btnOpenExport.addEventListener('click', () => {
-        window.open('/report', '_blank');
+        if (typeof window.triggerExport === 'function') {
+          window.triggerExport('html');
+        } else {
+          window.open('/report', '_blank');
+        }
       });
     }
   });

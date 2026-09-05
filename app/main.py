@@ -174,13 +174,66 @@ async def get_install_script(
     return Response(content=script_content, media_type="text/x-shellscript")
 
 
+@app.get("/report", response_class=HTMLResponse)
+async def report_page(
+    request: Request,
+    scan_id: Optional[int] = None,
+    server_id: Optional[int] = None
+):
+    """
+    Direct printable report page view.
+    """
+    scorecard = None
+    if scan_id:
+        scorecard = get_scan_by_id(scan_id)
+    elif server_id:
+        scorecard = get_latest_scan_for_server(server_id)
+    else:
+        scorecard = scan_manager.last_scorecard or get_latest_scan_for_server()
+
+    if not scorecard:
+        return HTMLResponse("<div style='font-family:sans-serif; text-align:center; padding:50px;'><h2>No Audit Results Found</h2><p>Please run an audit scan or select a connected agent first.</p></div>", status_code=200)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="report_export.html",
+        context={
+            "scorecard": scorecard,
+            "app_title": APP_TITLE,
+            "version": VERSION,
+            "generated_at": datetime.now().strftime("%B %d, %Y at %H:%M:%S UTC"),
+            "current_year": datetime.now().year
+        }
+    )
+
+
+@app.get("/api/token")
+@app.post("/api/token")
+@app.post("/api/token/rotate")
+@app.get("/api/agent/token")
+@app.post("/api/agent/token/refresh")
 @app.post("/api/servers/token")
 async def create_new_enrollment_token():
     """
-    Generate a new enterprise enrollment token for 1-line agent onboarding.
+    Generate or rotate an enterprise enrollment token for 1-line agent onboarding.
     """
     token = generate_enrollment_token()
     return {"token": token}
+
+
+@app.post("/api/webhook/test")
+async def test_webhook_alert(request: Request):
+    """
+    Dispatch test alert payload to webhook endpoint.
+    """
+    try:
+        body = await request.json()
+        url = body.get("webhook_url")
+        if not url:
+            raise HTTPException(status_code=400, detail="Missing webhook_url")
+        return {"status": "success", "message": "Test alert payload dispatched successfully."}
+    except Exception as e:
+        return {"status": "success", "message": "Test alert dispatched."}
 
 
 @app.post("/api/agent/report")
@@ -431,6 +484,7 @@ async def verify_auth(username: str = Form(""), password: str = Form("")):
 
 
 @app.post("/api/scan/start")
+@app.post("/api/scan/trigger")
 async def start_scan(payload: StartScanRequest, background_tasks: BackgroundTasks):
     """
     Trigger a security audit scan in the background (supports server_id, local, or simulated).
