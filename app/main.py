@@ -87,11 +87,7 @@ class StartScanRequest(BaseModel):
     profile: Optional[str] = "standard"
 
 
-@app.get("/", response_class=HTMLResponse)
-async def index_page(request: Request):
-    """
-    Render main Single-Page Dashboard.
-    """
+def render_app_view(request: Request, active_tab: str = "tabDashboard", subview: str = "executive", open_doc: bool = False):
     preflight = check_system_preflight()
     servers = get_servers()
     return templates.TemplateResponse(
@@ -101,9 +97,57 @@ async def index_page(request: Request):
             "app_title": APP_TITLE,
             "version": VERSION,
             "preflight": preflight,
-            "server_count": len(servers)
+            "server_count": len(servers),
+            "active_tab": active_tab,
+            "subview": subview,
+            "open_doc": open_doc
         }
     )
+
+
+@app.get("/", response_class=HTMLResponse)
+async def index_page(request: Request):
+    return render_app_view(request, active_tab="tabDashboard", subview="executive")
+
+
+@app.get("/dashboard", response_class=HTMLResponse)
+async def dashboard_page(request: Request):
+    return render_app_view(request, active_tab="tabDashboard", subview="executive")
+
+
+@app.get("/findings", response_class=HTMLResponse)
+async def findings_page(request: Request):
+    return render_app_view(request, active_tab="tabDashboard", subview="findings")
+
+
+@app.get("/systems", response_class=HTMLResponse)
+async def systems_page(request: Request):
+    return render_app_view(request, active_tab="tabSystems")
+
+
+@app.get("/compliance", response_class=HTMLResponse)
+async def compliance_page(request: Request):
+    return render_app_view(request, active_tab="tabCompliance")
+
+
+@app.get("/improvement", response_class=HTMLResponse)
+async def improvement_page(request: Request):
+    return render_app_view(request, active_tab="tabImprovement")
+
+
+@app.get("/reporting", response_class=HTMLResponse)
+async def reporting_page(request: Request):
+    return render_app_view(request, active_tab="tabReporting")
+
+
+@app.get("/settings", response_class=HTMLResponse)
+async def settings_page(request: Request):
+    return render_app_view(request, active_tab="tabSettings")
+
+
+@app.get("/documentation", response_class=HTMLResponse)
+async def documentation_page(request: Request):
+    return render_app_view(request, active_tab="tabDashboard", subview="executive", open_doc=True)
 
 
 # ============================================================================

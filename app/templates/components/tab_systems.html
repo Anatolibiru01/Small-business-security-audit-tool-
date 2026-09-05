@@ -1,0 +1,113 @@
+<!-- ===================================================================== -->
+<!-- 2. AGENT OVERVIEW TAB -->
+<!-- ===================================================================== -->
+<div id="tabSystems" class="tab-pane">
+  <div class="subnav-bar">
+    <div class="subnav-left">
+      <button type="button" class="subnav-btn active" id="btnSysSubInventory">Connected Agents Inventory</button>
+      <button type="button" class="subnav-btn" id="btnSysSubSetup">Enterprise Setup Guidelines</button>
+    </div>
+    <div class="subnav-right">
+      <button id="btnOpenServerModalFromSys" class="btn btn-sm btn-primary">+ Connect Remote Agent</button>
+    </div>
+  </div>
+
+  <!-- Pane 1: Inventory Table -->
+  <div id="sysInventoryPane">
+    <div class="panel">
+      <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <span>Enrolled Linux Agent Assets</span>
+        <span id="systemsCountBadge" class="badge-status status-connected">1 Total Asset</span>
+      </div>
+      <div class="panel-body" style="padding: 0;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Agent Name / Host</th>
+              <th>IP / Address</th>
+              <th>Agent Mode</th>
+              <th>OS / Kernel</th>
+              <th>Status</th>
+              <th>Hardening Index</th>
+              <th>Open Findings</th>
+              <th>Last Heartbeat</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="systemsInventoryTableBody">
+            <tr>
+              <td colspan="9" style="text-align:center; padding: 20px;">Loading agents list...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pane 2: Setup Guidelines -->
+  <div id="sysSetupPane" style="display:none;">
+    <div class="panel" style="margin-bottom: 15px;">
+      <div class="panel-header">Enterprise Outbound Push Architecture (Zero Ingress)</div>
+      <div class="panel-body">
+        <p>Lynislens Enterprise uses outbound cron reporting so your servers push audit results directly to the
+          central dashboard. This eliminates firewall blocks, NAT issues, VPC isolation, and stored SSH
+          credentials.</p>
+
+        <div class="setup-steps-grid" style="margin-top: 15px;">
+          <div class="step-card">
+            <div class="step-number">1</div>
+            <div>
+              <strong>1-Line Setup</strong>
+              <div class="step-desc">Run the generated curl installer with root privileges on any Linux server.
+              </div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <div>
+              <strong>Automated Lynis Setup</strong>
+              <div class="step-desc">The installer deploys standalone Lynis into <code>/opt/lynis</code> and
+                creates <code>/usr/local/bin/lynislens-scan</code>.</div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <div>
+              <strong>Automated Daily Cron</strong>
+              <div class="step-desc">Creates <code>/etc/cron.daily/lynislens-audit</code> to execute
+                non-interactive scheduled audits.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+          <label for="sysCronIntervalSelect">Audit Frequency Schedule (Cron):</label>
+          <select id="sysCronIntervalSelect" class="form-input" style="font-weight:600;">
+            <option value="5m">Every 5 Minutes (Real-Time SecOps / Lab Mode)</option>
+            <option value="15m">Every 15 Minutes (Active Hardening)</option>
+            <option value="30m">Every 30 Minutes</option>
+            <option value="1h">Every 1 Hour (Continuous Compliance)</option>
+            <option value="daily" selected>Daily at 03:00 AM (Enterprise Baseline - Default)</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+          <label>1-Line Linux Onboarding Command for this Cluster:</label>
+          <div class="terminal-command-box">
+            <code
+              id="sysSetupCommandText">curl -sSL http://127.0.0.1:8000/install.sh | sudo bash -s -- --token LL-TOKEN-DEMO --server http://127.0.0.1:8000 --cron daily</code>
+            <button type="button" id="btnCopySysCmd" class="btn btn-sm btn-primary btn-copy-cmd"
+              title="Copy Command">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy Command</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

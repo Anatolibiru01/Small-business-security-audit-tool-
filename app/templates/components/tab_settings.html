@@ -1,0 +1,173 @@
+<!-- ===================================================================== -->
+<!-- 6. SETTINGS TAB -->
+<!-- ===================================================================== -->
+<div id="tabSettings" class="tab-pane">
+  <div class="subnav-bar">
+    <div class="subnav-left">
+      <span style="font-size:12px; font-weight:700; color:var(--text-main);">Enterprise Suite Settings &
+        Policies</span>
+    </div>
+  </div>
+
+  <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr;">
+    <!-- Setting Card 1: Enterprise Agent Token -->
+    <div class="panel">
+      <div class="panel-header">Enterprise Agent Enrollment</div>
+      <div class="panel-body" style="font-size:12px;">
+        <p>Remote nodes authenticate outbound reports using this enrollment token.</p>
+        <div class="form-group" style="margin-top: 10px;">
+          <label>Active Enrollment Token:</label>
+          <input type="text" id="settingsActiveToken" class="form-input mono-stat" readonly
+            value="Loading token...">
+        </div>
+        <div class="form-group" style="margin-top: 10px;">
+          <label for="settingsCronIntervalSelect">Default Agent Audit Frequency (Cron):</label>
+          <select id="settingsCronIntervalSelect" class="form-input" style="font-weight:600;">
+            <option value="5m">Every 5 Minutes (Real-Time SecOps / Lab Mode)</option>
+            <option value="15m">Every 15 Minutes (Active Hardening)</option>
+            <option value="30m">Every 30 Minutes</option>
+            <option value="1h">Every 1 Hour (Continuous Compliance)</option>
+            <option value="daily" selected>Daily at 03:00 AM (Enterprise Baseline - Default)</option>
+          </select>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <button type="button" id="btnSettingsRefreshToken" class="btn btn-secondary btn-sm">Generate New
+            Token</button>
+          <button type="button" id="btnSettingsCopyCmd" class="btn btn-primary btn-sm btn-copy-cmd"
+            title="Copy Install Command">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span>Copy Install Command</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Setting Card 2: Organization & Auditor Profile -->
+    <div class="panel">
+      <div class="panel-header">Auditor & Organization Profile</div>
+      <div class="panel-body" style="font-size:12px;">
+        <div class="form-group">
+          <label>Organization Name:</label>
+          <input type="text" id="settingsOrgName" class="form-input" value="Enterprise Security Hub">
+        </div>
+        <div class="form-group">
+          <label>Auditor Name:</label>
+          <input type="text" id="settingsAuditorName" class="form-input" value="SecOps Auditor">
+        </div>
+        <button type="button" id="btnSettingsSaveProfile" class="btn btn-primary btn-sm"
+          style="margin-top:5px;">Save Profile Details</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Setting Card: Master Access & Password Management -->
+  <div class="panel" style="margin-top: 16px;">
+    <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+      <span>Master Access Credentials & Security</span>
+      <span class="badge-status status-connected" style="font-size:9.5px;">Superadmin Access</span>
+    </div>
+    <div class="panel-body" style="font-size:12px;">
+      <form id="settingsChangePasswordForm">
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px;">
+          <div class="form-group">
+            <label for="settingsCurrentPass">Current Password <span class="required">*</span></label>
+            <input type="password" id="settingsCurrentPass" class="form-input"
+              placeholder="Current (default: lynislens)" required>
+          </div>
+          <div class="form-group">
+            <label for="settingsNewPass">New Password <span class="required">*</span></label>
+            <input type="password" id="settingsNewPass" class="form-input" placeholder="Minimum 6 characters"
+              minlength="6" required>
+          </div>
+          <div class="form-group">
+            <label for="settingsConfirmPass">Confirm New Password <span class="required">*</span></label>
+            <input type="password" id="settingsConfirmPass" class="form-input" placeholder="Repeat new password"
+              minlength="6" required>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+          <span style="font-size:11px; color:var(--text-muted);">Default Initial Credentials: username
+            <strong>admin</strong>, password <strong>lynislens</strong></span>
+          <button type="submit" id="btnSettingsUpdatePassword" class="btn btn-primary btn-sm">Update Master
+            Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Setting Card 3: Enterprise Webhook & SecOps Alerts -->
+  <div class="panel" style="margin-top: 16px;">
+    <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+      <span>SecOps Webhook & Alerting Center</span>
+      <span class="badge-status status-connected" style="font-size:9.5px;">Real-Time Triggers</span>
+    </div>
+    <div class="panel-body" style="font-size:12px;">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+        <div class="form-group">
+          <label for="settingsWebhookType">Webhook Provider / Channel:</label>
+          <select id="settingsWebhookType" class="form-input">
+            <option value="slack">Slack Incoming Webhook</option>
+            <option value="discord">Discord Channel Webhook</option>
+            <option value="teams">Microsoft Teams Webhook</option>
+            <option value="generic">Custom REST / SIEM JSON Webhook</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="settingsWebhookTrigger">Trigger Alert Threshold:</label>
+          <select id="settingsWebhookTrigger" class="form-input">
+            <option value="critical">Critical Vulnerabilities Only</option>
+            <option value="high" selected>Critical & High Severity Findings</option>
+            <option value="score_drop">When Hardening Index drops below 70</option>
+            <option value="all">Every Completed Audit Scan</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="settingsWebhookUrl">Target Webhook URL Endpoint:</label>
+        <input type="url" id="settingsWebhookUrl" class="form-input"
+          placeholder="https://hooks.slack.com/services/... or https://discord.com/api/webhooks/...">
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+        <button type="button" id="btnTestWebhook" class="btn btn-secondary btn-sm">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 2L11 13"></path>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+          Send Test Alert Payload
+        </button>
+        <button type="button" id="btnSaveWebhook" class="btn btn-primary btn-sm">Save Webhook Integration</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Setting Card 4: Enrolled Infrastructure Management -->
+  <div class="panel" style="margin-top: 16px;">
+    <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+      <span>Enrolled Infrastructure Assets & Decommissioning</span>
+      <span style="font-size:11px; color:var(--text-muted);">Manage or remove registered Linux hosts</span>
+    </div>
+    <div class="panel-body" style="padding: 0;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Server Name</th>
+            <th>Host / IP</th>
+            <th>Agent Mode</th>
+            <th>Status</th>
+            <th>Last Heartbeat</th>
+            <th style="text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="settingsServersTableBody">
+          <tr>
+            <td colspan="6" style="text-align:center; padding: 20px;">Loading servers...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

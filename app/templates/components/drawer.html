@@ -1,0 +1,135 @@
+<!-- INVISIBLE LEFT-EDGE HOVER TRIGGER ZONE (Opens menu smoothly on mouse hover) -->
+<div id="leftHoverTriggerZone" class="left-hover-trigger-zone" title="Hover over left side to open menu"></div>
+
+<!-- LEFT SIDEBAR DRAWER MENU (Toggled by 3-bar menu or mouse hover) -->
+<div id="leftDrawerBackdrop" class="left-drawer-backdrop"></div>
+<aside id="leftSidebarDrawer" class="left-sidebar-drawer" aria-label="Suite Navigation Drawer">
+  <div class="drawer-header">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <img src="/static/img/logo.png" alt="Lynislens" style="height: 22px; width: auto;">
+      <strong style="color: #fff; font-size: 14px;">Lynislens Enterprise</strong>
+    </div>
+    <button type="button" id="btnCloseDrawer" class="drawer-btn-close" title="Close Menu (Esc)"
+      aria-label="Close Navigation Menu">&times;</button>
+  </div>
+
+  <div class="drawer-body" role="menu" aria-label="Suite Modules">
+    <div class="drawer-section-title">SUITE MODULES</div>
+    <div class="drawer-item active" data-target-tab="tabDashboard" data-subview="executive" tabindex="0"
+      role="menuitem" aria-label="Dashboard & Overview">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="9"></rect>
+        <rect x="14" y="3" width="7" height="5"></rect>
+        <rect x="14" y="12" width="7" height="9"></rect>
+        <rect x="3" y="16" width="7" height="5"></rect>
+      </svg>
+      <span>Dashboard & Overview</span>
+    </div>
+    <div class="drawer-item" data-target-tab="tabSystems" tabindex="0" role="menuitem" aria-label="Agent Overview">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+        <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+        <line x1="6" y1="6" x2="6.01" y2="6"></line>
+        <line x1="6" y1="18" x2="6.01" y2="18"></line>
+      </svg>
+      <span>Agent Overview</span>
+    </div>
+    <div class="drawer-item" data-target-tab="tabCompliance" tabindex="0" role="menuitem"
+      aria-label="Compliance Matrix">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+      </svg>
+      <span>Compliance Matrix</span>
+    </div>
+    <div class="drawer-item" data-target-tab="tabImprovement" tabindex="0" role="menuitem"
+      aria-label="Improvement Plan">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+      </svg>
+      <span>Improvement Plan</span>
+    </div>
+    <div class="drawer-item" data-target-tab="tabReporting" tabindex="0" role="menuitem" aria-label="Reporting Hub">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+      </svg>
+      <span>Reporting Hub</span>
+    </div>
+    <div class="drawer-item" data-target-tab="tabSettings" tabindex="0" role="menuitem" aria-label="Suite Settings">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path
+          d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+        </path>
+      </svg>
+      <span>Suite Settings</span>
+    </div>
+
+    <div class="drawer-section-title" style="margin-top: 16px;">QUICK ACTIONS</div>
+    <div class="drawer-item" id="drawerBtnNewAudit" tabindex="0" role="menuitem" aria-label="Run Security Audit">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+      </svg>
+      <span>Run Security Audit</span>
+    </div>
+    <div class="drawer-item" id="drawerBtnConnectServer" tabindex="0" role="menuitem"
+      aria-label="Connect Remote Server">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      <span>Connect Remote Server</span>
+    </div>
+    <div class="drawer-item" id="drawerBtnExportRaw" tabindex="0" role="menuitem" aria-label="Export Raw .dat Report">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      <span>Export Raw .dat Report</span>
+    </div>
+    <div class="drawer-item" id="drawerBtnExportJson" tabindex="0" role="menuitem">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path
+          d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+        </path>
+      </svg>
+      <span>Export JSON Report</span>
+    </div>
+    <div class="drawer-item" id="drawerBtnExportHtml" tabindex="0" role="menuitem">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+      </svg>
+      <span>Export Executive PDF</span>
+    </div>
+
+    <div class="drawer-section-title" style="margin-top: 16px;">DOCUMENTATION & HELP</div>
+    <div class="drawer-item" id="drawerBtnDoc" tabindex="0" role="menuitem" aria-label="Lynis Documentation">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+      </svg>
+      <span>Lynis Documentation</span>
+    </div>
+    <div class="drawer-item" id="drawerBtnAbout" tabindex="0" role="menuitem">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </svg>
+      <span>About Lynislens</span>
+    </div>
+  </div>
+
+  <div class="drawer-footer">
+    <button type="button" id="drawerBtnLogout" class="btn-drawer-logout" tabindex="0">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+        <polyline points="16 17 21 12 16 7"></polyline>
+        <line x1="21" y1="12" x2="9" y2="12"></line>
+      </svg>
+      <span>Sign Out of Suite</span>
+    </button>
+  </div>
+</aside>

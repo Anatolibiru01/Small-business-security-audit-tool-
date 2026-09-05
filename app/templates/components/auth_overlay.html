@@ -1,0 +1,35 @@
+<!-- AUTHENTICATION OVERLAY -->
+<div id="authOverlay" class="auth-overlay">
+  <div class="auth-window">
+    <div class="auth-header">
+      <div class="auth-brand">
+        <img src="/static/img/logo.png" alt="Lynislens Logo" class="auth-logo">
+        <div>
+          <h2>Lynislens Enterprise</h2>
+          <span class="auth-subtitle">Professional Linux Auditing & Hardening Platform</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="auth-body">
+      <!-- Sign In Form -->
+      <form id="loginForm" class="auth-pane active">
+        <div class="form-group">
+          <label for="loginAuditorName">Auditor / Operator Username</label>
+          <input type="text" id="loginAuditorName" class="form-input" placeholder="Username (default: admin)"
+            value="admin" required>
+        </div>
+        <div class="form-group">
+          <label for="ownerPassword">Master Access Password</label>
+          <input type="password" id="ownerPassword" class="form-input"
+            placeholder="Master password (default: lynislens)" required>
+        </div>
+        <div id="authErrorMessage"
+          style="display: none; font-size: 11.5px; color: #ef4444; margin-bottom: 10px; font-weight: 600; text-align: center;">
+        </div>
+        <button type="submit" id="btnAuthLogin" class="btn btn-primary btn-block">Authenticate & Launch Suite</button>
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 10px; text-align: center;"></div>
+      </form>
+    </div>
+  </div>
+</div>

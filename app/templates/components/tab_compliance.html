@@ -1,0 +1,204 @@
+<!-- ===================================================================== -->
+<!-- 3. COMPLIANCE TAB (Frameworks with Individual Pie Charts & Color Coding) -->
+<!-- ===================================================================== -->
+<div id="tabCompliance" class="tab-pane">
+  <div class="subnav-bar">
+    <div class="subnav-left">
+      <span style="font-size:12px; font-weight:700; color:var(--text-main); margin-right:8px;">Regulatory
+        Frameworks:</span>
+      <button type="button" class="subnav-btn active" data-framework="CIS">CIS Linux Benchmark</button>
+      <button type="button" class="subnav-btn" data-framework="NIST">NIST CSF v2.0</button>
+      <button type="button" class="subnav-btn" data-framework="ISO27001">ISO/IEC 27001</button>
+      <button type="button" class="subnav-btn" data-framework="PCIDSS">PCI-DSS v4.0</button>
+      <button type="button" class="subnav-btn" data-framework="HIPAA">HIPAA Security</button>
+      <button type="button" class="subnav-btn" data-framework="SOC2">SOC 2 Type II</button>
+    </div>
+    <div class="subnav-right">
+      <span id="complianceFrameworkTitle" style="font-size:12px; font-weight:700; color:var(--brand-orange);">CIS
+        Linux Benchmark (Level 1 & 2)</span>
+    </div>
+  </div>
+
+  <!-- COMPLIANCE MULTI-FRAMEWORK PIE CHART GRID -->
+  <div class="compliance-framework-grid" id="complianceFrameworkGrid"
+    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px;">
+    <!-- CIS Card -->
+    <div class="compliance-card active" data-framework="CIS">
+      <div class="compliance-card-header">
+        <span class="compliance-card-title">CIS Linux</span>
+        <span class="compliance-card-pct" id="compCardScore_CIS">--%</span>
+      </div>
+      <div class="compliance-pie-wrapper">
+        <canvas id="chartComp_CIS" width="90" height="90"></canvas>
+      </div>
+      <div class="compliance-card-legend">
+        <span class="legend-dot green"></span><span id="compPassed_CIS">--</span>
+        <span class="legend-dot red"></span><span id="compFailed_CIS">--</span>
+      </div>
+    </div>
+
+    <!-- NIST Card -->
+    <div class="compliance-card" data-framework="NIST">
+      <div class="compliance-card-header">
+        <span class="compliance-card-title">NIST CSF v2.0</span>
+        <span class="compliance-card-pct" id="compCardScore_NIST">--%</span>
+      </div>
+      <div class="compliance-pie-wrapper">
+        <canvas id="chartComp_NIST" width="90" height="90"></canvas>
+      </div>
+      <div class="compliance-card-legend">
+        <span class="legend-dot green"></span><span id="compPassed_NIST">--</span>
+        <span class="legend-dot red"></span><span id="compFailed_NIST">--</span>
+      </div>
+    </div>
+
+    <!-- ISO 27001 Card -->
+    <div class="compliance-card" data-framework="ISO27001">
+      <div class="compliance-card-header">
+        <span class="compliance-card-title">ISO/IEC 27001</span>
+        <span class="compliance-card-pct" id="compCardScore_ISO27001">--%</span>
+      </div>
+      <div class="compliance-pie-wrapper">
+        <canvas id="chartComp_ISO27001" width="90" height="90"></canvas>
+      </div>
+      <div class="compliance-card-legend">
+        <span class="legend-dot green"></span><span id="compPassed_ISO27001">--</span>
+        <span class="legend-dot red"></span><span id="compFailed_ISO27001">--</span>
+      </div>
+    </div>
+
+    <!-- PCI-DSS Card -->
+    <div class="compliance-card" data-framework="PCIDSS">
+      <div class="compliance-card-header">
+        <span class="compliance-card-title">PCI-DSS 4.0</span>
+        <span class="compliance-card-pct" id="compCardScore_PCIDSS">--%</span>
+      </div>
+      <div class="compliance-pie-wrapper">
+        <canvas id="chartComp_PCIDSS" width="90" height="90"></canvas>
+      </div>
+      <div class="compliance-card-legend">
+        <span class="legend-dot green"></span><span id="compPassed_PCIDSS">--</span>
+        <span class="legend-dot red"></span><span id="compFailed_PCIDSS">--</span>
+      </div>
+    </div>
+
+    <!-- HIPAA Card -->
+    <div class="compliance-card" data-framework="HIPAA">
+      <div class="compliance-card-header">
+        <span class="compliance-card-title">HIPAA Security</span>
+        <span class="compliance-card-pct" id="compCardScore_HIPAA">--%</span>
+      </div>
+      <div class="compliance-pie-wrapper">
+        <canvas id="chartComp_HIPAA" width="90" height="90"></canvas>
+      </div>
+      <div class="compliance-card-legend">
+        <span class="legend-dot green"></span><span id="compPassed_HIPAA">--</span>
+        <span class="legend-dot red"></span><span id="compFailed_HIPAA">--</span>
+      </div>
+    </div>
+
+    <!-- SOC 2 Card -->
+    <div class="compliance-card" data-framework="SOC2">
+      <div class="compliance-card-header">
+        <span class="compliance-card-title">SOC 2 Type II</span>
+        <span class="compliance-card-pct" id="compCardScore_SOC2">--%</span>
+      </div>
+      <div class="compliance-pie-wrapper">
+        <canvas id="chartComp_SOC2" width="90" height="90"></canvas>
+      </div>
+      <div class="compliance-card-legend">
+        <span class="legend-dot green"></span><span id="compPassed_SOC2">--</span>
+        <span class="legend-dot red"></span><span id="compFailed_SOC2">--</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SELECTED FRAMEWORK DETAIL ROW -->
+  <div class="dashboard-grid" style="grid-template-columns: 320px 1fr; margin-bottom: 15px; gap: 15px;">
+    <!-- Detailed Framework Pie & Score Panel -->
+    <div class="panel">
+      <div class="panel-header" id="compDetailPanelHeader">Framework Adherence Breakdown</div>
+      <div class="panel-body" style="text-align:center;">
+        <div
+          style="height: 160px; position: relative; display: flex; align-items: center; justify-content: center;">
+          <canvas id="compDetailPieChart"></canvas>
+        </div>
+        <div class="score-display" style="margin-top: 8px;">
+          <div class="score-value" id="complianceScoreNum" style="font-size:36px; color:var(--brand-orange);">--%
+          </div>
+          <div class="score-label" id="complianceScoreLabel">Adherence Rating</div>
+        </div>
+
+        <!-- Standard Color Code Legend -->
+        <div class="compliance-color-legend"
+          style="margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px; text-align: left; border-top: 1px solid var(--border-color); padding-top: 10px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span class="legend-dot green"></span>
+            <span><strong>Compliant (Low):</strong> <span id="compPassedControls"
+                style="color: #10b981;">--</span></span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span class="legend-dot yellow"></span>
+            <span><strong>Partial / Review:</strong> <span id="compPartialControls"
+                style="color: #f59e0b;">0</span></span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span class="legend-dot red"></span>
+            <span><strong>Non-Compliant:</strong> <span id="compFailedControls"
+                style="color: #ef4444;">--</span></span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span class="legend-dot blue"></span>
+            <span><strong>Informational:</strong> <span id="compInfoControls"
+                style="color: #3b82f6;">--</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Framework Guidance & Legal References -->
+    <div class="panel">
+      <div class="panel-header">Regulatory Mandate & Enforcement Guidance</div>
+      <div class="panel-body" style="font-size:12px; line-height:1.6;">
+        <p id="compFrameworkDesc" style="color: var(--text-main); font-weight: 500;">
+          The <strong>Center for Internet Security (CIS) Benchmarks</strong> provide consensus-based best practice
+          guidelines for securing Linux operating systems.
+        </p>
+        <div id="compGuidanceBox" class="meta-item" style="margin-top:10px; padding:12px;">
+          <strong style="color:var(--text-main); margin-bottom:4px;">Key Reference Controls & Safeguards
+            Audited:</strong>
+          <ul id="compReferenceList" style="margin: 6px 0 0 16px; padding:0; color:var(--text-muted);">
+            <li>SSH Daemon Hardening & Root Login Restrictions (CIS 5.2)</li>
+            <li>Firewall & Ingress Packet Filtering (CIS 3.5)</li>
+            <li>Password Complexity & PAM Authentication Rules (CIS 5.4)</li>
+            <li>System Logging & Syslog Daemon Forensics (CIS 4.2)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Compliance Controls Table -->
+  <div class="panel">
+    <div class="panel-header">Regulatory Control Mapping & Evaluation</div>
+    <div class="panel-body" style="padding:0;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 120px;">Control ID</th>
+            <th>Requirement / Control Description</th>
+            <th>Mapped Lynis Check</th>
+            <th>Category</th>
+            <th>Risk & Compliance Status</th>
+          </tr>
+        </thead>
+        <tbody id="complianceTableBody">
+          <tr>
+            <td colspan="5" style="text-align:center; padding:20px;">Run an audit to evaluate regulatory
+              compliance controls.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

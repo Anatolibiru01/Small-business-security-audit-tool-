@@ -1,0 +1,30 @@
+<!-- MODAL: Global Spotlight Command Palette (Ctrl+K) -->
+<div id="commandPaletteModal" class="modal-overlay cmd-palette-overlay">
+  <div class="cmd-palette-window">
+    <div class="cmd-palette-input-wrap">
+      <svg class="cmd-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" id="cmdPaletteInput" class="cmd-palette-input"
+        placeholder="Type a test ID (e.g. PKGS-7392), server, or section..." autocomplete="off">
+      <kbd class="cmd-palette-esc" id="btnCloseCmdPalette">ESC</kbd>
+    </div>
+    <div class="cmd-palette-categories">
+      <button type="button" class="cmd-filter-pill active" data-filter="ALL">All</button>
+      <button type="button" class="cmd-filter-pill" data-filter="FINDINGS">Findings</button>
+      <button type="button" class="cmd-filter-pill" data-filter="SERVERS">Servers</button>
+      <button type="button" class="cmd-filter-pill" data-filter="COMPLIANCE">Compliance</button>
+      <button type="button" class="cmd-filter-pill" data-filter="ACTIONS">Actions</button>
+    </div>
+    <div id="cmdPaletteResults" class="cmd-palette-results">
+      <!-- Dynamically generated items -->
+    </div>
+    <div class="cmd-palette-footer">
+      <span><kbd>↑</kbd> <kbd>↓</kbd> to navigate</span>
+      <span><kbd>Enter</kbd> to select</span>
+      <span><kbd>ESC</kbd> to close</span>
+    </div>
+  </div>
+</div>

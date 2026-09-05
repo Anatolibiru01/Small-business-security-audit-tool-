@@ -1,0 +1,336 @@
+<!-- ===================================================================== -->
+<!-- 1. DASHBOARD TAB -->
+<!-- ===================================================================== -->
+<div id="tabDashboard" class="tab-pane active">
+  <!-- Dashboard Sub-Navigation Bar -->
+  <div class="subnav-bar">
+    <div class="subnav-left">
+      <button type="button" class="subnav-btn active" id="btnDashSubExecutive">Executive Summary</button>
+      <button type="button" class="subnav-btn" id="btnDashSubFindings">Findings & Remediation (<span
+          id="findingsCountBadge">0</span>)</button>
+    </div>
+
+    <div class="subnav-right">
+      <!-- Target Server Selector -->
+      <div class="server-control-bar">
+        <span class="server-control-label">Target:</span>
+        <select id="targetServerSelect" class="server-select">
+          <option value="local">Localhost (Local Machine)</option>
+        </select>
+        <span id="serverConnectionBadge" class="badge-status status-checking">Checking...</span>
+        <button type="button" id="btnDeleteTargetServer" class="btn btn-sm btn-danger" style="display:none;"
+          title="Delete and decommission selected server">Delete</button>
+      </div>
+
+      <button id="btnOpenExport" class="btn btn-sm btn-secondary" title="Export Full Executive PDF / HTML Report">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
+        Export PDF
+      </button>
+      <button id="btnTriggerScan" class="btn btn-sm btn-primary">Run Audit</button>
+    </div>
+  </div>
+
+  <!-- VIEW A: Executive Dashboard -->
+  <div id="dashExecutiveView">
+    <div id="emptyState" class="state-container active">
+      <div class="empty-message">
+        <img src="/static/img/logo.png" alt="Lynislens Logo"
+          style="height: 64px; width: auto; margin-bottom: 16px; object-fit: contain;">
+        <h3>No Audit Results Loaded</h3>
+        <p>Run a new security audit or connect an Enterprise Push agent to populate metrics, scorecards, and
+          charts.</p>
+        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+          <button id="btnStartFirstScan" class="btn btn-primary">Start Local Audit</button>
+          <button id="btnStartFirstRemote" class="btn btn-secondary">+ Connect Remote Agent</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="scanningState" class="state-container">
+      <div class="scan-progress-window">
+        <h3>Auditing Linux Security Posture</h3>
+
+        <div class="stepper-container">
+          <div class="stepper">
+            <div class="step active" id="step1">
+              <div class="step-circle">1</div>
+              <div class="step-label">Initializing</div>
+            </div>
+            <div class="step-line" id="line1"></div>
+            <div class="step" id="step2">
+              <div class="step-circle">2</div>
+              <div class="step-label">System Checks</div>
+            </div>
+            <div class="step-line" id="line2"></div>
+            <div class="step" id="step3">
+              <div class="step-circle">3</div>
+              <div class="step-label">Analyzing Logs</div>
+            </div>
+            <div class="step-line" id="line3"></div>
+            <div class="step" id="step4">
+              <div class="step-circle">4</div>
+              <div class="step-label">Scoring</div>
+            </div>
+          </div>
+        </div>
+
+        <p id="radarStageTitle" style="margin-top:20px; font-weight:600;">Connecting to scanner...</p>
+        <div
+          style="background: var(--border-color); height: 8px; border-radius: 4px; overflow: hidden; margin: 10px 0;">
+          <div id="radarProgressBar"
+            style="background: var(--brand-orange); height: 100%; width: 5%; transition: width 0.3s;"></div>
+        </div>
+        <div id="radarTickerMessage" class="log-window">Starting Lynis execution worker...</div>
+      </div>
+    </div>
+
+    <div id="resultsState" class="state-container">
+      <div class="dashboard-grid">
+        <!-- Executive Summary Panel -->
+        <div class="panel summary-panel">
+          <div class="panel-header">Executive Summary</div>
+          <div class="panel-body">
+            <div class="score-display">
+              <div class="score-value" id="scoreNumber">--</div>
+              <div class="score-label">Overall Security Score</div>
+              <div class="grade-badge" id="gradeBadge">Grade --</div>
+            </div>
+            <div class="meta-info-grid">
+              <div class="meta-info-col">
+                <div class="meta-item"><strong>Host</strong><span id="hostNameVal">--</span></div>
+                <div class="meta-item"><strong>OS</strong><span id="osNameVal">--</span></div>
+                <div class="meta-item"><strong>Kernel</strong><span id="kernelVal">--</span></div>
+                <div class="meta-item"><strong>Firewall Status</strong><span id="metricFirewall">--</span></div>
+              </div>
+              <div class="meta-info-col">
+                <div class="meta-item"><strong>Hardening Index</strong><span id="hardeningIndexVal"
+                    class="mono-stat">-- / 100</span></div>
+                <div class="meta-item"><strong>Risk Level</strong><span id="riskLevelPill">--</span></div>
+                <div class="meta-item"><strong>Open Warnings</strong><span id="metricWarnings"
+                    class="badge-sev sev-high">0</span></div>
+                <div class="meta-item"><strong>Suggestions</strong><span id="metricSuggestions"
+                    class="badge-sev sev-low">0</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Findings Distribution: Open-Middle Doughnut Chart -->
+        <div class="panel chart-panel">
+          <div class="panel-header">Findings Distribution</div>
+          <div class="panel-body chart-container" style="display: flex; flex-direction: column;">
+            <div style="flex: 1; min-height: 175px; position: relative;">
+              <canvas id="severityPieChart"></canvas>
+            </div>
+            <div class="chart-legend-grid" id="pieChartLegend">
+              <div class="legend-item"><span class="legend-dot dot-red"></span><span class="legend-label">Critical
+                  / High</span><strong id="legendCountRed" class="legend-val">0</strong></div>
+              <div class="legend-item"><span class="legend-dot dot-yellow"></span><span
+                  class="legend-label">Medium Risk</span><strong id="legendCountYellow"
+                  class="legend-val">0</strong></div>
+              <div class="legend-item"><span class="legend-dot dot-green"></span><span class="legend-label">Low /
+                  Healthy</span><strong id="legendCountGreen" class="legend-val">0</strong></div>
+              <div class="legend-item"><span class="legend-dot dot-blue"></span><span class="legend-label">Info /
+                  N/A</span><strong id="legendCountBlue" class="legend-val">0</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category Breakdown Bar Chart -->
+        <div class="panel chart-panel">
+          <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <span>Category Breakdown</span>
+            <span id="categoryAvgBadge" class="badge-status status-info" style="font-size: 9.5px;">Avg: --%</span>
+          </div>
+          <div class="panel-body chart-container" style="display: flex; flex-direction: column;">
+            <div style="flex: 1; min-height: 175px; position: relative;">
+              <canvas id="categoryBarChart"></canvas>
+            </div>
+            <!-- Category Insights & Domain Intelligence Footer -->
+            <div class="category-insights-grid" id="categoryInsightsGrid">
+              <div class="cat-insight-card cat-insight-strong" id="catInsightStrong"
+                title="Strongest security category">
+                <div class="cat-insight-header">
+                  <span class="cat-insight-tag tag-strong">● STRONGEST</span>
+                  <span class="cat-insight-score" id="strongestCatScore">--%</span>
+                </div>
+                <div class="cat-insight-name" id="strongestCatName">Evaluating...</div>
+              </div>
+              <div class="cat-insight-card cat-insight-weak" id="catInsightWeak"
+                title="Weakest security category — Click to filter findings" style="cursor: pointer;">
+                <div class="cat-insight-header">
+                  <span class="cat-insight-tag tag-weak">▲ PRIORITY FOCUS</span>
+                  <span class="cat-insight-score" id="weakestCatScore">--%</span>
+                </div>
+                <div class="cat-insight-name" id="weakestCatName">Evaluating...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW 2: Enterprise Posture Intelligence (Trend Line, 6-Domain Radar, & Attack Surface Exposure) -->
+      <div class="dashboard-grid dashboard-grid-compact" style="margin-top: 12px; margin-bottom: 0;">
+        <!-- Historical Hardening Score Trend Line Chart -->
+        <div class="panel chart-panel">
+          <div class="panel-header"
+            style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px;">
+            <span>Historical Hardening Score Trend</span>
+            <span class="badge-status status-info" style="font-size:9.5px;">Timeline Analytics</span>
+          </div>
+          <div class="panel-body chart-container" style="min-height: 135px; height: 135px; padding: 6px 12px;">
+            <canvas id="historyTrendChart"></canvas>
+          </div>
+        </div>
+
+        <!-- 6-Domain Security Defense Radar Chart -->
+        <div class="panel chart-panel">
+          <div class="panel-header"
+            style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px;">
+            <span>6-Domain Defense Radar</span>
+            <span class="badge-status status-connected" style="font-size:9.5px;">Multi-Vector</span>
+          </div>
+          <div class="panel-body chart-container" style="min-height: 135px; height: 135px; padding: 4px 8px;">
+            <canvas id="defenseRadarChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Attack Surface & Listening Port Exposure Table -->
+        <div class="panel">
+          <div class="panel-header"
+            style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px;">
+            <span>Attack Surface & Listening Ports</span>
+            <span class="badge-status status-connected" id="portExposureBadge"
+              style="font-size:9.5px;">Protected</span>
+          </div>
+          <div class="panel-body" style="padding: 0; height: 135px; overflow-y: auto;">
+            <table class="data-table" style="font-size: 11px; width: 100%;">
+              <thead>
+                <tr>
+                  <th style="padding: 4px 8px;">Port</th>
+                  <th style="padding: 4px 8px;">Service</th>
+                  <th style="padding: 4px 8px;">Protocol</th>
+                  <th style="padding: 4px 8px;">Shield</th>
+                </tr>
+              </thead>
+              <tbody id="attackSurfaceTableBody">
+                <tr>
+                  <td colspan="4" style="text-align:center; padding: 15px; color: var(--text-muted);">No open
+                    listening ports detected.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW B: Findings & Prioritized Remediation -->
+  <div id="dashFindingsView" style="display: none;">
+    <div class="remediation-split-layout">
+      <!-- Main Area (Left): Prioritized Remediation Checklist -->
+      <div class="findings-main-pane panel">
+        <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span>Prioritized Remediation Checklist</span>
+            <span id="remediationActiveFilterBadge" class="badge-priority priority-p2"
+              style="display: none;">Filtered View</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <button type="button" id="btnToggleAllFindingDropdowns" class="btn btn-sm btn-secondary"
+              style="font-size: 10.5px; padding: 2px 8px;">Expand All</button>
+            <span id="remediationCountText"
+              style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Showing 0 items</span>
+          </div>
+        </div>
+
+        <!-- BATCH REMEDIATION PLAYBOOK ACTION TOOLBAR -->
+        <div class="batch-playbook-bar" id="batchPlaybookBar">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <label
+              style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 11.5px; font-weight: 600; color: var(--text-main); user-select: none;">
+              <input type="checkbox" id="chkSelectAllFindings" style="cursor: pointer;">
+              <span>Select All Findings</span>
+            </label>
+            <span id="batchSelectedCountBadge" class="badge-status status-info"
+              style="display: none; font-size: 10px;">0 Selected</span>
+          </div>
+          <button type="button" id="btnGenerateBatchPlaybook" class="btn btn-sm btn-primary btn-copy-cmd"
+            style="padding: 4px 10px; font-size: 11px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            <span>Generate Batch Playbook (<span id="batchPlaybookCount">0</span>)</span>
+          </button>
+        </div>
+
+        <div id="remediationFeed" class="remediation-list">
+          <div class="empty-message">No findings loaded. Run an audit or connect an agent first.</div>
+        </div>
+      </div>
+
+      <!-- Sidebar (Right Side): Finding Filter & Quick Stats -->
+      <div class="findings-filter-sidebar panel">
+        <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <span>Findings Filter</span>
+          <button type="button" id="btnResetFindingsFilter" class="btn-link-action"
+            title="Reset all filters">Reset</button>
+        </div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="searchInput">Search Findings / Test ID:</label>
+            <input type="text" id="searchInput" class="form-input" placeholder="e.g. SSH-001, PAM, firewall...">
+          </div>
+
+          <div class="form-group" style="margin-top: 14px;">
+            <label for="severityFilterSelect">Filter by Severity:</label>
+            <select id="severityFilterSelect" class="form-input" style="font-weight: 600;">
+              <option value="ALL">All Severities</option>
+              <option value="Critical">Critical Severity</option>
+              <option value="High">High Severity</option>
+              <option value="Medium">Medium Severity</option>
+              <option value="Low">Low Severity</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-top: 14px;">
+            <label for="categoryFilterSelect">Filter by Category:</label>
+            <select id="categoryFilterSelect" class="form-input" style="font-weight: 600;">
+              <option value="ALL">All Categories</option>
+              <option value="Network & Perimeter">Network & Perimeter</option>
+              <option value="Identity & Access Control">Identity & Access Control</option>
+              <option value="Patch & Package Management">Patch & Package Management</option>
+              <option value="Logging & Forensics">Logging & Forensics</option>
+              <option value="System & Kernel">System & Kernel</option>
+            </select>
+          </div>
+
+          <!-- Quick Severity Distribution Breakdown -->
+          <div class="filter-stat-box" style="margin-top: 16px;">
+            <div class="filter-stat-title">Severity Breakdown</div>
+            <div class="filter-stat-row">
+              <span>Critical Vulnerabilities</span>
+              <strong id="filterCritCount" class="badge-priority priority-p1">0</strong>
+            </div>
+            <div class="filter-stat-row">
+              <span>High Risk Warnings</span>
+              <strong id="filterHighCount" class="badge-priority priority-p2">0</strong>
+            </div>
+            <div class="filter-stat-row">
+              <span>Medium Hardening Items</span>
+              <strong id="filterMedCount" class="badge-priority priority-p3">0</strong>
+            </div>
+            <div class="filter-stat-row">
+              <span>Low Suggestions</span>
+              <strong id="filterLowCount" class="badge-status">0</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

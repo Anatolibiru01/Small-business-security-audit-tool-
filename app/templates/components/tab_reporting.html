@@ -1,0 +1,76 @@
+<!-- ===================================================================== -->
+<!-- 5. REPORTING TAB -->
+<!-- ===================================================================== -->
+<div id="tabReporting" class="tab-pane">
+  <div class="subnav-bar">
+    <div class="subnav-left">
+      <span style="font-size:12px; font-weight:700; color:var(--text-main);">Executive & Technical Report
+        Center</span>
+    </div>
+  </div>
+
+  <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+    <!-- Card 1: Executive HTML/PDF Report -->
+    <div class="panel">
+      <div class="panel-header">Executive Security Posture Report (PDF)</div>
+      <div class="panel-body" style="font-size:12px;">
+        <p>Comprehensive 6-section printable PDF report: Executive Summary, Scope & Methodology, Findings
+          Dashboard, Technical Evidence, Prioritized Remediation Roadmap, and Appendices.</p>
+        <button type="button" id="btnReportExportHtml" class="btn btn-primary btn-block" style="margin-top:15px;">
+          View & Print PDF Report
+        </button>
+      </div>
+    </div>
+
+    <!-- Card 2: Raw Lynis Report -->
+    <div class="panel">
+      <div class="panel-header">Raw Lynis Report Data (.dat)</div>
+      <div class="panel-body" style="font-size:12px;">
+        <p>Download the exact key-value <code>lynis-report.dat</code> file generated during audit for archival or
+          SIEM ingestion.</p>
+        <button type="button" id="btnReportExportRaw" class="btn btn-secondary btn-block"
+          style="margin-top:15px;">
+          Download .dat File
+        </button>
+      </div>
+    </div>
+
+    <!-- Card 3: Machine-Readable JSON -->
+    <div class="panel">
+      <div class="panel-header">Audit Data Export (JSON)</div>
+      <div class="panel-body" style="font-size:12px;">
+        <p>Export complete structured JSON payload including all raw metrics, findings, categories, and
+          remediation advice.</p>
+        <button type="button" id="btnReportExportJson" class="btn btn-secondary btn-block"
+          style="margin-top:15px;">
+          Download JSON
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audit History Table -->
+  <div class="panel">
+    <div class="panel-header">Historical Audit Archives</div>
+    <div class="panel-body" style="padding:0;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Audit Timestamp</th>
+            <th>Target Host</th>
+            <th>Server Profile</th>
+            <th>Total Findings</th>
+            <th>Overall Score</th>
+            <th>Grade</th>
+            <th style="text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="historyTableBody">
+          <tr>
+            <td colspan="7" style="text-align:center; padding:20px;">No historical audits recorded.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

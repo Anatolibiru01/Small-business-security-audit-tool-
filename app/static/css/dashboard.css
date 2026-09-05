@@ -2846,3 +2846,408 @@ details[open] .finding-dropdown-summary {
 [data-theme="dark"] .cat-insight-name {
   color: #f8fafc;
 }
+
+/* ==========================================================================
+   Interactive Architectural Documentation Explorer Modal Styles
+   ========================================================================== */
+.doc-modal-window {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.doc-nav-strip {
+  scrollbar-width: thin;
+}
+
+.doc-tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 14px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all 0.18s ease;
+  font-family: inherit;
+}
+
+.doc-tab-btn:hover {
+  color: var(--text-main);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.doc-tab-btn.active {
+  color: var(--brand-orange);
+  border-bottom-color: var(--brand-orange);
+  background: var(--bg-card);
+  font-weight: 700;
+}
+
+.doc-tab-pane {
+  animation: docFadeIn 0.2s ease-out forwards;
+}
+
+@keyframes docFadeIn {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.schema-code-box {
+  background: #090d16;
+  border: 1px solid #1e293b;
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin: 0;
+  max-height: 280px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.45;
+  color: #38bdf8;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.schema-sub-btn.active {
+  background: var(--brand-orange) !important;
+  color: #fff !important;
+  border-color: var(--brand-orange) !important;
+}
+
+.doc-subcard {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.doc-subcard:hover {
+  border-color: rgba(234, 88, 12, 0.4) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* Dark Mode Overrides for Architectural Documentation Modal */
+[data-theme="dark"] .doc-modal-window {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .doc-tab-btn:hover {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .doc-tab-btn.active {
+  background: #1e293b;
+  color: #ff9800;
+  border-bottom-color: #ff9800;
+}
+
+[data-theme="dark"] .doc-subcard {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .doc-subcard:hover {
+  border-color: #ff9800 !important;
+  background: #243247 !important;
+}
+
+[data-theme="dark"] .schema-code-box {
+  background: #030712;
+  border-color: #1e293b;
+  color: #38bdf8;
+}
+
+/* ==========================================================================
+   Comprehensive Mobile & Tablet Responsive Design System
+   ========================================================================== */
+
+/* Tablet & Medium Screens (<= 992px) */
+@media (max-width: 992px) {
+  body {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .app-layout {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .main-content {
+    overflow-y: visible;
+    padding: 12px 10px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  .remediation-split-layout {
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+  }
+
+  .findings-main-pane,
+  .findings-filter-sidebar {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .remediation-list {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  .setup-steps-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .metric-row-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    height: auto !important;
+    min-height: unset !important;
+  }
+
+  .doc-modal-window {
+    width: 96vw !important;
+    max-width: 96vw !important;
+  }
+}
+
+/* Mobile Devices & Small Screens (<= 768px) */
+@media (max-width: 768px) {
+  /* Top Menu Bar on Mobile */
+  .menu-bar {
+    height: auto;
+    min-height: 44px;
+    padding: 6px 10px;
+    gap: 6px;
+  }
+
+  .menu-left-section {
+    gap: 6px;
+  }
+
+  .menu-brand-btn,
+  .hamburger-menu {
+    padding: 3px 6px;
+    margin-right: 0;
+    border-right: none;
+  }
+
+  .brand-title {
+    font-size: 13px;
+  }
+
+  .brand-badge {
+    display: none;
+  }
+
+  #btnTopExportRaw span,
+  .btn-cmd-spotlight-trigger span,
+  .btn-cmd-spotlight-trigger kbd {
+    display: none !important;
+  }
+
+  .btn-cmd-spotlight-trigger {
+    padding: 5px 8px;
+  }
+
+  #btnTopExportRaw {
+    display: none;
+  }
+
+  .menu-right-section {
+    gap: 6px;
+  }
+
+  .profile-privilege-pill {
+    padding: 3px 8px;
+    gap: 5px;
+  }
+
+  .profile-role {
+    display: none;
+  }
+
+  .profile-name {
+    font-size: 11px;
+    max-width: 90px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Active Module Header Strip */
+  .active-module-strip {
+    padding: 6px 10px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .module-status-indicator {
+    font-size: 10px;
+  }
+
+  /* Sub-Navigation Controls */
+  .subnav-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 8px 10px;
+  }
+
+  .subnav-left {
+    width: 100%;
+    justify-content: space-between;
+    gap: 4px;
+  }
+
+  .subnav-btn {
+    flex: 1;
+    text-align: center;
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .subnav-right {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .server-control-bar {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  /* Dashboard Cards & Metrics */
+  .meta-info-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .chart-container {
+    min-height: 180px;
+    height: 200px;
+  }
+
+  .category-insights-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  /* Modals */
+  .modal-window,
+  .cmd-palette-window,
+  .auth-window {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    max-height: 92vh !important;
+    margin: 8px auto !important;
+    border-radius: 8px;
+  }
+
+  .modal-header,
+  .modal-footer {
+    padding: 10px 12px;
+  }
+
+  .modal-body {
+    padding: 12px;
+  }
+
+  /* Data Tables Responsive Horizontal Scroll */
+  .table-responsive,
+  div:has(> .data-table),
+  div:has(> table) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  .data-table {
+    min-width: 580px;
+  }
+
+  /* Left Sidebar Drawer on Mobile */
+  .left-sidebar-drawer {
+    width: 85vw;
+    max-width: 300px;
+  }
+
+  /* Documentation Explorer Sub-Cards */
+  .doc-modal-body > div > div[style*="grid-template-columns: 1fr 1fr"],
+  .doc-modal-body > div > div[style*="grid-template-columns: repeat(3, 1fr)"],
+  .doc-modal-body > div > div[style*="grid-template-columns: 1fr 1fr 1fr"],
+  .doc-modal-body > div > div[style*="grid-template-columns: repeat(5, 1fr)"] {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .doc-nav-strip {
+    padding: 0 4px;
+    gap: 2px;
+  }
+
+  .doc-tab-btn {
+    padding: 8px 10px;
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  /* Toast Messages */
+  .toast-container {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    max-width: calc(100vw - 24px);
+  }
+
+  .toast {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Extra Small Phones (<= 480px) */
+@media (max-width: 480px) {
+  .metric-row-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .subnav-left {
+    flex-direction: column;
+  }
+
+  .subnav-btn {
+    width: 100%;
+  }
+
+  .profile-name {
+    display: none;
+  }
+
+  .profile-privilege-pill {
+    padding: 4px 6px;
+    border-radius: 50%;
+  }
+
+  .profile-arrow {
+    display: none;
+  }
+}
+
+

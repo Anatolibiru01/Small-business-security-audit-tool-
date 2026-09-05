@@ -1,0 +1,24 @@
+<!-- MODAL: About -->
+<div id="aboutModal" class="modal-overlay">
+  <div class="modal-window" style="width: 450px;">
+    <div class="modal-header">
+      <h3>About Lynislens Enterprise</h3>
+      <button id="btnCloseAboutModal" class="btn-close">&times;</button>
+    </div>
+    <div class="modal-body" style="text-align: center; padding: 20px;">
+      <img src="/static/img/logo.png" alt="Lynislens Logo"
+        style="height: 48px; width: auto; margin-bottom: 12px; object-fit: contain;">
+      <h4>Lynislens Enterprise Suite</h4>
+      <p style="color: var(--text-muted); font-size: 13px; margin: 4px 0 16px 0;">Version 2.0.0 — Enterprise Edition
+      </p>
+      <p style="font-size: 12px; color: var(--text-main); text-align: left; line-height: 1.5;">
+        Automated Linux vulnerability detection, hardening scorecard, regulatory compliance verification, and
+        prioritized remediation for enterprise cloud & on-premise infrastructure.
+      </p>
+    </div>
+    <div class="modal-footer" style="text-align: center;">
+      <button class="btn btn-primary"
+        onclick="document.getElementById('aboutModal').classList.remove('active');">Close</button>
+    </div>
+  </div>
+</div>

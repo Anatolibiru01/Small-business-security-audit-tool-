@@ -1,0 +1,669 @@
+<!-- MODAL: Documentation & Architecture Explorer -->
+<div id="docModal" class="modal-overlay">
+  <div class="modal-window doc-modal-window"
+    style="width: 920px; max-width: 95vw; max-height: 88vh; display: flex; flex-direction: column;">
+    <!-- Sticky Modal Header -->
+    <div class="modal-header"
+      style="flex-shrink: 0; padding: 12px 18px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-card);">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div
+          style="background: rgba(234, 88, 12, 0.12); color: var(--brand-orange); padding: 6px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+          </svg>
+        </div>
+        <div>
+          <h3
+            style="margin: 0; font-size: 15px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+            Lynislens Architecture & Lynis Documentation
+            <span class="badge badge-success" style="font-size: 10px; padding: 1px 7px;">v2.0 Enterprise</span>
+          </h3>
+          <span style="font-size: 11px; color: var(--text-muted);">Interactive Technical Specification & Engine
+            Architecture</span>
+        </div>
+      </div>
+      <button id="btnCloseDocModal" class="btn-close" title="Close Documentation">&times;</button>
+    </div>
+
+    <!-- Navigation Sub-Tabs -->
+    <div class="doc-nav-strip"
+      style="flex-shrink: 0; display: flex; overflow-x: auto; background: var(--bg-main); border-bottom: 1px solid var(--border-color); padding: 0 12px; gap: 4px;">
+      <button type="button" class="doc-tab-btn active" data-doc-tab="docTabEngine">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polygon points="12 6 12 12 16 14"></polygon>
+        </svg>
+        <span>Lynis Engine Foundation</span>
+      </button>
+      <button type="button" class="doc-tab-btn" data-doc-tab="docTabArch">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="9"></rect>
+          <rect x="14" y="3" width="7" height="5"></rect>
+          <rect x="14" y="12" width="7" height="9"></rect>
+          <rect x="3" y="16" width="7" height="5"></rect>
+        </svg>
+        <span>System Architecture</span>
+      </button>
+      <button type="button" class="doc-tab-btn" data-doc-tab="docTabGovernance">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
+        <span>Scoring & Compliance</span>
+      </button>
+      <button type="button" class="doc-tab-btn" data-doc-tab="docTabSchemas">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="16 18 22 12 16 6"></polyline>
+          <polyline points="8 6 2 12 8 18"></polyline>
+        </svg>
+        <span>Interactive I/O Schemas</span>
+      </button>
+      <button type="button" class="doc-tab-btn" data-doc-tab="docTabSecurity">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        <span>Security & Threat Model</span>
+      </button>
+    </div>
+
+    <!-- Scrollable Content Body -->
+    <div class="modal-body doc-modal-body"
+      style="flex: 1; overflow-y: auto; padding: 18px 22px; font-size: 12.5px; line-height: 1.55; color: var(--text-main);">
+
+      <!-- TAB 1: Lynis Engine Foundation -->
+      <div id="docTabEngine" class="doc-tab-pane active">
+        <!-- Prominent Acknowledgment Box -->
+        <div class="doc-highlight-card"
+          style="background: linear-gradient(135deg, rgba(234, 88, 12, 0.08), rgba(249, 115, 22, 0.03)); border: 1px solid rgba(234, 88, 12, 0.25); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+          <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <div
+              style="background: var(--brand-orange); color: #fff; border-radius: 6px; padding: 8px; font-weight: 800; font-size: 14px; line-height: 1; flex-shrink: 0;">
+              LYNIS
+            </div>
+            <div>
+              <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 700; color: var(--text-main);">
+                Core Engine Attribution & Role
+              </h4>
+              <p style="margin: 0; font-size: 12px; color: var(--text-muted);">
+                Lynislens is engineered on top of the battle-tested open-source audit engine <strong>Lynis</strong>,
+                authored by <strong>Michael Boelen</strong> and maintained by <strong>CISOfy</strong> (<a
+                  href="https://cisofy.com/lynis/" target="_blank" rel="noopener noreferrer"
+                  style="color: var(--brand-orange); font-weight: 600;">cisofy.com/lynis</a>).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+          <!-- Card: Lynis Engine Role -->
+          <div class="doc-subcard"
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 14px;">
+            <div
+              style="font-weight: 700; font-size: 13px; margin-bottom: 8px; color: var(--brand-orange); display: flex; align-items: center; gap: 6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                <polyline points="2 17 12 22 22 17"></polyline>
+                <polyline points="2 12 12 17 22 12"></polyline>
+              </svg>
+              Lynis Core Diagnostics Engine
+            </div>
+            <ul
+              style="margin: 0; padding-left: 18px; font-size: 12px; color: var(--text-main); display: flex; flex-direction: column; gap: 6px;">
+              <li><strong>Native UNIX Inspection:</strong> Audits PAM auth, SSH directives, sysctl kernel tunables,
+                cron jobs, network interfaces, and crypto policies without third-party agent dependencies.</li>
+              <li><strong>Alphanumeric Test Codes:</strong> Generates deterministic identifiers (e.g.,
+                <code>AUTH-9288</code>, <code>SSH-7408</code>, <code>KRNL-5820</code>, <code>FIRE-4518</code>).</li>
+              <li><strong>Structured Report Generation:</strong> Emits raw key-value logs to
+                <code>/var/log/lynis-report.dat</code> containing the base Hardening Index, installed packages, and
+                raw finding tokens.</li>
+            </ul>
+          </div>
+
+          <!-- Card: Lynislens Value-Added Layer -->
+          <div class="doc-subcard"
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 14px;">
+            <div
+              style="font-weight: 700; font-size: 13px; margin-bottom: 8px; color: #10b981; display: flex; align-items: center; gap: 6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polygon points="12 6 12 12 16 14"></polygon>
+              </svg>
+              Lynislens Enterprise Value-Add
+            </div>
+            <ul
+              style="margin: 0; padding-left: 18px; font-size: 12px; color: var(--text-main); display: flex; flex-direction: column; gap: 6px;">
+              <li><strong>Enrichment & Remediation Knowledge Base:</strong> Enriches 700+ raw test codes into verified
+                fix commands, configuration diffs, and risk explanations.</li>
+              <li><strong>Governance & Compliance Crosswalk:</strong> Direct clause mapping to CIS Benchmark, NIST CSF
+                v2.0, ISO 27001, PCI-DSS 4.0, SOC 2, and HIPAA.</li>
+              <li><strong>Fleet Orchestration:</strong> Live SSE streaming, Paramiko SSH orchestrator, and
+                zero-ingress cron push agents.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Interactive Comparison Table -->
+        <h5 style="margin: 14px 0 8px 0; font-size: 12.5px; font-weight: 700; color: var(--text-main);">
+          Feature & Architecture Capability Comparison
+        </h5>
+        <div style="overflow-x: auto; border: 1px solid var(--border-color); border-radius: 6px;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 11.5px; text-align: left;">
+            <thead style="background: var(--bg-card); border-bottom: 1px solid var(--border-color);">
+              <tr>
+                <th style="padding: 8px 12px; font-weight: 700; color: var(--text-main);">Capability Area</th>
+                <th style="padding: 8px 12px; font-weight: 700; color: var(--text-muted);">Lynis CLI Alone</th>
+                <th style="padding: 8px 12px; font-weight: 700; color: var(--brand-orange);">Lynislens Enterprise
+                  Suite</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 8px 12px; font-weight: 600;">Fleet Target Scope</td>
+                <td style="padding: 8px 12px; color: var(--text-muted);">Single localhost command line</td>
+                <td style="padding: 8px 12px; color: var(--text-main); font-weight: 600;">Multi-server fleet (Local +
+                  SSH + Push Agent)</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 8px 12px; font-weight: 600;">Real-Time Progress</td>
+                <td style="padding: 8px 12px; color: var(--text-muted);">Terminal stdout text scroll</td>
+                <td style="padding: 8px 12px; color: var(--text-main); font-weight: 600;">Server-Sent Events (SSE)
+                  live phase ticker</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 8px 12px; font-weight: 600;">Remediation Intelligence</td>
+                <td style="padding: 8px 12px; color: var(--text-muted);">Test ID & documentation URL</td>
+                <td style="padding: 8px 12px; color: var(--text-main); font-weight: 600;">Exact CLI commands, rollback
+                  steps & config diffs</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 8px 12px; font-weight: 600;">Regulatory Mapping</td>
+                <td style="padding: 8px 12px; color: var(--text-muted);">Manual audit verification</td>
+                <td style="padding: 8px 12px; color: var(--text-main); font-weight: 600;">Automated CIS, NIST, ISO
+                  27001, PCI-DSS, SOC 2, HIPAA</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 12px; font-weight: 600;">Playbook Automation</td>
+                <td style="padding: 8px 12px; color: var(--text-muted);">Manual scripting required</td>
+                <td style="padding: 8px 12px; color: var(--text-main); font-weight: 600;">1-Click batch Shell (.sh)
+                  and Ansible (.yml) export</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 2: System Architecture & Execution Pipeline -->
+      <div id="docTabArch" class="doc-tab-pane" style="display: none;">
+        <h4 style="margin: 0 0 8px 0; font-size: 13.5px; font-weight: 700;">
+          End-to-End Audit & Ingestion Pipeline
+        </h4>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+          Lynislens decouples target audit execution from analysis and reporting, enabling concurrent multi-node
+          security telemetry collection.
+        </p>
+
+        <!-- Pipeline Flow Grid -->
+        <div
+          style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 18px; text-align: center;">
+          <div
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 8px;">
+            <div style="font-size: 10px; font-weight: 700; color: var(--brand-orange); text-transform: uppercase;">
+              Stage 1</div>
+            <div style="font-weight: 700; font-size: 11.5px; margin: 4px 0;">Target Ingest</div>
+            <div style="font-size: 10.5px; color: var(--text-muted);">Local / SSH / Push Agent</div>
+          </div>
+          <div
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 8px;">
+            <div style="font-size: 10px; font-weight: 700; color: var(--brand-orange); text-transform: uppercase;">
+              Stage 2</div>
+            <div style="font-weight: 700; font-size: 11.5px; margin: 4px 0;">SSE Ticker</div>
+            <div style="font-size: 10.5px; color: var(--text-muted);">Live phase telemetry</div>
+          </div>
+          <div
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 8px;">
+            <div style="font-size: 10px; font-weight: 700; color: var(--brand-orange); text-transform: uppercase;">
+              Stage 3</div>
+            <div style="font-weight: 700; font-size: 11.5px; margin: 4px 0;">Raw Parser</div>
+            <div style="font-size: 10.5px; color: var(--text-muted);">.dat key-value extraction</div>
+          </div>
+          <div
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 8px;">
+            <div style="font-size: 10px; font-weight: 700; color: var(--brand-orange); text-transform: uppercase;">
+              Stage 4</div>
+            <div style="font-weight: 700; font-size: 11.5px; margin: 4px 0;">700+ KB Map</div>
+            <div style="font-size: 10.5px; color: var(--text-muted);">Enrichment & scoring</div>
+          </div>
+          <div
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 8px;">
+            <div style="font-size: 10px; font-weight: 700; color: var(--brand-orange); text-transform: uppercase;">
+              Stage 5</div>
+            <div style="font-weight: 700; font-size: 11.5px; margin: 4px 0;">Dispatch & Store</div>
+            <div style="font-size: 10.5px; color: var(--text-muted);">SQLite & SecOps Webhooks</div>
+          </div>
+        </div>
+
+        <!-- 3 Target Orchestration Modes -->
+        <h5 style="margin: 14px 0 8px 0; font-size: 12.5px; font-weight: 700; color: var(--text-main);">
+          Supported Target Orchestration Modes
+        </h5>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+          <div class="doc-subcard"
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 12px;">
+            <div style="font-weight: 700; font-size: 12px; margin-bottom: 6px; color: #38bdf8;">1. Local Subprocess
+            </div>
+            <p style="font-size: 11px; color: var(--text-muted); margin: 0 0 8px 0;">
+              Direct privileged execution on the host machine via <code>sudo lynis audit system --quick</code>.
+            </p>
+            <span class="badge" style="background: rgba(56, 189, 248, 0.12); color: #38bdf8; font-size: 10px;">Zero
+              Network Latency</span>
+          </div>
+
+          <div class="doc-subcard"
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 12px;">
+            <div style="font-weight: 700; font-size: 12px; margin-bottom: 6px; color: #a855f7;">2. Direct SSH
+              (Paramiko)</div>
+            <p style="font-size: 11px; color: var(--text-muted); margin: 0 0 8px 0;">
+              Encrypted SSH channel connection using key pairs or credentials to execute and retrieve remote reports.
+            </p>
+            <span class="badge"
+              style="background: rgba(168, 85, 247, 0.12); color: #a855f7; font-size: 10px;">Agentless
+              Deployment</span>
+          </div>
+
+          <div class="doc-subcard"
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 12px;">
+            <div style="font-weight: 700; font-size: 12px; margin-bottom: 6px; color: #10b981;">3. Zero-Ingress Push
+              Agent</div>
+            <p style="font-size: 11px; color: var(--text-muted); margin: 0 0 8px 0;">
+              Scheduled cron task pushing encrypted JSON audit reports outbound to <code>/api/agent/push</code>.
+            </p>
+            <span class="badge"
+              style="background: rgba(16, 185, 129, 0.12); color: #10b981; font-size: 10px;">Firewall & NAT
+              Immune</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: Scoring & Compliance Governance -->
+      <div id="docTabGovernance" class="doc-tab-pane" style="display: none;">
+        <h4 style="margin: 0 0 8px 0; font-size: 13.5px; font-weight: 700;">
+          Scoring Algorithms & Multi-Vector Risk Calculation
+        </h4>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+          The Lynislens Scoring Engine normalizes Lynis's raw hardening index by applying weighted severity penalty
+          deductions for open critical exposures.
+        </p>
+
+        <!-- Letter Grade Matrix -->
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 16px;">
+          <div
+            style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 6px; padding: 10px; text-align: center;">
+            <div style="font-size: 18px; font-weight: 800; color: #10b981;">A / A+</div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-main);">90 – 100</div>
+            <div style="font-size: 10px; color: var(--text-muted);">Hardened Baseline</div>
+          </div>
+          <div
+            style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 6px; padding: 10px; text-align: center;">
+            <div style="font-size: 18px; font-weight: 800; color: #3b82f6;">B</div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-main);">80 – 89</div>
+            <div style="font-size: 10px; color: var(--text-muted);">Solid Defense</div>
+          </div>
+          <div
+            style="background: rgba(234, 179, 8, 0.08); border: 1px solid rgba(234, 179, 8, 0.25); border-radius: 6px; padding: 10px; text-align: center;">
+            <div style="font-size: 18px; font-weight: 800; color: #eab308;">C</div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-main);">70 – 79</div>
+            <div style="font-size: 10px; color: var(--text-muted);">Moderate Risk</div>
+          </div>
+          <div
+            style="background: rgba(249, 115, 22, 0.08); border: 1px solid rgba(249, 115, 22, 0.25); border-radius: 6px; padding: 10px; text-align: center;">
+            <div style="font-size: 18px; font-weight: 800; color: #f97316;">D</div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-main);">60 – 69</div>
+            <div style="font-size: 10px; color: var(--text-muted);">Needs Attention</div>
+          </div>
+          <div
+            style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 6px; padding: 10px; text-align: center;">
+            <div style="font-size: 18px; font-weight: 800; color: #ef4444;">F</div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-main);">&lt; 60</div>
+            <div style="font-size: 10px; color: var(--text-muted);">Critical Vulnerable</div>
+          </div>
+        </div>
+
+        <!-- 6-Domain Defense Radar Breakdown -->
+        <h5 style="margin: 14px 0 8px 0; font-size: 12.5px; font-weight: 700; color: var(--text-main);">
+          The 6 Macro Defense Domains
+        </h5>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px;">
+          <div class="doc-subcard"
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px;">
+            <strong>1. Identity & Access</strong>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">PAM configs, password aging, sudo
+              privileges, SSH root bans.</div>
+          </div>
+          <div class="doc-subcard"
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px;">
+            <strong>2. Kernel & Memory</strong>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Sysctl tunables, core dump
+              protection, ASLR, file system flags.</div>
+          </div>
+          <div class="doc-subcard"
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px;">
+            <strong>3. Network & Firewall</strong>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">UFW/iptables status, listening
+              daemons, TCP SYN cookies, ICMP redirects.</div>
+          </div>
+          <div class="doc-subcard"
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px;">
+            <strong>4. Crypto & SSL</strong>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">SSH cipher suites, TLS protocol
+              policies, SSL certificate expiration.</div>
+          </div>
+          <div class="doc-subcard"
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px;">
+            <strong>5. Logging & Audit</strong>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Auditd daemon, logrotate
+              integrity, central syslog forwarding.</div>
+          </div>
+          <div class="doc-subcard"
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px;">
+            <strong>6. Patch & Packages</strong>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Unattended-upgrades, vulnerable
+              package repositories, compiler locks.</div>
+          </div>
+        </div>
+
+        <!-- Compliance Crosswalk Summary -->
+        <h5 style="margin: 14px 0 8px 0; font-size: 12.5px; font-weight: 700; color: var(--text-main);">
+          Regulatory Governance Matrix
+        </h5>
+        <div style="overflow-x: auto; border: 1px solid var(--border-color); border-radius: 6px;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 11px; text-align: left;">
+            <thead style="background: var(--bg-card); border-bottom: 1px solid var(--border-color);">
+              <tr>
+                <th style="padding: 7px 10px;">Standard</th>
+                <th style="padding: 7px 10px;">Primary Target Clauses</th>
+                <th style="padding: 7px 10px;">Automated Enforcement</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 7px 10px; font-weight: 700;">CIS Linux Benchmark</td>
+                <td style="padding: 7px 10px; color: var(--text-muted);">Sections 1.1–5.4 (Initial Setup, Services,
+                  Network, Access, Logging)</td>
+                <td style="padding: 7px 10px;"><span class="badge badge-success" style="font-size: 9.5px;">Level 1 & 2
+                    Controls</span></td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 7px 10px; font-weight: 700;">NIST CSF v2.0</td>
+                <td style="padding: 7px 10px; color: var(--text-muted);">PR.AC (Access Control), PR.DS (Data
+                  Security), DE.CM (Monitoring)</td>
+                <td style="padding: 7px 10px;"><span class="badge badge-primary" style="font-size: 9.5px;">Continuous
+                    Telemetry</span></td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 7px 10px; font-weight: 700;">ISO 27001:2022</td>
+                <td style="padding: 7px 10px; color: var(--text-muted);">A.8.8 (Management of Technical
+                  Vulnerabilities), A.8.9 (Config Mgt)</td>
+                <td style="padding: 7px 10px;"><span class="badge badge-info" style="font-size: 9.5px;">Audit Trail
+                    Verified</span></td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 7px 10px; font-weight: 700;">PCI-DSS v4.0</td>
+                <td style="padding: 7px 10px; color: var(--text-muted);">Req 1 (Network Controls), Req 2 (Secure
+                  Configurations), Req 8 (Auth)</td>
+                <td style="padding: 7px 10px;"><span class="badge badge-warning" style="font-size: 9.5px;">Payment
+                    Gateway Ready</span></td>
+              </tr>
+              <tr>
+                <td style="padding: 7px 10px; font-weight: 700;">HIPAA Security Rule</td>
+                <td style="padding: 7px 10px; color: var(--text-muted);">45 CFR §164.312 (Technical Safeguards:
+                  Access, Audit, Integrity)</td>
+                <td style="padding: 7px 10px;"><span class="badge badge-success" style="font-size: 9.5px;">ePHI Host
+                    Safeguard</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 4: Interactive Input / Output Schemas -->
+      <div id="docTabSchemas" class="doc-tab-pane" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div>
+            <h4 style="margin: 0; font-size: 13.5px; font-weight: 700;">
+              Canonical Input / Output Specifications
+            </h4>
+            <span style="font-size: 11px; color: var(--text-muted);">Interactive JSON & Data payload contracts across
+              system boundaries.</span>
+          </div>
+          <!-- Schema Pill Switcher -->
+          <div
+            style="display: flex; gap: 4px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 2px;">
+            <button type="button" class="btn btn-sm btn-secondary active schema-sub-btn"
+              data-schema-target="schemaScorecard" style="font-size: 10.5px; padding: 3px 8px;">Scorecard
+              JSON</button>
+            <button type="button" class="btn btn-sm btn-secondary schema-sub-btn" data-schema-target="schemaPush"
+              style="font-size: 10.5px; padding: 3px 8px;">Agent Push Ingest</button>
+            <button type="button" class="btn btn-sm btn-secondary schema-sub-btn" data-schema-target="schemaWebhook"
+              style="font-size: 10.5px; padding: 3px 8px;">SecOps Webhook</button>
+            <button type="button" class="btn btn-sm btn-secondary schema-sub-btn" data-schema-target="schemaRawDat"
+              style="font-size: 10.5px; padding: 3px 8px;">Raw Lynis (.dat)</button>
+          </div>
+        </div>
+
+        <!-- Schema Block 1: Scorecard JSON -->
+        <div id="schemaScorecard" class="schema-pane active">
+          <div class="terminal-command-box" style="margin-bottom: 6px; padding: 8px 12px;">
+            <span style="font-size: 11px; color: #94a3b8; font-weight: 600;">Endpoint: GET /api/scan/latest —
+              Canonical Dashboard Payload</span>
+            <button type="button" class="btn btn-sm btn-secondary btn-copy-schema"
+              data-copy-target="codeScorecardJson">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy Schema</span>
+            </button>
+          </div>
+          <pre class="schema-code-box"><code id="codeScorecardJson">{
+  "overall_score": 78,
+  "letter_grade": "C",
+  "hardening_index": 74,
+  "risk_level": "Moderate Risk",
+  "hostname": "prod-api-worker-01",
+  "os_name": "Ubuntu",
+  "os_version": "24.04 LTS",
+  "kernel": "6.8.0-31-generic",
+  "firewall_active": true,
+  "total_findings": 14,
+  "critical_count": 2,
+  "high_count": 5,
+  "medium_count": 4,
+  "low_count": 3,
+  "categories": {
+    "Authentication": { "score": 70, "findings_count": 3, "critical_count": 1 },
+    "Kernel Hardening": { "score": 65, "findings_count": 4, "critical_count": 1 },
+    "Networking": { "score": 85, "findings_count": 2, "critical_count": 0 }
+  },
+  "remediation_feed": [
+    {
+      "test_id": "SSH-7408",
+      "title": "SSH Root Login Direct Access Enabled",
+      "severity": "Critical",
+      "category": "Authentication",
+      "remediation_cmd": "sudo sed -i 's/^PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config && sudo systemctl reload sshd",
+      "how_to_solve": "1. Edit /etc/ssh/sshd_config\n2. Set PermitRootLogin to no\n3. Reload sshd",
+      "compliance_mapping": {
+        "CIS": "CIS 5.2.4",
+        "NIST": "PR.AC-1",
+        "ISO27001": "A.9.2.6",
+        "PCIDSS": "Req 8.2"
+      }
+    }
+  ]
+}</code></pre>
+        </div>
+
+        <!-- Schema Block 2: Agent Push Ingest -->
+        <div id="schemaPush" class="schema-pane" style="display: none;">
+          <div class="terminal-command-box" style="margin-bottom: 6px; padding: 8px 12px;">
+            <span style="font-size: 11px; color: #94a3b8; font-weight: 600;">Endpoint: POST /api/agent/push —
+              Encrypted Agent Ingestion</span>
+            <button type="button" class="btn btn-sm btn-secondary btn-copy-schema" data-copy-target="codePushJson">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy Schema</span>
+            </button>
+          </div>
+          <pre class="schema-code-box"><code id="codePushJson">{
+  "token": "agt_8f9c1e2b4a7d6e3c5a0b9d8e7f6a5b4c",
+  "hostname": "k8s-worker-node-02",
+  "ip_address": "10.244.0.15",
+  "os_name": "Debian GNU/Linux",
+  "os_version": "12 (Bookworm)",
+  "kernel": "6.1.0-18-amd64",
+  "hardening_index": 76,
+  "raw_report_dat": "report_version_major=3\nhostname=k8s-worker-node-02\nhardening_index=76\nwarning[]=KRNL-5820|...",
+  "timestamp": "2026-09-05T20:30:00Z"
+}</code></pre>
+        </div>
+
+        <!-- Schema Block 3: SecOps Webhook -->
+        <div id="schemaWebhook" class="schema-pane" style="display: none;">
+          <div class="terminal-command-box" style="margin-bottom: 6px; padding: 8px 12px;">
+            <span style="font-size: 11px; color: #94a3b8; font-weight: 600;">Dispatched Payload: Slack / Discord /
+              Teams SIEM Alerts</span>
+            <button type="button" class="btn btn-sm btn-secondary btn-copy-schema" data-copy-target="codeWebhookJson">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy Schema</span>
+            </button>
+          </div>
+          <pre class="schema-code-box"><code id="codeWebhookJson">{
+  "event": "audit.completed",
+  "timestamp": "2026-09-05T20:30:00Z",
+  "target": {
+    "hostname": "prod-database-primary",
+    "ip": "10.0.4.12",
+    "os": "Ubuntu 22.04 LTS"
+  },
+  "scorecard": {
+    "overall_score": 58,
+    "letter_grade": "F",
+    "hardening_index": 58,
+    "risk_level": "Critical Risk",
+    "critical_findings_count": 3
+  },
+  "top_critical_findings": [
+    {
+      "test_id": "SSH-7408",
+      "title": "PermitRootLogin Enabled in SSH Daemon",
+      "severity": "Critical",
+      "fix_command": "sudo sed -i 's/^PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config && sudo systemctl reload sshd"
+    }
+  ],
+  "dashboard_url": "http://lynislens.corp.internal:8000"
+}</code></pre>
+        </div>
+
+        <!-- Schema Block 4: Raw Lynis .dat -->
+        <div id="schemaRawDat" class="schema-pane" style="display: none;">
+          <div class="terminal-command-box" style="margin-bottom: 6px; padding: 8px 12px;">
+            <span style="font-size: 11px; color: #94a3b8; font-weight: 600;">Source File: /var/log/lynis-report.dat —
+              Native Key-Value Format</span>
+            <button type="button" class="btn btn-sm btn-secondary btn-copy-schema" data-copy-target="codeRawDat">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy Schema</span>
+            </button>
+          </div>
+          <pre class="schema-code-box"><code id="codeRawDat"># Lynis Report Data File (Generated by Lynis 3.0.8)
+report_version_major=3
+report_version_minor=0
+auditor=Lynislens
+hostname=ubuntu-srv-01
+os_name=Ubuntu
+os_version=24.04
+hardening_index=66
+firewall_active=1
+warning[]=KRNL-5820|Core dumps are enabled for setuid processes|fs.suid_dumpable=2|
+warning[]=SSH-7408|Root login is permitted directly over SSH|PermitRootLogin yes|
+suggestion[]=PKGS-7392|Install unattended-upgrades package to enable automated security patching|-|
+suggestion[]=AUTH-9288|Configure password maximum aging policy in login.defs|PASS_MAX_DAYS|-|</code></pre>
+        </div>
+      </div>
+
+      <!-- TAB 5: Security & Threat Model -->
+      <div id="docTabSecurity" class="doc-tab-pane" style="display: none;">
+        <h4 style="margin: 0 0 8px 0; font-size: 13.5px; font-weight: 700;">
+          Security, Privilege Separation & Hardening Principles
+        </h4>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+          Lynislens is engineered from the ground up to eliminate attack surface expansion while performing privileged
+          diagnostic routines.
+        </p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="doc-subcard"
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 12px;">
+            <div style="font-weight: 700; font-size: 12px; color: #10b981; margin-bottom: 4px;">1. Least-Privilege
+              Execution</div>
+            <p style="font-size: 11.5px; color: var(--text-muted); margin: 0;">
+              The FastAPI suite runs under an unprivileged user (<code>lynislens</code>). Sudo elevation is restricted
+              specifically to <code>/usr/sbin/lynis</code> via explicit sudoers entries without granting general root
+              shells.
+            </p>
+          </div>
+
+          <div class="doc-subcard"
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 12px;">
+            <div style="font-weight: 700; font-size: 12px; color: #38bdf8; margin-bottom: 4px;">2. Cryptographic Token
+              Rotation</div>
+            <p style="font-size: 11.5px; color: var(--text-muted); margin: 0;">
+              Fleet agent ingestion uses cryptographically secure random entropy (<code>secrets.token_hex(24)</code>).
+              Tokens can be instantly rotated or revoked from the Suite Settings panel.
+            </p>
+          </div>
+
+          <div class="doc-subcard"
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 12px;">
+            <div style="font-weight: 700; font-size: 12px; color: #a855f7; margin-bottom: 4px;">3. Zero-Ingress Remote
+              Surface</div>
+            <p style="font-size: 11.5px; color: var(--text-muted); margin: 0;">
+              Remote push nodes never open inbound listening ports, socket daemons, or SSH credentials; communication
+              is strictly outbound over encrypted TLS to the central dashboard.
+            </p>
+          </div>
+
+          <div class="doc-subcard"
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 12px;">
+            <div style="font-weight: 700; font-size: 12px; color: #f97316; margin-bottom: 4px;">4. Shell Injection
+              Immunity</div>
+            <p style="font-size: 11.5px; color: var(--text-muted); margin: 0;">
+              All command invocations use parameterized argument lists without shell expansion
+              (<code>shell=False</code>) and strict input regex sanitization for IP addresses and hostnames.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer"
+      style="flex-shrink: 0; padding: 10px 18px; background: var(--bg-card); border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-size: 11px; color: var(--text-muted);">Lynislens Enterprise v2.0 &bull; Powered by Lynis
+        Security Engine</span>
+      <button id="btnDocClose" class="btn btn-primary"
+        onclick="document.getElementById('docModal').classList.remove('active');">
+        Close Documentation
+      </button>
+    </div>
+  </div>
+</div>
