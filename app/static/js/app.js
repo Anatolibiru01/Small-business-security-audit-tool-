@@ -1181,10 +1181,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Open-Middle Doughnut Chart for Findings Distribution with Standard Color Codes:
-  // 🔴 Red (Critical / High Risk)
-  // 🟡 Yellow / Amber (Medium Risk)
-  // 🟢 Green (Low Risk / Healthy)
-  // 🔵 Blue / Grey (Informational / Not Applicable)
+  // Red (Critical / High Risk)
+  // Yellow / Amber (Medium Risk)
+  // Green (Low Risk / Healthy)
+  // Blue / Grey (Informational / Not Applicable)
   function renderDoughnutChart(scorecard) {
     const canvas = document.getElementById('severityPieChart');
     if (!canvas) return;
