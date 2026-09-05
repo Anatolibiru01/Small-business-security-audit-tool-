@@ -229,8 +229,67 @@ body {
 }
 
 /* ==========================================================================
-   Left Sidebar Drawer Menu (Toggled by 3-bar Hamburger)
+   Active Module Header & Breadcrumb Strip (Directly Below Top Nav)
    ========================================================================== */
+.active-module-strip {
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+  padding: 6px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  user-select: none;
+  min-height: 32px;
+}
+.module-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.breadcrumb-root {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+.breadcrumb-sep {
+  color: #475569;
+  font-size: 11px;
+}
+.breadcrumb-active {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ff9800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.module-status-indicator {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   Left Sidebar Drawer Menu & Left Edge Hover Trigger
+   ========================================================================== */
+.left-hover-trigger-zone {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 22px;
+  z-index: 7990;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.left-hover-trigger-zone:hover {
+  background: linear-gradient(to right, rgba(234, 88, 12, 0.28), rgba(234, 88, 12, 0.05), transparent);
+}
+
 .left-drawer-backdrop {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -251,7 +310,7 @@ body {
   top: 0;
   left: 0;
   bottom: 0;
-  width: 280px;
+  width: 290px;
   background: #0f172a;
   color: #e2e8f0;
   border-right: 1px solid #334155;
@@ -260,7 +319,7 @@ body {
   display: flex;
   flex-direction: column;
   transform: translateX(-100%);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .left-sidebar-drawer.active {
   transform: translateX(0);
@@ -283,6 +342,7 @@ body {
   cursor: pointer;
   padding: 2px 6px;
   border-radius: 4px;
+  transition: all 0.15s ease;
 }
 .drawer-btn-close:hover {
   color: #fff;
@@ -314,11 +374,42 @@ body {
   cursor: pointer;
   transition: all 0.15s ease;
   margin-bottom: 2px;
+  user-select: none;
 }
 .drawer-item:hover {
   background: #1e293b;
   color: #fff;
 }
+.drawer-item:focus,
+.drawer-item:focus-visible {
+  background: #1e293b !important;
+  color: #ffffff !important;
+  outline: 2px solid var(--brand-orange) !important;
+  outline-offset: -1px;
+}
+
+.dropdown-item:focus,
+.dropdown-item:focus-visible {
+  background: rgba(234, 88, 12, 0.15) !important;
+  color: var(--brand-orange) !important;
+  outline: 2px solid var(--brand-orange) !important;
+  outline-offset: -1px;
+}
+
+.hamburger-menu:focus,
+.hamburger-menu:focus-visible,
+.btn-menu-action:focus,
+.btn-menu-action:focus-visible,
+.subview-btn:focus,
+.subview-btn:focus-visible,
+.auth-tab-btn:focus,
+.auth-tab-btn:focus-visible,
+.btn:focus,
+.btn:focus-visible {
+  outline: 2px solid var(--brand-orange) !important;
+  outline-offset: 1px;
+}
+
 .drawer-item.active {
   background: rgba(234, 88, 12, 0.15);
   color: #fb923c;
@@ -328,6 +419,27 @@ body {
 .drawer-item svg {
   flex-shrink: 0;
   color: inherit;
+}
+
+/* Keyboard Shortcut Badge */
+.nav-kbd {
+  margin-left: auto;
+  background: #1e293b;
+  border: 1px solid #475569;
+  color: #94a3b8;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 3px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+  line-height: 1.2;
+}
+.drawer-item:hover .nav-kbd,
+.dropdown-item:hover .nav-kbd {
+  background: #334155;
+  color: #f8fafc;
+  border-color: #64748b;
 }
 
 .drawer-footer {
@@ -818,6 +930,89 @@ body {
 }
 
 /* ==========================================================================
+   Findings & Remediation Split Layout (Checklist Left + Filter Sidebar Right)
+   ========================================================================== */
+.remediation-split-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 14px;
+  height: calc(100vh - 165px);
+  align-items: stretch;
+}
+
+.findings-main-pane {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-window);
+}
+
+.remediation-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.findings-filter-sidebar {
+  height: 100%;
+  background: var(--bg-window);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.btn-link-action {
+  background: transparent;
+  border: none;
+  color: var(--brand-orange);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+.btn-link-action:hover {
+  color: var(--brand-orange-hover);
+}
+
+.filter-stat-box {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px;
+}
+.filter-stat-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.filter-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  padding: 5px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.filter-stat-row:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 960px) {
+  .remediation-split-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
+
+/* ==========================================================================
    8. Buttons, Forms & Utilities
    ========================================================================== */
 .btn {
@@ -1235,4 +1430,129 @@ body {
 @keyframes slideIn {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
+}
+
+/* ==========================================================================
+   Compliance Matrix Framework Grid & Standard Color Codes
+   ========================================================================== */
+.compliance-framework-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+
+.compliance-card {
+  background: var(--bg-window);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  user-select: none;
+}
+.compliance-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--brand-orange);
+  box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.08);
+}
+.compliance-card.active {
+  border-color: var(--brand-orange);
+  background: #fffaf5;
+  box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.2);
+}
+
+.compliance-card-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.compliance-card-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.compliance-card-pct {
+  font-size: 12px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--brand-orange);
+}
+
+.compliance-pie-wrapper {
+  width: 80px;
+  height: 80px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px 0;
+}
+
+.compliance-card-legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Legend Indicator Dots & Standard Color Codes */
+.legend-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.legend-dot.red {
+  background-color: #ef4444; /* Critical / High / Failed */
+  box-shadow: 0 0 4px rgba(239, 68, 68, 0.4);
+}
+.legend-dot.yellow {
+  background-color: #f59e0b; /* Medium / Partial / Review */
+  box-shadow: 0 0 4px rgba(245, 158, 11, 0.4);
+}
+.legend-dot.green {
+  background-color: #10b981; /* Low / Compliant / Healthy */
+  box-shadow: 0 0 4px rgba(16, 185, 129, 0.4);
+}
+.legend-dot.blue {
+  background-color: #3b82f6; /* Informational / Not Applicable */
+  box-shadow: 0 0 4px rgba(59, 130, 246, 0.4);
+}
+
+/* Regulatory Badges */
+.badge-status.status-failed {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  font-weight: 700;
+}
+.badge-status.status-warning {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+  font-weight: 700;
+}
+.badge-status.status-connected {
+  background: #d1fae5;
+  color: #047857;
+  border: 1px solid #6ee7b7;
+  font-weight: 700;
+}
+.badge-status.status-info {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #7dd3fc;
+  font-weight: 700;
 }

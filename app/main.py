@@ -443,6 +443,7 @@ async def _execute_scan_worker(
 async def stream_scan_progress(server_id: Optional[int] = None):
     """
     Server-Sent Events (SSE) endpoint for live streaming scan progression.
+    Keeps a persistent connection alive with keepalive pings and broadcasts scan events in real-time.
     """
     async def event_generator():
         target_key = server_id if server_id is not None else 0
@@ -459,8 +460,8 @@ async def stream_scan_progress(server_id: Optional[int] = None):
                 init_event = ScanProgressEvent(
                     stage="Completed",
                     progress_percent=100,
-                    message="Latest audit results ready.",
-                    is_complete=True,
+                    message="Audit results ready.",
+                    is_complete=False,
                     scorecard=latest_card,
                     server_id=server_id
                 )
@@ -470,21 +471,19 @@ async def stream_scan_progress(server_id: Optional[int] = None):
                     stage="Idle",
                     progress_percent=0,
                     message="Ready to start audit.",
+                    is_complete=False,
                     server_id=server_id
                 )
                 yield f"data: {idle_event.model_dump_json()}\n\n"
-            return
 
-        # Subscribe to active scan events
+        # Subscribe to active scan events and keep connection open
         q = scan_manager.subscribe()
         try:
             while True:
                 try:
-                    event: ScanProgressEvent = await asyncio.wait_for(q.get(), timeout=20.0)
+                    event: ScanProgressEvent = await asyncio.wait_for(q.get(), timeout=15.0)
                     if server_id is None or event.server_id is None or event.server_id == server_id:
                         yield f"data: {event.model_dump_json()}\n\n"
-                        if event.is_complete or event.error:
-                            break
                 except asyncio.TimeoutError:
                     yield ": keepalive\n\n"
                 except asyncio.CancelledError:

@@ -94,79 +94,82 @@
   </div>
 </div>
 
-<!-- LEFT SIDEBAR DRAWER MENU (Toggled by 3-bar menu) -->
+<!-- INVISIBLE LEFT-EDGE HOVER TRIGGER ZONE (Opens menu smoothly on mouse hover) -->
+<div id="leftHoverTriggerZone" class="left-hover-trigger-zone" title="Hover over left side to open menu"></div>
+
+<!-- LEFT SIDEBAR DRAWER MENU (Toggled by 3-bar menu or mouse hover) -->
 <div id="leftDrawerBackdrop" class="left-drawer-backdrop"></div>
-<aside id="leftSidebarDrawer" class="left-sidebar-drawer">
+<aside id="leftSidebarDrawer" class="left-sidebar-drawer" aria-label="Suite Navigation Drawer">
   <div class="drawer-header">
     <div style="display: flex; align-items: center; gap: 8px;">
       <img src="/static/img/logo.png" alt="Lynislens" style="height: 22px; width: auto;">
       <strong style="color: #fff; font-size: 14px;">Lynislens Enterprise</strong>
     </div>
-    <button type="button" id="btnCloseDrawer" class="drawer-btn-close" title="Close Menu">&times;</button>
+    <button type="button" id="btnCloseDrawer" class="drawer-btn-close" title="Close Menu (Esc)" aria-label="Close Navigation Menu">&times;</button>
   </div>
 
-  <div class="drawer-body">
+  <div class="drawer-body" role="menu" aria-label="Suite Modules">
     <div class="drawer-section-title">SUITE MODULES</div>
-    <div class="drawer-item active" data-target-tab="tabDashboard">
+    <div class="drawer-item active" data-target-tab="tabDashboard" data-subview="executive" tabindex="0" role="menuitem" aria-label="Dashboard & Overview">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
       <span>Dashboard & Overview</span>
     </div>
-    <div class="drawer-item" data-target-tab="tabSystems">
+    <div class="drawer-item" data-target-tab="tabSystems" tabindex="0" role="menuitem" aria-label="Agent Overview">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
-      <span>System Overview</span>
+      <span>Agent Overview</span>
     </div>
-    <div class="drawer-item" data-target-tab="tabCompliance">
+    <div class="drawer-item" data-target-tab="tabCompliance" tabindex="0" role="menuitem" aria-label="Compliance Matrix">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
       <span>Compliance Matrix</span>
     </div>
-    <div class="drawer-item" data-target-tab="tabImprovement">
+    <div class="drawer-item" data-target-tab="tabImprovement" tabindex="0" role="menuitem" aria-label="Improvement Plan">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
       <span>Improvement Plan</span>
     </div>
-    <div class="drawer-item" data-target-tab="tabReporting">
+    <div class="drawer-item" data-target-tab="tabReporting" tabindex="0" role="menuitem" aria-label="Reporting Hub">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
       <span>Reporting Hub</span>
     </div>
-    <div class="drawer-item" data-target-tab="tabSettings">
+    <div class="drawer-item" data-target-tab="tabSettings" tabindex="0" role="menuitem" aria-label="Suite Settings">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       <span>Suite Settings</span>
     </div>
 
     <div class="drawer-section-title" style="margin-top: 16px;">QUICK ACTIONS</div>
-    <div class="drawer-item" id="drawerBtnNewAudit">
+    <div class="drawer-item" id="drawerBtnNewAudit" tabindex="0" role="menuitem" aria-label="Run Security Audit">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
       <span>Run Security Audit</span>
     </div>
-    <div class="drawer-item" id="drawerBtnConnectServer">
+    <div class="drawer-item" id="drawerBtnConnectServer" tabindex="0" role="menuitem" aria-label="Connect Remote Server">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
       <span>Connect Remote Server</span>
     </div>
-    <div class="drawer-item" id="drawerBtnExportRaw">
+    <div class="drawer-item" id="drawerBtnExportRaw" tabindex="0" role="menuitem" aria-label="Export Raw .dat Report">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
       <span>Export Raw .dat Report</span>
     </div>
-    <div class="drawer-item" id="drawerBtnExportJson">
+    <div class="drawer-item" id="drawerBtnExportJson" tabindex="0" role="menuitem">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
       <span>Export JSON Report</span>
     </div>
-    <div class="drawer-item" id="drawerBtnExportHtml">
+    <div class="drawer-item" id="drawerBtnExportHtml" tabindex="0" role="menuitem">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
       <span>Export Executive PDF</span>
     </div>
 
     <div class="drawer-section-title" style="margin-top: 16px;">DOCUMENTATION & HELP</div>
-    <div class="drawer-item" id="drawerBtnDoc">
+    <div class="drawer-item" id="drawerBtnDoc" tabindex="0" role="menuitem" aria-label="Lynis Documentation">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
       <span>Lynis Documentation</span>
     </div>
-    <div class="drawer-item" id="drawerBtnAbout">
+    <div class="drawer-item" id="drawerBtnAbout" tabindex="0" role="menuitem">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
       <span>About Lynislens</span>
     </div>
   </div>
 
   <div class="drawer-footer">
-    <button type="button" id="drawerBtnLogout" class="btn-drawer-logout">
+    <button type="button" id="drawerBtnLogout" class="btn-drawer-logout" tabindex="0">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
       <span>Sign Out of Suite</span>
     </button>
@@ -176,9 +179,9 @@
 <div class="app-layout">
   <!-- TOP DESKTOP SOFTWARE MENU BAR -->
   <div class="menu-bar">
-    <div class="menu-left-section">
+    <div class="menu-left-section" id="menuLeftSection">
       <!-- 3-bar hamburger toggle button -->
-      <button type="button" class="menu-item hamburger-menu" id="menuHamburger" title="Toggle Navigation Menu">
+      <button type="button" class="menu-item hamburger-menu" id="menuHamburger" title="Toggle Navigation Menu (Click or Hover Left Edge)" aria-label="Toggle Navigation Menu" tabindex="0">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
           <line x1="3" y1="12" x2="21" y2="12"></line>
           <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -186,28 +189,10 @@
         </svg>
       </button>
 
-
       <div class="menu-brand">
         <img src="/static/img/logo.png" alt="Lynislens Logo" class="brand-logo">
         <span class="brand-title">Lynislens</span>
         <span class="brand-badge">ENTERPRISE</span>
-      </div>
-
-      <!-- View Menu -->
-      <div class="menu-item" id="menuView">
-        View
-        <div id="viewDropdown" class="dropdown-menu hidden" style="width: 220px;">
-          <div class="dropdown-item" id="btnNavDashboard">📊 Executive Dashboard</div>
-          <div class="dropdown-item" id="btnNavFindings">🛠️ Findings & Remediation</div>
-          <div class="dropdown-item" id="btnNavSystems">🖥️ System Overview</div>
-          <div class="dropdown-item" id="btnNavCompliance">🛡️ Compliance Matrix</div>
-          <div class="dropdown-item" id="btnNavImprovement">🚀 Improvement Plan</div>
-          <div class="dropdown-item" id="btnNavReporting">📈 Reporting Hub</div>
-          <div class="dropdown-item" id="btnNavSettings">⚙️ Suite Settings & Servers</div>
-          <div class="dropdown-divider"></div>
-          <div class="dropdown-item" id="btnOpenDoc">Lynis Documentation</div>
-          <div class="dropdown-item" id="btnOpenAbout">About Lynislens Enterprise</div>
-        </div>
       </div>
 
       <!-- Direct Raw Export Action Button -->
@@ -220,7 +205,9 @@
     <!-- Right Menu Section: Profile & Logout -->
     <div class="menu-right-section">
       <div class="profile-privilege-pill" id="profilePill" title="Auditor Profile & Role Privilege">
-        <span class="profile-avatar">👤</span>
+        <span class="profile-avatar">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </span>
         <div class="profile-details">
           <span class="profile-name" id="userProfileName">SecOps Auditor</span>
           <span class="profile-role" id="userProfileRole">Enterprise Security Lead</span>
@@ -234,6 +221,19 @@
     </div>
   </div>
 
+  <!-- ACTIVE MODULE BREADCRUMB / HEADER STRIP (BELOW TOP NAV) -->
+  <div class="active-module-strip">
+    <div class="module-breadcrumb">
+      <span class="breadcrumb-root">SUITE MODULE</span>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-active" id="currentModuleTitle">
+        <span id="currentModuleName">Dashboard & Executive Summary</span>
+      </span>
+    </div>
+    <div class="module-status-indicator" id="currentModuleDesc">
+      Real-Time Linux Hardening Intelligence & Security Posture
+    </div>
+  </div>
 
   <!-- MAIN CONTENT AREA -->
   <div class="main-content">
@@ -245,8 +245,8 @@
       <!-- Dashboard Sub-Navigation Bar -->
       <div class="subnav-bar">
         <div class="subnav-left">
-          <button type="button" class="subnav-btn active" id="btnDashSubExecutive">📊 Executive Summary</button>
-          <button type="button" class="subnav-btn" id="btnDashSubFindings">🛠️ Findings & Remediation (<span id="findingsCountBadge">0</span>)</button>
+          <button type="button" class="subnav-btn active" id="btnDashSubExecutive">Executive Summary</button>
+          <button type="button" class="subnav-btn" id="btnDashSubFindings">Findings & Remediation (<span id="findingsCountBadge">0</span>)</button>
         </div>
 
         <div class="subnav-right">
@@ -254,17 +254,17 @@
           <div class="server-control-bar">
             <span class="server-control-label">Target:</span>
             <select id="targetServerSelect" class="server-select">
-              <option value="local">● Localhost (Local Machine)</option>
+              <option value="local">Localhost (Local Machine)</option>
             </select>
-            <span id="serverConnectionBadge" class="badge-status status-checking">● Checking...</span>
-            <button type="button" id="btnDeleteTargetServer" class="btn btn-sm btn-danger" style="display:none;" title="Delete and decommission selected server">🗑️ Delete</button>
+            <span id="serverConnectionBadge" class="badge-status status-checking">Checking...</span>
+            <button type="button" id="btnDeleteTargetServer" class="btn btn-sm btn-danger" style="display:none;" title="Delete and decommission selected server">Delete</button>
           </div>
 
           <button id="btnOpenExport" class="btn btn-sm btn-secondary" title="Export Full Executive PDF / HTML Report">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
             Export PDF
           </button>
-          <button id="btnTriggerScan" class="btn btn-sm btn-primary">⚡ Run Audit</button>
+          <button id="btnTriggerScan" class="btn btn-sm btn-primary">Run Audit</button>
         </div>
       </div>
 
@@ -277,7 +277,7 @@
             <p>Run a new security audit or connect an Enterprise Push agent to populate metrics, scorecards, and charts.</p>
             <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
               <button id="btnStartFirstScan" class="btn btn-primary">Start Local Audit</button>
-              <button id="btnStartFirstRemote" class="btn btn-secondary">+ Connect Remote Server</button>
+              <button id="btnStartFirstRemote" class="btn btn-secondary">+ Connect Remote Agent</button>
             </div>
           </div>
         </div>
@@ -363,41 +363,76 @@
 
       <!-- VIEW B: Findings & Prioritized Remediation -->
       <div id="dashFindingsView" style="display: none;">
-        <div class="panel split-view" style="height: calc(100vh - 170px);">
-          <div class="sidebar-filters">
-            <div class="panel-header">Findings Filter</div>
-            <div class="panel-body">
-              <label>Severity</label>
-              <select id="severityFilterSelect" class="form-input">
-                <option value="ALL">All Severities</option>
-                <option value="Critical">Critical</option>
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
-              </select>
-              
-              <label style="margin-top:10px; display:block;">Category</label>
-              <select id="categoryFilterSelect" class="form-input">
-                <option value="ALL">All Categories</option>
-                <option value="Network & Perimeter">Network & Perimeter</option>
-                <option value="Identity & Access Control">Identity & Access Control</option>
-                <option value="Patch & Package Management">Patch & Package Management</option>
-                <option value="Logging & Forensics">Logging & Forensics</option>
-                <option value="System & Kernel">System & Kernel</option>
-              </select>
-              
-              <label style="margin-top:10px; display:block;">Search</label>
-              <input type="text" id="searchInput" class="form-input" placeholder="Search findings or test ID...">
-            </div>
-          </div>
-          
-          <div class="findings-content">
+        <div class="remediation-split-layout">
+          <!-- Main Area (Left): Prioritized Remediation Checklist -->
+          <div class="findings-main-pane panel">
             <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
-              <span>Prioritized Remediation Checklist</span>
-              <span id="remediationCountText" style="font-size: 11px; color: var(--text-muted);">Showing 0 items</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span>Prioritized Remediation Checklist</span>
+                <span id="remediationActiveFilterBadge" class="badge-priority priority-p2" style="display: none;">Filtered View</span>
+              </div>
+              <span id="remediationCountText" style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Showing 0 items</span>
             </div>
             <div id="remediationFeed" class="remediation-list">
-              <div class="empty-message">No findings loaded. Run an audit first.</div>
+              <div class="empty-message">No findings loaded. Run an audit or connect an agent first.</div>
+            </div>
+          </div>
+
+          <!-- Sidebar (Right Side): Finding Filter & Quick Stats -->
+          <div class="findings-filter-sidebar panel">
+            <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+              <span>Findings Filter</span>
+              <button type="button" id="btnResetFindingsFilter" class="btn-link-action" title="Reset all filters">Reset</button>
+            </div>
+            <div class="panel-body">
+              <div class="form-group">
+                <label for="searchInput">Search Findings / Test ID:</label>
+                <input type="text" id="searchInput" class="form-input" placeholder="e.g. SSH-001, PAM, firewall...">
+              </div>
+
+              <div class="form-group" style="margin-top: 14px;">
+                <label for="severityFilterSelect">Filter by Severity:</label>
+                <select id="severityFilterSelect" class="form-input" style="font-weight: 600;">
+                  <option value="ALL">All Severities</option>
+                  <option value="Critical">Critical Severity</option>
+                  <option value="High">High Severity</option>
+                  <option value="Medium">Medium Severity</option>
+                  <option value="Low">Low Severity</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="margin-top: 14px;">
+                <label for="categoryFilterSelect">Filter by Category:</label>
+                <select id="categoryFilterSelect" class="form-input" style="font-weight: 600;">
+                  <option value="ALL">All Categories</option>
+                  <option value="Network & Perimeter">Network & Perimeter</option>
+                  <option value="Identity & Access Control">Identity & Access Control</option>
+                  <option value="Patch & Package Management">Patch & Package Management</option>
+                  <option value="Logging & Forensics">Logging & Forensics</option>
+                  <option value="System & Kernel">System & Kernel</option>
+                </select>
+              </div>
+
+              <!-- Quick Severity Distribution Breakdown -->
+              <div class="filter-stat-box" style="margin-top: 16px;">
+                <div class="filter-stat-title">Severity Breakdown</div>
+                <div class="filter-stat-row">
+                  <span>Critical Vulnerabilities</span>
+                  <strong id="filterCritCount" class="badge-priority priority-p1">0</strong>
+                </div>
+                <div class="filter-stat-row">
+                  <span>High Risk Warnings</span>
+                  <strong id="filterHighCount" class="badge-priority priority-p2">0</strong>
+                </div>
+                <div class="filter-stat-row">
+                  <span>Medium Hardening Items</span>
+                  <strong id="filterMedCount" class="badge-priority priority-p3">0</strong>
+                </div>
+                <div class="filter-stat-row">
+                  <span>Low Suggestions</span>
+                  <strong id="filterLowCount" class="badge-status">0</strong>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -405,16 +440,16 @@
     </div>
 
     <!-- ===================================================================== -->
-    <!-- 2. SYSTEM OVERVIEW TAB -->
+    <!-- 2. AGENT OVERVIEW TAB -->
     <!-- ===================================================================== -->
     <div id="tabSystems" class="tab-pane">
       <div class="subnav-bar">
         <div class="subnav-left">
-          <button type="button" class="subnav-btn active" id="btnSysSubInventory">🖥️ Connected Servers Inventory</button>
-          <button type="button" class="subnav-btn" id="btnSysSubSetup">🚀 Enterprise Setup Guidelines</button>
+          <button type="button" class="subnav-btn active" id="btnSysSubInventory">Connected Agents Inventory</button>
+          <button type="button" class="subnav-btn" id="btnSysSubSetup">Enterprise Setup Guidelines</button>
         </div>
         <div class="subnav-right">
-          <button id="btnOpenServerModalFromSys" class="btn btn-sm btn-primary">+ Connect Remote Server</button>
+          <button id="btnOpenServerModalFromSys" class="btn btn-sm btn-primary">+ Connect Remote Agent</button>
         </div>
       </div>
 
@@ -422,14 +457,14 @@
       <div id="sysInventoryPane">
         <div class="panel">
           <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
-            <span>Enrolled Linux Infrastructure Assets</span>
+            <span>Enrolled Linux Agent Assets</span>
             <span id="systemsCountBadge" class="badge-status status-connected">1 Total Asset</span>
           </div>
           <div class="panel-body" style="padding: 0;">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Server Name / Host</th>
+                  <th>Agent Name / Host</th>
                   <th>IP / Address</th>
                   <th>Agent Mode</th>
                   <th>OS / Kernel</th>
@@ -441,7 +476,7 @@
                 </tr>
               </thead>
               <tbody id="systemsInventoryTableBody">
-                <tr><td colspan="9" style="text-align:center; padding: 20px;">Loading servers list...</td></tr>
+                <tr><td colspan="9" style="text-align:center; padding: 20px;">Loading agents list...</td></tr>
               </tbody>
             </table>
           </div>
@@ -482,11 +517,11 @@
             <div class="form-group" style="margin-top: 15px;">
               <label for="sysCronIntervalSelect">Audit Frequency Schedule (Cron):</label>
               <select id="sysCronIntervalSelect" class="form-input" style="font-weight:600;">
-                <option value="5m">⚡ Every 5 Minutes (Real-Time SecOps / Lab Mode)</option>
-                <option value="15m">⏱️ Every 15 Minutes (Active Hardening)</option>
-                <option value="30m">🕒 Every 30 Minutes</option>
-                <option value="1h">🕐 Every 1 Hour (Continuous Compliance)</option>
-                <option value="daily" selected>📅 Daily at 03:00 AM (Enterprise Baseline - Default)</option>
+                <option value="5m">Every 5 Minutes (Real-Time SecOps / Lab Mode)</option>
+                <option value="15m">Every 15 Minutes (Active Hardening)</option>
+                <option value="30m">Every 30 Minutes</option>
+                <option value="1h">Every 1 Hour (Continuous Compliance)</option>
+                <option value="daily" selected>Daily at 03:00 AM (Enterprise Baseline - Default)</option>
               </select>
             </div>
 
@@ -503,51 +538,163 @@
     </div>
 
     <!-- ===================================================================== -->
-    <!-- 3. COMPLIANCE TAB -->
+    <!-- 3. COMPLIANCE TAB (Frameworks with Individual Pie Charts & Color Coding) -->
     <!-- ===================================================================== -->
     <div id="tabCompliance" class="tab-pane">
       <div class="subnav-bar">
         <div class="subnav-left">
-          <span style="font-size:12px; font-weight:600; color:var(--text-muted); margin-right:8px;">Framework:</span>
-          <button type="button" class="subnav-btn active" data-framework="CIS">CIS Benchmarks</button>
-          <button type="button" class="subnav-btn" data-framework="NIST">NIST CSF</button>
+          <span style="font-size:12px; font-weight:700; color:var(--text-main); margin-right:8px;">Regulatory Frameworks:</span>
+          <button type="button" class="subnav-btn active" data-framework="CIS">CIS Linux Benchmark</button>
+          <button type="button" class="subnav-btn" data-framework="NIST">NIST CSF v2.0</button>
           <button type="button" class="subnav-btn" data-framework="ISO27001">ISO/IEC 27001</button>
-          <button type="button" class="subnav-btn" data-framework="PCIDSS">PCI-DSS 4.0</button>
+          <button type="button" class="subnav-btn" data-framework="PCIDSS">PCI-DSS v4.0</button>
           <button type="button" class="subnav-btn" data-framework="HIPAA">HIPAA Security</button>
+          <button type="button" class="subnav-btn" data-framework="SOC2">SOC 2 Type II</button>
         </div>
         <div class="subnav-right">
-          <span id="complianceFrameworkTitle" style="font-size:12px; font-weight:700; color:var(--brand-orange);">CIS Linux Benchmark</span>
+          <span id="complianceFrameworkTitle" style="font-size:12px; font-weight:700; color:var(--brand-orange);">CIS Linux Benchmark (Level 1 & 2)</span>
         </div>
       </div>
 
-      <div class="dashboard-grid" style="grid-template-columns: 1fr 2fr; margin-bottom: 15px;">
-        <!-- Compliance Overview Card -->
+      <!-- COMPLIANCE MULTI-FRAMEWORK PIE CHART GRID -->
+      <div class="compliance-framework-grid" id="complianceFrameworkGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px;">
+        <!-- CIS Card -->
+        <div class="compliance-card active" data-framework="CIS">
+          <div class="compliance-card-header">
+            <span class="compliance-card-title">CIS Linux</span>
+            <span class="compliance-card-pct" id="compCardScore_CIS">--%</span>
+          </div>
+          <div class="compliance-pie-wrapper">
+            <canvas id="chartComp_CIS" width="90" height="90"></canvas>
+          </div>
+          <div class="compliance-card-legend">
+            <span class="legend-dot green"></span><span id="compPassed_CIS">--</span>
+            <span class="legend-dot red"></span><span id="compFailed_CIS">--</span>
+          </div>
+        </div>
+
+        <!-- NIST Card -->
+        <div class="compliance-card" data-framework="NIST">
+          <div class="compliance-card-header">
+            <span class="compliance-card-title">NIST CSF v2.0</span>
+            <span class="compliance-card-pct" id="compCardScore_NIST">--%</span>
+          </div>
+          <div class="compliance-pie-wrapper">
+            <canvas id="chartComp_NIST" width="90" height="90"></canvas>
+          </div>
+          <div class="compliance-card-legend">
+            <span class="legend-dot green"></span><span id="compPassed_NIST">--</span>
+            <span class="legend-dot red"></span><span id="compFailed_NIST">--</span>
+          </div>
+        </div>
+
+        <!-- ISO 27001 Card -->
+        <div class="compliance-card" data-framework="ISO27001">
+          <div class="compliance-card-header">
+            <span class="compliance-card-title">ISO/IEC 27001</span>
+            <span class="compliance-card-pct" id="compCardScore_ISO27001">--%</span>
+          </div>
+          <div class="compliance-pie-wrapper">
+            <canvas id="chartComp_ISO27001" width="90" height="90"></canvas>
+          </div>
+          <div class="compliance-card-legend">
+            <span class="legend-dot green"></span><span id="compPassed_ISO27001">--</span>
+            <span class="legend-dot red"></span><span id="compFailed_ISO27001">--</span>
+          </div>
+        </div>
+
+        <!-- PCI-DSS Card -->
+        <div class="compliance-card" data-framework="PCIDSS">
+          <div class="compliance-card-header">
+            <span class="compliance-card-title">PCI-DSS 4.0</span>
+            <span class="compliance-card-pct" id="compCardScore_PCIDSS">--%</span>
+          </div>
+          <div class="compliance-pie-wrapper">
+            <canvas id="chartComp_PCIDSS" width="90" height="90"></canvas>
+          </div>
+          <div class="compliance-card-legend">
+            <span class="legend-dot green"></span><span id="compPassed_PCIDSS">--</span>
+            <span class="legend-dot red"></span><span id="compFailed_PCIDSS">--</span>
+          </div>
+        </div>
+
+        <!-- HIPAA Card -->
+        <div class="compliance-card" data-framework="HIPAA">
+          <div class="compliance-card-header">
+            <span class="compliance-card-title">HIPAA Security</span>
+            <span class="compliance-card-pct" id="compCardScore_HIPAA">--%</span>
+          </div>
+          <div class="compliance-pie-wrapper">
+            <canvas id="chartComp_HIPAA" width="90" height="90"></canvas>
+          </div>
+          <div class="compliance-card-legend">
+            <span class="legend-dot green"></span><span id="compPassed_HIPAA">--</span>
+            <span class="legend-dot red"></span><span id="compFailed_HIPAA">--</span>
+          </div>
+        </div>
+
+        <!-- SOC 2 Card -->
+        <div class="compliance-card" data-framework="SOC2">
+          <div class="compliance-card-header">
+            <span class="compliance-card-title">SOC 2 Type II</span>
+            <span class="compliance-card-pct" id="compCardScore_SOC2">--%</span>
+          </div>
+          <div class="compliance-pie-wrapper">
+            <canvas id="chartComp_SOC2" width="90" height="90"></canvas>
+          </div>
+          <div class="compliance-card-legend">
+            <span class="legend-dot green"></span><span id="compPassed_SOC2">--</span>
+            <span class="legend-dot red"></span><span id="compFailed_SOC2">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SELECTED FRAMEWORK DETAIL ROW -->
+      <div class="dashboard-grid" style="grid-template-columns: 320px 1fr; margin-bottom: 15px; gap: 15px;">
+        <!-- Detailed Framework Pie & Score Panel -->
         <div class="panel">
-          <div class="panel-header">Compliance Posture Score</div>
+          <div class="panel-header" id="compDetailPanelHeader">Framework Adherence Breakdown</div>
           <div class="panel-body" style="text-align:center;">
-            <div class="score-display">
-              <div class="score-value" id="complianceScoreNum" style="font-size:42px; color:var(--brand-orange);">--%</div>
-              <div class="score-label" id="complianceScoreLabel">Framework Adherence</div>
+            <div style="height: 160px; position: relative; display: flex; align-items: center; justify-content: center;">
+              <canvas id="compDetailPieChart"></canvas>
             </div>
-            <div style="margin-top: 15px; font-size:12px; text-align: left; line-height: 1.6; border-top:1px solid var(--border-color); padding-top:10px;">
-              <div><strong>Evaluated Host:</strong> <span id="compHostVal">--</span></div>
-              <div><strong>Mapped Controls:</strong> <span id="compTotalControls">18 Controls</span></div>
-              <div><strong>Compliant Controls:</strong> <span id="compPassedControls" style="color:var(--ok-color);">--</span></div>
-              <div><strong>Non-Compliant:</strong> <span id="compFailedControls" style="color:var(--crit-color);">--</span></div>
+            <div class="score-display" style="margin-top: 8px;">
+              <div class="score-value" id="complianceScoreNum" style="font-size:36px; color:var(--brand-orange);">--%</div>
+              <div class="score-label" id="complianceScoreLabel">Adherence Rating</div>
+            </div>
+
+            <!-- Standard Color Code Legend -->
+            <div class="compliance-color-legend" style="margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px; text-align: left; border-top: 1px solid var(--border-color); padding-top: 10px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="legend-dot green"></span>
+                <span><strong>Compliant (Low):</strong> <span id="compPassedControls" style="color: #10b981;">--</span></span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="legend-dot yellow"></span>
+                <span><strong>Partial / Review:</strong> <span id="compPartialControls" style="color: #f59e0b;">0</span></span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="legend-dot red"></span>
+                <span><strong>Non-Compliant:</strong> <span id="compFailedControls" style="color: #ef4444;">--</span></span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="legend-dot blue"></span>
+                <span><strong>Informational:</strong> <span id="compInfoControls" style="color: #3b82f6;">--</span></span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Framework Description & Reference -->
+        <!-- Framework Guidance & Legal References -->
         <div class="panel">
-          <div class="panel-header">Framework Guidance & References</div>
+          <div class="panel-header">Regulatory Mandate & Enforcement Guidance</div>
           <div class="panel-body" style="font-size:12px; line-height:1.6;">
-            <p id="compFrameworkDesc">
-              The <strong>Center for Internet Security (CIS) Benchmarks</strong> provide consensus-based best practice guidelines for securing Linux operating systems. Lynislens maps low-level system checks to CIS Level 1 and Level 2 server profile recommendations.
+            <p id="compFrameworkDesc" style="color: var(--text-main); font-weight: 500;">
+              The <strong>Center for Internet Security (CIS) Benchmarks</strong> provide consensus-based best practice guidelines for securing Linux operating systems.
             </p>
-            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:10px; margin-top:10px;">
-              <strong>Key Reference Controls Audited:</strong>
-              <ul style="margin: 6px 0 0 16px; padding:0; color:#475569;">
+            <div id="compGuidanceBox" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:12px; margin-top:10px;">
+              <strong>Key Reference Controls & Safeguards Audited:</strong>
+              <ul id="compReferenceList" style="margin: 6px 0 0 16px; padding:0; color:#475569;">
                 <li>SSH Daemon Hardening & Root Login Restrictions (CIS 5.2)</li>
                 <li>Firewall & Ingress Packet Filtering (CIS 3.5)</li>
                 <li>Password Complexity & PAM Authentication Rules (CIS 5.4)</li>
@@ -569,7 +716,7 @@
                 <th>Requirement / Control Description</th>
                 <th>Mapped Lynis Check</th>
                 <th>Category</th>
-                <th>Status</th>
+                <th>Risk & Compliance Status</th>
               </tr>
             </thead>
             <tbody id="complianceTableBody">
@@ -586,7 +733,7 @@
     <div id="tabImprovement" class="tab-pane">
       <div class="subnav-bar">
         <div class="subnav-left">
-          <span style="font-size:12px; font-weight:700; color:var(--text-main);">🎯 Automated Prioritized Security Roadmap</span>
+          <span style="font-size:12px; font-weight:700; color:var(--text-main);">Automated Prioritized Security Roadmap</span>
         </div>
         <div class="subnav-right">
           <span style="font-size:12px; color:var(--text-muted);">Ranked by Risk Reduction ROI & Implementation Effort</span>
@@ -611,7 +758,7 @@
     <div id="tabReporting" class="tab-pane">
       <div class="subnav-bar">
         <div class="subnav-left">
-          <span style="font-size:12px; font-weight:700; color:var(--text-main);">📑 Executive & Technical Report Center</span>
+          <span style="font-size:12px; font-weight:700; color:var(--text-main);">Executive & Technical Report Center</span>
         </div>
       </div>
 
@@ -622,7 +769,7 @@
           <div class="panel-body" style="font-size:12px;">
             <p>Formatted printable report including executive scorecard, visual radar grading, category breakdown, and summary table.</p>
             <button type="button" id="btnReportExportHtml" class="btn btn-primary btn-block" style="margin-top:15px;">
-              📄 View & Print Report
+              View & Print Report
             </button>
           </div>
         </div>
@@ -633,7 +780,7 @@
           <div class="panel-body" style="font-size:12px;">
             <p>Download the exact key-value <code>lynis-report.dat</code> file generated during audit for archival or SIEM ingestion.</p>
             <button type="button" id="btnReportExportRaw" class="btn btn-secondary btn-block" style="margin-top:15px;">
-              💾 Download .dat File
+              Download .dat File
             </button>
           </div>
         </div>
@@ -644,7 +791,7 @@
           <div class="panel-body" style="font-size:12px;">
             <p>Export complete structured JSON payload including all raw metrics, findings, categories, and remediation advice.</p>
             <button type="button" id="btnReportExportJson" class="btn btn-secondary btn-block" style="margin-top:15px;">
-              📦 Download JSON
+              Download JSON
             </button>
           </div>
         </div>
@@ -680,7 +827,7 @@
     <div id="tabSettings" class="tab-pane">
       <div class="subnav-bar">
         <div class="subnav-left">
-          <span style="font-size:12px; font-weight:700; color:var(--text-main);">⚙️ Enterprise Suite Settings & Policies</span>
+          <span style="font-size:12px; font-weight:700; color:var(--text-main);">Enterprise Suite Settings & Policies</span>
         </div>
       </div>
 
@@ -697,16 +844,16 @@
             <div class="form-group" style="margin-top: 10px;">
               <label for="settingsCronIntervalSelect">Default Agent Audit Frequency (Cron):</label>
               <select id="settingsCronIntervalSelect" class="form-input" style="font-weight:600;">
-                <option value="5m">⚡ Every 5 Minutes (Real-Time SecOps / Lab Mode)</option>
-                <option value="15m">⏱️ Every 15 Minutes (Active Hardening)</option>
-                <option value="30m">🕒 Every 30 Minutes</option>
-                <option value="1h">🕐 Every 1 Hour (Continuous Compliance)</option>
-                <option value="daily" selected>📅 Daily at 03:00 AM (Enterprise Baseline - Default)</option>
+                <option value="5m">Every 5 Minutes (Real-Time SecOps / Lab Mode)</option>
+                <option value="15m">Every 15 Minutes (Active Hardening)</option>
+                <option value="30m">Every 30 Minutes</option>
+                <option value="1h">Every 1 Hour (Continuous Compliance)</option>
+                <option value="daily" selected>Daily at 03:00 AM (Enterprise Baseline - Default)</option>
               </select>
             </div>
             <div style="display:flex; gap:10px; margin-top:10px;">
-              <button type="button" id="btnSettingsRefreshToken" class="btn btn-secondary btn-sm">🔄 Generate New Token</button>
-              <button type="button" id="btnSettingsCopyCmd" class="btn btn-primary btn-sm">📋 Copy Install Command</button>
+              <button type="button" id="btnSettingsRefreshToken" class="btn btn-secondary btn-sm">Generate New Token</button>
+              <button type="button" id="btnSettingsCopyCmd" class="btn btn-primary btn-sm">Copy Install Command</button>
             </div>
           </div>
         </div>
@@ -723,7 +870,7 @@
               <label>Auditor Name:</label>
               <input type="text" id="settingsAuditorName" class="form-input" value="SecOps Auditor">
             </div>
-            <button type="button" id="btnSettingsSaveProfile" class="btn btn-primary btn-sm" style="margin-top:5px;">💾 Save Profile Details</button>
+            <button type="button" id="btnSettingsSaveProfile" class="btn btn-primary btn-sm" style="margin-top:5px;">Save Profile Details</button>
           </div>
         </div>
       </div>
@@ -771,10 +918,10 @@
     <!-- Mode Selector Tabs inside Modal -->
     <div class="modal-tab-header">
       <button type="button" class="modal-tab-btn active" id="tabBtnPush" data-target="modalTabPush">
-        🚀 1-Line Setup (Enterprise Agent)
+        1-Line Setup (Enterprise Agent)
       </button>
       <button type="button" class="modal-tab-btn" id="tabBtnSSH" data-target="modalTabSSH">
-        🔌 Direct SSH (Lab Mode)
+        Direct SSH (Lab Mode)
       </button>
     </div>
 
@@ -813,11 +960,11 @@
         <div class="form-group" style="margin-top: 15px;">
           <label for="agentCronIntervalSelect">Audit Frequency Schedule (Cron):</label>
           <select id="agentCronIntervalSelect" class="form-input" style="font-weight:600;">
-            <option value="5m">⚡ Every 5 Minutes (Real-Time SecOps / Lab Mode)</option>
-            <option value="15m">⏱️ Every 15 Minutes (Active Hardening)</option>
-            <option value="30m">🕒 Every 30 Minutes</option>
-            <option value="1h">🕐 Every 1 Hour (Continuous Compliance)</option>
-            <option value="daily" selected>📅 Daily at 03:00 AM (Enterprise Baseline - Default)</option>
+            <option value="5m">Every 5 Minutes (Real-Time SecOps / Lab Mode)</option>
+            <option value="15m">Every 15 Minutes (Active Hardening)</option>
+            <option value="30m">Every 30 Minutes</option>
+            <option value="1h">Every 1 Hour (Continuous Compliance)</option>
+            <option value="daily" selected>Daily at 03:00 AM (Enterprise Baseline - Default)</option>
           </select>
         </div>
 
@@ -835,7 +982,7 @@
         </div>
 
         <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-          <button type="button" id="btnRefreshTokens" class="btn btn-secondary btn-sm">🔄 Generate New Token</button>
+          <button type="button" id="btnRefreshTokens" class="btn btn-secondary btn-sm">Generate New Token</button>
           <button type="button" id="btnDoneAgent" class="btn btn-primary">Done / Close</button>
         </div>
       </div>
@@ -887,7 +1034,7 @@
           </div>
 
           <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-            <button type="button" id="btnTestConnection" class="btn btn-secondary">⚡ Test SSH Connection</button>
+            <button type="button" id="btnTestConnection" class="btn btn-secondary">Test SSH Connection</button>
             <div style="display: flex; gap: 8px;">
               <button type="button" id="btnCancelServer" class="btn btn-secondary">Cancel</button>
               <button type="submit" id="btnSaveServer" class="btn btn-primary">Save & Connect</button>
