@@ -1822,30 +1822,10 @@ details[open] .finding-dropdown-summary {
   margin-bottom: 6px;
 }
 
-/* Toasts */
-.toast-container {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 99999;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+/* Toasts (Disabled) */
+.toast-container,
 .toast {
-  background: #0f172a;
-  color: #fff;
-  padding: 10px 16px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  border-left: 4px solid var(--brand-orange);
-  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
-  animation: slideIn 0.2s ease-out;
-}
-@keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  display: none !important;
 }
 
 /* ==========================================================================
@@ -3206,19 +3186,6 @@ details[open] .finding-dropdown-summary {
     padding: 8px 10px;
     font-size: 11px;
     gap: 4px;
-  }
-
-  /* Toast Messages */
-  .toast-container {
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
-    max-width: calc(100vw - 24px);
-  }
-
-  .toast {
-    width: 100%;
-    justify-content: center;
   }
 }
 
