@@ -21,7 +21,7 @@
 </head>
 <body>
 
-<!-- AUTHENTICATION & ENTERPRISE REGISTRATION OVERLAY -->
+<!-- AUTHENTICATION OVERLAY -->
 <div id="authOverlay" class="auth-overlay">
   <div class="auth-window">
     <div class="auth-header">
@@ -34,61 +34,18 @@
       </div>
     </div>
 
-    <!-- Auth Tabs: Sign In vs Register -->
-    <div class="auth-tabs">
-      <button type="button" class="auth-tab-btn active" id="authTabBtnLogin">Sign In</button>
-      <button type="button" class="auth-tab-btn" id="authTabBtnRegister">Enterprise Registration</button>
-    </div>
-
     <div class="auth-body">
-      <!-- Form 1: Sign In -->
+      <!-- Sign In Form -->
       <form id="loginForm" class="auth-pane active">
         <div class="form-group">
           <label for="loginAuditorName">Auditor / Operator Name</label>
-          <input type="text" id="loginAuditorName" class="form-input" placeholder="e.g. security-lead" value="SecOps Auditor">
+          <input type="text" id="loginAuditorName" class="form-input" placeholder="e.g. security-lead" value="SecOps Auditor" required>
         </div>
         <div class="form-group">
           <label for="ownerPassword">Master Access Password</label>
-          <input type="password" id="ownerPassword" class="form-input" placeholder="Enter platform access password">
+          <input type="password" id="ownerPassword" class="form-input" placeholder="Enter platform access password" required>
         </div>
         <button type="submit" id="btnAuthLogin" class="btn btn-primary btn-block">Authenticate & Launch Suite</button>
-      </form>
-
-      <!-- Form 2: Enterprise Registration (TrikuSec / Lynis Benchmark) -->
-      <form id="registerForm" class="auth-pane">
-        <div class="form-group">
-          <label for="regCompanyName">Company / Organization <span class="required">*</span></label>
-          <input type="text" id="regCompanyName" class="form-input" placeholder="e.g. Acme Cloud Corp" required value="Acme Enterprise Security">
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <div class="form-group">
-            <label for="regAuditorName">Lead Auditor Name <span class="required">*</span></label>
-            <input type="text" id="regAuditorName" class="form-input" placeholder="e.g. Alex Mercer" required value="Alex Mercer">
-          </div>
-          <div class="form-group">
-            <label for="regRole">Role & Privilege <span class="required">*</span></label>
-            <select id="regRole" class="form-input">
-              <option value="Enterprise Security Lead">Enterprise Security Lead (Admin)</option>
-              <option value="SecOps Engineer">SecOps Engineer (Operator)</option>
-              <option value="Compliance Auditor">Compliance Auditor (Read/Export)</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="regBenchmark">Target Compliance Benchmark</label>
-          <select id="regBenchmark" class="form-input">
-            <option value="CIS Linux Benchmark (Level 2 Server)">CIS Linux Benchmark (Level 2 Server)</option>
-            <option value="NIST Cybersecurity Framework (CSF v2.0)">NIST Cybersecurity Framework (CSF v2.0)</option>
-            <option value="PCI-DSS v4.0 Compliance Baseline">PCI-DSS v4.0 Compliance Baseline</option>
-            <option value="ISO/IEC 27001 ISMS Controls">ISO/IEC 27001 ISMS Controls</option>
-            <option value="Standard Production Hardening">Standard Production Hardening</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="regPassword">Set Master Password <span class="required">*</span></label>
-          <input type="password" id="regPassword" class="form-input" placeholder="Create master authentication password" required value="admin123">
-        </div>
-        <button type="submit" id="btnRegisterSubmit" class="btn btn-primary btn-block">Register & Initialize Enterprise Hub</button>
       </form>
     </div>
   </div>
@@ -192,11 +149,18 @@
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
         Export Raw (.dat)
       </button>
+
+      <!-- Quick Command Palette Spotlight Trigger Button -->
+      <button type="button" id="btnOpenCmdPalette" class="btn-menu-action btn-cmd-spotlight-trigger" title="Quick Search & Navigation (Ctrl+K)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <span>Command Palette</span>
+        <kbd class="cmd-kbd">Ctrl+K</kbd>
+      </button>
     </div>
 
     <!-- Right Menu Section: Profile & Logout -->
     <div class="menu-right-section">
-      <div class="profile-privilege-pill" id="profilePill" title="Auditor Profile & Role Privilege">
+      <div class="profile-privilege-pill" id="profilePill" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false" title="Auditor Profile & Role Privilege">
         <span class="profile-avatar">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
         </span>
@@ -204,11 +168,65 @@
           <span class="profile-name" id="userProfileName">SecOps Auditor</span>
           <span class="profile-role" id="userProfileRole">Enterprise Security Lead</span>
         </div>
+        <svg class="profile-arrow" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 12 15 18 9"></polyline></svg>
       </div>
 
-      <button id="btnLogout" class="btn-logout" title="Sign out of Lynislens Enterprise">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-        <span>Logout</span>
+      <!-- User Profile Dropdown Menu -->
+      <div id="profileDropdownMenu" class="profile-dropdown-menu" style="display: none;">
+        <div class="profile-dropdown-header">
+          <div class="profile-header-avatar" id="dropdownAvatar">SA</div>
+          <div class="profile-header-text">
+            <span class="profile-header-name" id="dropdownUserName">SecOps Auditor</span>
+            <span class="profile-header-role" id="dropdownUserRole">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"></circle></svg>
+              Enterprise Security Lead
+            </span>
+            <span class="profile-header-badge">SUPERADMIN • ROOT ACCESS</span>
+          </div>
+        </div>
+        <div class="profile-dropdown-items">
+          <button type="button" class="profile-dropdown-item" id="dropdownGoSettings">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Profile & Security Settings</span>
+          </button>
+          <button type="button" class="profile-dropdown-item" id="dropdownChangePassword">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span>Change Master Password</span>
+          </button>
+          <button type="button" class="profile-dropdown-item" id="dropdownGoSystems">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+            <span>Managed Infrastructure Assets</span>
+          </button>
+          <button type="button" class="profile-dropdown-item" id="dropdownGoHistory">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span>Audit Run History</span>
+          </button>
+          <div class="profile-dropdown-divider"></div>
+          <button type="button" class="profile-dropdown-item item-danger" id="dropdownLogout">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span>Sign Out (Lock Session)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Theme Switcher (Dark Mode / Light Mode Toggle) -->
+      <button type="button" id="btnThemeToggle" class="btn-theme-toggle" title="Toggle Dark / Light Theme" aria-label="Toggle Theme">
+        <!-- Sun Icon (shown in dark mode) -->
+        <svg class="theme-icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <!-- Moon Icon (shown in light mode) -->
+        <svg class="theme-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
       </button>
     </div>
   </div>
@@ -303,7 +321,7 @@
             </div>
 
             <p id="radarStageTitle" style="margin-top:20px; font-weight:600;">Connecting to scanner...</p>
-            <div style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; margin: 10px 0;">
+            <div style="background: var(--border-color); height: 8px; border-radius: 4px; overflow: hidden; margin: 10px 0;">
               <div id="radarProgressBar" style="background: var(--brand-orange); height: 100%; width: 5%; transition: width 0.3s;"></div>
             </div>
             <div id="radarTickerMessage" class="log-window">Starting Lynis execution worker...</div>
@@ -321,15 +339,19 @@
                   <div class="score-label">Overall Security Score</div>
                   <div class="grade-badge" id="gradeBadge">Grade --</div>
                 </div>
-                <div class="meta-info">
-                  <div><strong>Host:</strong> <span id="hostNameVal">--</span></div>
-                  <div><strong>Hardening Index:</strong> <span id="hardeningIndexVal" class="mono-stat">-- / 100</span></div>
-                  <div><strong>OS:</strong> <span id="osNameVal">--</span></div>
-                  <div><strong>Kernel:</strong> <span id="kernelVal">--</span></div>
-                  <div><strong>Risk Level:</strong> <span id="riskLevelPill">--</span></div>
-                  <div><strong>Firewall Status:</strong> <span id="metricFirewall">--</span></div>
-                  <div><strong>Open Warnings:</strong> <span id="metricWarnings" class="badge-sev sev-high">0</span></div>
-                  <div><strong>Suggestions:</strong> <span id="metricSuggestions" class="badge-sev sev-low">0</span></div>
+                <div class="meta-info-grid">
+                  <div class="meta-info-col">
+                    <div class="meta-item"><strong>Host</strong><span id="hostNameVal">--</span></div>
+                    <div class="meta-item"><strong>OS</strong><span id="osNameVal">--</span></div>
+                    <div class="meta-item"><strong>Kernel</strong><span id="kernelVal">--</span></div>
+                    <div class="meta-item"><strong>Firewall Status</strong><span id="metricFirewall">--</span></div>
+                  </div>
+                  <div class="meta-info-col">
+                    <div class="meta-item"><strong>Hardening Index</strong><span id="hardeningIndexVal" class="mono-stat">-- / 100</span></div>
+                    <div class="meta-item"><strong>Risk Level</strong><span id="riskLevelPill">--</span></div>
+                    <div class="meta-item"><strong>Open Warnings</strong><span id="metricWarnings" class="badge-sev sev-high">0</span></div>
+                    <div class="meta-item"><strong>Suggestions</strong><span id="metricSuggestions" class="badge-sev sev-low">0</span></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -337,16 +359,94 @@
             <!-- Findings Distribution: Open-Middle Doughnut Chart -->
             <div class="panel chart-panel">
               <div class="panel-header">Findings Distribution</div>
-              <div class="panel-body chart-container">
-                <canvas id="severityPieChart"></canvas>
+              <div class="panel-body chart-container" style="display: flex; flex-direction: column;">
+                <div style="flex: 1; min-height: 175px; position: relative;">
+                  <canvas id="severityPieChart"></canvas>
+                </div>
+                <div class="chart-legend-grid" id="pieChartLegend">
+                  <div class="legend-item"><span class="legend-dot dot-red"></span><span class="legend-label">Critical / High</span><strong id="legendCountRed" class="legend-val">0</strong></div>
+                  <div class="legend-item"><span class="legend-dot dot-yellow"></span><span class="legend-label">Medium Risk</span><strong id="legendCountYellow" class="legend-val">0</strong></div>
+                  <div class="legend-item"><span class="legend-dot dot-green"></span><span class="legend-label">Low / Healthy</span><strong id="legendCountGreen" class="legend-val">0</strong></div>
+                  <div class="legend-item"><span class="legend-dot dot-blue"></span><span class="legend-label">Info / N/A</span><strong id="legendCountBlue" class="legend-val">0</strong></div>
+                </div>
               </div>
             </div>
 
             <!-- Category Breakdown Bar Chart -->
             <div class="panel chart-panel">
-              <div class="panel-header">Category Breakdown</div>
-              <div class="panel-body chart-container">
-                <canvas id="categoryBarChart"></canvas>
+              <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>Category Breakdown</span>
+                <span id="categoryAvgBadge" class="badge-status status-info" style="font-size: 9.5px;">Avg: --%</span>
+              </div>
+              <div class="panel-body chart-container" style="display: flex; flex-direction: column;">
+                <div style="flex: 1; min-height: 175px; position: relative;">
+                  <canvas id="categoryBarChart"></canvas>
+                </div>
+                <!-- Category Insights & Domain Intelligence Footer -->
+                <div class="category-insights-grid" id="categoryInsightsGrid">
+                  <div class="cat-insight-card cat-insight-strong" id="catInsightStrong" title="Strongest security category">
+                    <div class="cat-insight-header">
+                      <span class="cat-insight-tag tag-strong">● STRONGEST</span>
+                      <span class="cat-insight-score" id="strongestCatScore">--%</span>
+                    </div>
+                    <div class="cat-insight-name" id="strongestCatName">Evaluating...</div>
+                  </div>
+                  <div class="cat-insight-card cat-insight-weak" id="catInsightWeak" title="Weakest security category — Click to filter findings" style="cursor: pointer;">
+                    <div class="cat-insight-header">
+                      <span class="cat-insight-tag tag-weak">▲ PRIORITY FOCUS</span>
+                      <span class="cat-insight-score" id="weakestCatScore">--%</span>
+                    </div>
+                    <div class="cat-insight-name" id="weakestCatName">Evaluating...</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ROW 2: Enterprise Posture Intelligence (Trend Line, 6-Domain Radar, & Attack Surface Exposure) -->
+          <div class="dashboard-grid dashboard-grid-compact" style="margin-top: 12px; margin-bottom: 0;">
+            <!-- Historical Hardening Score Trend Line Chart -->
+            <div class="panel chart-panel">
+              <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px;">
+                <span>Historical Hardening Score Trend</span>
+                <span class="badge-status status-info" style="font-size:9.5px;">Timeline Analytics</span>
+              </div>
+              <div class="panel-body chart-container" style="min-height: 135px; height: 135px; padding: 6px 12px;">
+                <canvas id="historyTrendChart"></canvas>
+              </div>
+            </div>
+
+            <!-- 6-Domain Security Defense Radar Chart -->
+            <div class="panel chart-panel">
+              <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px;">
+                <span>6-Domain Defense Radar</span>
+                <span class="badge-status status-connected" style="font-size:9.5px;">Multi-Vector</span>
+              </div>
+              <div class="panel-body chart-container" style="min-height: 135px; height: 135px; padding: 4px 8px;">
+                <canvas id="defenseRadarChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Attack Surface & Listening Port Exposure Table -->
+            <div class="panel">
+              <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px;">
+                <span>Attack Surface & Listening Ports</span>
+                <span class="badge-status status-connected" id="portExposureBadge" style="font-size:9.5px;">Protected</span>
+              </div>
+              <div class="panel-body" style="padding: 0; height: 135px; overflow-y: auto;">
+                <table class="data-table" style="font-size: 11px; width: 100%;">
+                  <thead>
+                    <tr>
+                      <th style="padding: 4px 8px;">Port</th>
+                      <th style="padding: 4px 8px;">Service</th>
+                      <th style="padding: 4px 8px;">Protocol</th>
+                      <th style="padding: 4px 8px;">Shield</th>
+                    </tr>
+                  </thead>
+                  <tbody id="attackSurfaceTableBody">
+                    <tr><td colspan="4" style="text-align:center; padding: 15px; color: var(--text-muted);">No open listening ports detected.</td></tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -363,8 +463,27 @@
                 <span>Prioritized Remediation Checklist</span>
                 <span id="remediationActiveFilterBadge" class="badge-priority priority-p2" style="display: none;">Filtered View</span>
               </div>
-              <span id="remediationCountText" style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Showing 0 items</span>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <button type="button" id="btnToggleAllFindingDropdowns" class="btn btn-sm btn-secondary" style="font-size: 10.5px; padding: 2px 8px;">Expand All</button>
+                <span id="remediationCountText" style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Showing 0 items</span>
+              </div>
             </div>
+            
+            <!-- BATCH REMEDIATION PLAYBOOK ACTION TOOLBAR -->
+            <div class="batch-playbook-bar" id="batchPlaybookBar">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 11.5px; font-weight: 600; color: var(--text-main); user-select: none;">
+                  <input type="checkbox" id="chkSelectAllFindings" style="cursor: pointer;">
+                  <span>Select All Findings</span>
+                </label>
+                <span id="batchSelectedCountBadge" class="badge-status status-info" style="display: none; font-size: 10px;">0 Selected</span>
+              </div>
+              <button type="button" id="btnGenerateBatchPlaybook" class="btn btn-sm btn-primary btn-copy-cmd" style="padding: 4px 10px; font-size: 11px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                <span>Generate Batch Playbook (<span id="batchPlaybookCount">0</span>)</span>
+              </button>
+            </div>
+
             <div id="remediationFeed" class="remediation-list">
               <div class="empty-message">No findings loaded. Run an audit or connect an agent first.</div>
             </div>
@@ -521,7 +640,13 @@
               <label>1-Line Linux Onboarding Command for this Cluster:</label>
               <div class="terminal-command-box">
                 <code id="sysSetupCommandText">curl -sSL http://127.0.0.1:8000/install.sh | sudo bash -s -- --token LL-TOKEN-DEMO --server http://127.0.0.1:8000 --cron daily</code>
-                <button type="button" id="btnCopySysCmd" class="btn btn-sm btn-primary">Copy Command</button>
+                <button type="button" id="btnCopySysCmd" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span>Copy Command</span>
+                </button>
               </div>
             </div>
           </div>
@@ -684,9 +809,9 @@
             <p id="compFrameworkDesc" style="color: var(--text-main); font-weight: 500;">
               The <strong>Center for Internet Security (CIS) Benchmarks</strong> provide consensus-based best practice guidelines for securing Linux operating systems.
             </p>
-            <div id="compGuidanceBox" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:12px; margin-top:10px;">
-              <strong>Key Reference Controls & Safeguards Audited:</strong>
-              <ul id="compReferenceList" style="margin: 6px 0 0 16px; padding:0; color:#475569;">
+            <div id="compGuidanceBox" class="meta-item" style="margin-top:10px; padding:12px;">
+              <strong style="color:var(--text-main); margin-bottom:4px;">Key Reference Controls & Safeguards Audited:</strong>
+              <ul id="compReferenceList" style="margin: 6px 0 0 16px; padding:0; color:var(--text-muted);">
                 <li>SSH Daemon Hardening & Root Login Restrictions (CIS 5.2)</li>
                 <li>Firewall & Ingress Packet Filtering (CIS 3.5)</li>
                 <li>Password Complexity & PAM Authentication Rules (CIS 5.4)</li>
@@ -755,13 +880,13 @@
       </div>
 
       <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
-        <!-- Card 1: Executive HTML Report -->
+        <!-- Card 1: Executive HTML/PDF Report -->
         <div class="panel">
-          <div class="panel-header">Executive Security Posture Report</div>
+          <div class="panel-header">Executive Security Posture Report (PDF)</div>
           <div class="panel-body" style="font-size:12px;">
-            <p>Formatted printable report including executive scorecard, visual radar grading, category breakdown, and summary table.</p>
+            <p>Comprehensive 6-section printable PDF report: Executive Summary, Scope & Methodology, Findings Dashboard, Technical Evidence, Prioritized Remediation Roadmap, and Appendices.</p>
             <button type="button" id="btnReportExportHtml" class="btn btn-primary btn-block" style="margin-top:15px;">
-              View & Print Report
+              View & Print PDF Report
             </button>
           </div>
         </div>
@@ -845,7 +970,13 @@
             </div>
             <div style="display:flex; gap:10px; margin-top:10px;">
               <button type="button" id="btnSettingsRefreshToken" class="btn btn-secondary btn-sm">Generate New Token</button>
-              <button type="button" id="btnSettingsCopyCmd" class="btn btn-primary btn-sm">Copy Install Command</button>
+              <button type="button" id="btnSettingsCopyCmd" class="btn btn-primary btn-sm btn-copy-cmd" title="Copy Install Command">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span>Copy Install Command</span>
+              </button>
             </div>
           </div>
         </div>
@@ -867,7 +998,48 @@
         </div>
       </div>
 
-      <!-- Setting Card 3: Enrolled Infrastructure Management -->
+      <!-- Setting Card 3: Enterprise Webhook & SecOps Alerts -->
+      <div class="panel" style="margin-top: 16px;">
+        <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>SecOps Webhook & Alerting Center</span>
+          <span class="badge-status status-connected" style="font-size:9.5px;">Real-Time Triggers</span>
+        </div>
+        <div class="panel-body" style="font-size:12px;">
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+            <div class="form-group">
+              <label for="settingsWebhookType">Webhook Provider / Channel:</label>
+              <select id="settingsWebhookType" class="form-input">
+                <option value="slack">Slack Incoming Webhook</option>
+                <option value="discord">Discord Channel Webhook</option>
+                <option value="teams">Microsoft Teams Webhook</option>
+                <option value="generic">Custom REST / SIEM JSON Webhook</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="settingsWebhookTrigger">Trigger Alert Threshold:</label>
+              <select id="settingsWebhookTrigger" class="form-input">
+                <option value="critical">Critical Vulnerabilities Only</option>
+                <option value="high" selected>Critical & High Severity Findings</option>
+                <option value="score_drop">When Hardening Index drops below 70</option>
+                <option value="all">Every Completed Audit Scan</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="settingsWebhookUrl">Target Webhook URL Endpoint:</label>
+            <input type="url" id="settingsWebhookUrl" class="form-input" placeholder="https://hooks.slack.com/services/... or https://discord.com/api/webhooks/...">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+            <button type="button" id="btnTestWebhook" class="btn btn-secondary btn-sm">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"></path><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+              Send Test Alert Payload
+            </button>
+            <button type="button" id="btnSaveWebhook" class="btn btn-primary btn-sm">Save Webhook Integration</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Setting Card 4: Enrolled Infrastructure Management -->
       <div class="panel" style="margin-top: 16px;">
         <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
           <span>Enrolled Infrastructure Assets & Decommissioning</span>
@@ -964,7 +1136,13 @@
           <label>1-Line Linux Onboarding Command:</label>
           <div class="terminal-command-box">
             <code id="agentCommandText">curl -sSL http://127.0.0.1:8000/install.sh | sudo bash -s -- --token LL-TOKEN-DEMO --server http://127.0.0.1:8000 --cron daily</code>
-            <button type="button" id="btnCopyAgentCmd" class="btn btn-sm btn-primary">Copy Command</button>
+            <button type="button" id="btnCopyAgentCmd" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy Command</span>
+            </button>
           </div>
         </div>
 
@@ -1115,6 +1293,73 @@
     </div>
     <div class="modal-footer" style="text-align: center;">
       <button class="btn btn-primary" onclick="document.getElementById('aboutModal').classList.remove('active');">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Batch Remediation Playbook Generator -->
+<div id="playbookModal" class="modal-overlay">
+  <div class="modal-window" style="width: 750px; max-width: 95vw;">
+    <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        <h3 style="margin:0; font-size:14px;">Automated Batch Remediation Playbook</h3>
+      </div>
+      <button id="btnClosePlaybookModal" class="btn-close">&times;</button>
+    </div>
+    <div class="modal-body" style="padding: 15px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span style="font-size:12px; color:var(--text-muted);" id="playbookSummaryText">Compiled executable shell script for selected findings.</span>
+        <div style="display:flex; gap:6px;">
+          <button type="button" id="btnPlaybookFormatSh" class="btn btn-sm btn-secondary active" style="font-size:10.5px; padding: 2px 8px;">Shell (.sh)</button>
+          <button type="button" id="btnPlaybookFormatAnsible" class="btn btn-sm btn-secondary" style="font-size:10.5px; padding: 2px 8px;">Ansible (.yml)</button>
+        </div>
+      </div>
+      <div class="playbook-code-container" style="background:#0f172a; border-radius:6px; padding:12px; position:relative;">
+        <pre id="playbookCodeViewer" style="color:#38bdf8; font-family:var(--font-mono); font-size:11.5px; line-height:1.45; max-height:350px; overflow-y:auto; margin:0; white-space:pre-wrap;"></pre>
+      </div>
+    </div>
+    <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+      <button type="button" id="btnDownloadPlaybook" class="btn btn-secondary btn-sm">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Download Script
+      </button>
+      <div style="display:flex; gap:8px;">
+        <button type="button" id="btnClosePlaybook" class="btn btn-secondary">Close</button>
+        <button type="button" id="btnCopyPlaybook" class="btn btn-primary btn-copy-cmd">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <span>Copy Full Playbook</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Global Spotlight Command Palette (Ctrl+K) -->
+<div id="commandPaletteModal" class="modal-overlay cmd-palette-overlay">
+  <div class="cmd-palette-window">
+    <div class="cmd-palette-input-wrap">
+      <svg class="cmd-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" id="cmdPaletteInput" class="cmd-palette-input" placeholder="Type a test ID (e.g. PKGS-7392), server, or section..." autocomplete="off">
+      <kbd class="cmd-palette-esc" id="btnCloseCmdPalette">ESC</kbd>
+    </div>
+    <div class="cmd-palette-categories">
+      <button type="button" class="cmd-filter-pill active" data-filter="ALL">All</button>
+      <button type="button" class="cmd-filter-pill" data-filter="FINDINGS">Findings</button>
+      <button type="button" class="cmd-filter-pill" data-filter="SERVERS">Servers</button>
+      <button type="button" class="cmd-filter-pill" data-filter="COMPLIANCE">Compliance</button>
+      <button type="button" class="cmd-filter-pill" data-filter="ACTIONS">Actions</button>
+    </div>
+    <div id="cmdPaletteResults" class="cmd-palette-results">
+      <!-- Dynamically generated items -->
+    </div>
+    <div class="cmd-palette-footer">
+      <span><kbd>↑</kbd> <kbd>↓</kbd> to navigate</span>
+      <span><kbd>Enter</kbd> to select</span>
+      <span><kbd>ESC</kbd> to close</span>
     </div>
   </div>
 </div>

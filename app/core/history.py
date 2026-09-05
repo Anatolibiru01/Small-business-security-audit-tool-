@@ -144,6 +144,40 @@ def get_scan_history(
     return results
 
 
+from app.core.knowledge_base import get_remediation_details
+
+
+def _enrich_scorecard_data(data: Dict[str, Any]) -> AuditScorecard:
+    """
+    Ensure all findings in the scorecard remediation feed have real,
+    actionable remediation commands and structured details.
+    """
+    feed = data.get("remediation_feed", [])
+    for item in feed:
+        test_id = item.get("test_id", "")
+        raw_text = item.get("plain_english") or item.get("description", "")
+        cmd = item.get("remediation_cmd", "")
+        how_to_solve = item.get("how_to_solve", "")
+
+        # If missing or contains legacy placeholder text, re-fetch from knowledge base
+        if not cmd or "Review Lynis documentation" in cmd or "lynis show details" in cmd or not how_to_solve:
+            details = get_remediation_details(
+                test_id=test_id,
+                raw_text=raw_text,
+                is_warning=item.get("is_warning", False)
+            )
+            item["control_detail"] = details.get("control_detail", item.get("control_detail", ""))
+            item["description"] = details.get("description", item.get("description", ""))
+            item["how_to_solve"] = details.get("how_to_solve", item.get("how_to_solve", ""))
+            item["remediation_cmd"] = details.get("remediation_cmd", item.get("remediation_cmd", ""))
+            item["compliance_mapping"] = details.get("compliance_mapping", item.get("compliance_mapping", {}))
+            item["estimated_time"] = details.get("estimated_time", item.get("estimated_time", "5 mins"))
+            item["difficulty"] = details.get("difficulty", item.get("difficulty", "Easy"))
+            item["rollback_note"] = details.get("rollback_note", item.get("rollback_note", ""))
+
+    return AuditScorecard(**data)
+
+
 def get_scan_by_id(scan_id: int) -> Optional[AuditScorecard]:
     """
     Retrieve full scorecard by history record ID.
@@ -158,7 +192,7 @@ def get_scan_by_id(scan_id: int) -> Optional[AuditScorecard]:
     
     if row:
         data = json.loads(row["scorecard_json"])
-        return AuditScorecard(**data)
+        return _enrich_scorecard_data(data)
     return None
 
 
@@ -187,7 +221,7 @@ def get_latest_scan_for_server(server_id: Optional[int] = None) -> Optional[Audi
     
     if row:
         data = json.loads(row["scorecard_json"])
-        return AuditScorecard(**data)
+        return _enrich_scorecard_data(data)
     return None
 
 

@@ -8,6 +8,7 @@ report rendering, and security posture intelligence.
 import os
 import json
 import asyncio
+from datetime import datetime
 from typing import Optional, List
 from fastapi import FastAPI, Request, HTTPException, BackgroundTasks, Form, Depends, Query, Header
 from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse, Response
@@ -585,7 +586,9 @@ async def export_html_report(
         context={
             "scorecard": scorecard,
             "app_title": APP_TITLE,
-            "version": VERSION
+            "version": VERSION,
+            "generated_at": datetime.now().strftime("%B %d, %Y at %H:%M:%S UTC"),
+            "current_year": datetime.now().year
         }
     )
 

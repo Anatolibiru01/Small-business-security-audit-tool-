@@ -227,7 +227,7 @@ echo "[*] Executing initial baseline security scan..."
 
 echo ""
 echo "============================================================"
-echo " [✔] Lynislens Enterprise Agent Setup Complete!            "
+echo " [✔] Lynislens Agent Setup Complete!            "
 echo "============================================================"
 echo " • Automated Schedule:    $CRON_DESC (/etc/cron.d/lynislens-audit)"
 echo " • Manual Trigger:        sudo lynislens-scan               "

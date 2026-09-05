@@ -3,308 +3,981 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Executive Security Posture Report - {{ scorecard.hostname }}</title>
+  <title>Enterprise Security Posture Report - {{ scorecard.hostname }} | {{ app_title }}</title>
+  
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="/static/img/favicon.png">
+
   <style>
     :root {
-      --text-dark: #0f172a;
-      --text-muted: #64748b;
-      --border-color: #e2e8f0;
-      --bg-light: #f8fafc;
-      --crit-color: #e11d48;
-      --high-color: #ea580c;
-      --med-color: #d97706;
-      --low-color: #0284c7;
-      --ok-color: #16a34a;
+      --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-display: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --color-slate-900: #0f172a;
+      --color-slate-800: #1e293b;
+      --color-slate-700: #334155;
+      --color-slate-600: #475569;
+      --color-slate-500: #64748b;
+      --color-slate-300: #cbd5e1;
+      --color-slate-200: #e2e8f0;
+      --color-slate-100: #f1f5f9;
+      --color-slate-50: #f8fafc;
+      
+      --sev-crit: #ef4444;
+      --sev-crit-bg: #fef2f2;
+      --sev-crit-border: #fecaca;
+      
+      --sev-high: #ea580c;
+      --sev-high-bg: #fff7ed;
+      --sev-high-border: #fed7aa;
+      
+      --sev-med: #f59e0b;
+      --sev-med-bg: #fffbeb;
+      --sev-med-border: #fde68a;
+      
+      --sev-low: #10b981;
+      --sev-low-bg: #ecfdf5;
+      --sev-low-border: #a7f3d0;
+
+      --sev-info: #3b82f6;
+      --sev-info-bg: #eff6ff;
+      --sev-info-border: #bfdbfe;
     }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
+
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      color: var(--text-dark);
-      background-color: #ffffff;
-      padding: 2.5rem;
-      line-height: 1.5;
+      font-family: var(--font-main);
+      color: var(--color-slate-900);
+      background-color: #f8fafc;
+      line-height: 1.55;
+      font-size: 13px;
+      -webkit-font-smoothing: antialiased;
     }
-    .report-container {
-      max-width: 1080px;
-      margin: 0 auto;
+
+    .report-wrapper {
+      max-width: 1040px;
+      margin: 24px auto 48px;
+      background: #ffffff;
+      border: 1px solid var(--color-slate-200);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+      border-radius: 8px;
+      overflow: hidden;
     }
+
+    /* TOP ACTION BAR */
+    .top-action-bar {
+      background: var(--color-slate-900);
+      color: #ffffff;
+      padding: 12px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--sev-high);
+    }
+    .top-action-bar span {
+      font-size: 12px;
+      color: var(--color-slate-300);
+      letter-spacing: 0.3px;
+    }
+    .btn-print {
+      background: #ea580c;
+      color: #ffffff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s ease;
+    }
+    .btn-print:hover {
+      background: #c2410c;
+    }
+
+    /* REPORT CONTENT PADDING */
+    .report-body {
+      padding: 36px 40px;
+    }
+
+    /* HEADER & COVER SECTION */
     .report-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      border-bottom: 2px solid var(--text-dark);
-      padding-bottom: 1.5rem;
-      margin-bottom: 2rem;
+      border-bottom: 2px solid var(--color-slate-200);
+      padding-bottom: 24px;
+      margin-bottom: 28px;
     }
-    .brand-title {
-      font-family: 'Outfit', sans-serif;
-      font-size: 1.75rem;
-      font-weight: 800;
-      color: var(--text-dark);
-    }
-    .report-sub {
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      margin-top: 0.25rem;
-    }
-    .print-actions {
+    .brand-section {
       display: flex;
-      gap: 0.75rem;
+      align-items: center;
+      gap: 16px;
     }
-    .btn-print {
-      background: #2563eb;
+    .brand-logo-img {
+      height: 54px;
+      width: auto;
+      object-fit: contain;
+    }
+    .report-main-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--color-slate-900);
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+    .report-subtitle {
+      font-size: 12px;
+      color: var(--color-slate-500);
+      margin-top: 3px;
+      font-weight: 500;
+    }
+    .header-metadata {
+      text-align: right;
+      font-size: 11px;
+      color: var(--color-slate-600);
+      line-height: 1.6;
+    }
+    .header-metadata strong {
+      color: var(--color-slate-900);
+    }
+
+    /* SECTION CONTAINERS */
+    .report-section {
+      margin-bottom: 36px;
+      page-break-inside: avoid;
+    }
+    .section-heading {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--color-slate-900);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--color-slate-200);
+      margin-bottom: 16px;
+    }
+    .section-num {
+      background: var(--color-slate-900);
       color: #ffffff;
-      border: none;
-      padding: 0.6rem 1.25rem;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 0.9rem;
+      width: 24px;
+      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
     }
-    .btn-print:hover {
-      background: #1d4ed8;
-    }
-    .scorecard-banner {
+
+    /* 1. EXECUTIVE SUMMARY */
+    .exec-grid {
       display: grid;
-      grid-template-columns: 200px 1fr;
-      gap: 2rem;
-      background: var(--bg-light);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 1.75rem;
-      margin-bottom: 2rem;
+      grid-template-columns: 260px 1fr;
+      gap: 20px;
+      background: var(--color-slate-50);
+      border: 1px solid var(--color-slate-200);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .score-hero-box {
+      background: #ffffff;
+      border: 1px solid var(--color-slate-300);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
       align-items: center;
     }
-    .score-badge {
-      text-align: center;
-      padding: 1rem;
-      background: #ffffff;
-      border: 2px solid var(--border-color);
-      border-radius: 10px;
-    }
-    .score-value {
-      font-family: 'Outfit', sans-serif;
-      font-size: 3rem;
+    .score-hero-val {
+      font-family: var(--font-display);
+      font-size: 48px;
       font-weight: 800;
       line-height: 1;
+      margin-bottom: 4px;
     }
-    .score-ok { color: var(--ok-color); }
-    .score-med { color: var(--med-color); }
-    .score-crit { color: var(--crit-color); }
-    .score-grade {
-      font-size: 1rem;
+    .score-hero-val.ok { color: var(--sev-low); }
+    .score-hero-val.med { color: var(--sev-med); }
+    .score-hero-val.crit { color: var(--sev-crit); }
+    
+    .score-grade-badge {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 20px;
+      background: var(--color-slate-100);
+      color: var(--color-slate-800);
+      margin-top: 4px;
+    }
+    .posture-status-banner {
+      margin-top: 10px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .posture-Satisfactory { background: var(--sev-low-bg); color: var(--sev-low); border: 1px solid var(--sev-low-border); }
+    .posture-NeedsImprovement { background: var(--sev-med-bg); color: var(--sev-med); border: 1px solid var(--sev-med-border); }
+    .posture-CriticalAttention { background: var(--sev-crit-bg); color: var(--sev-crit); border: 1px solid var(--sev-crit-border); }
+
+    .exec-narrative h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-slate-900);
+      margin-bottom: 6px;
+    }
+    .exec-narrative p {
+      color: var(--color-slate-700);
+      font-size: 12.5px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .kpi-card {
+      background: #ffffff;
+      border: 1px solid var(--color-slate-200);
+      border-radius: 6px;
+      padding: 10px 12px;
+      text-align: center;
+    }
+    .kpi-num {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    .kpi-label {
+      font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
-      margin-top: 0.25rem;
-      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      color: var(--color-slate-500);
+      margin-top: 2px;
     }
-    .meta-grid {
+
+    /* STRATEGIC ROADMAP TABLE */
+    .roadmap-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-top: 1rem;
+      gap: 12px;
+      margin-top: 12px;
     }
-    .meta-item {
-      font-size: 0.85rem;
+    .roadmap-card {
+      border: 1px solid var(--color-slate-200);
+      border-radius: 6px;
+      padding: 12px;
+      background: var(--color-slate-50);
     }
-    .meta-label {
-      color: var(--text-muted);
-      display: block;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-    }
-    .meta-val {
-      font-weight: 600;
-    }
-    .section-title {
-      font-family: 'Outfit', sans-serif;
-      font-size: 1.3rem;
+    .roadmap-tier-title {
+      font-size: 11px;
       font-weight: 700;
-      margin-bottom: 1rem;
-      margin-top: 2rem;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .category-table, .rem-table {
+    .roadmap-card ul {
+      list-style-type: square;
+      padding-left: 16px;
+      font-size: 11.5px;
+      color: var(--color-slate-700);
+      line-height: 1.5;
+    }
+
+    /* 2. ASSESSMENT SCOPE & METHODOLOGY */
+    .scope-table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 2rem;
+      font-size: 12px;
+      margin-bottom: 12px;
     }
-    .category-table th, .category-table td,
-    .rem-table th, .rem-table td {
-      border: 1px solid var(--border-color);
-      padding: 0.75rem 1rem;
+    .scope-table th, .scope-table td {
+      border: 1px solid var(--color-slate-200);
+      padding: 8px 12px;
       text-align: left;
-      font-size: 0.9rem;
     }
-    .category-table th, .rem-table th {
-      background: var(--bg-light);
-      font-weight: 600;
-      font-size: 0.8rem;
+    .scope-table th {
+      background: var(--color-slate-100);
+      color: var(--color-slate-700);
+      font-weight: 700;
+      width: 25%;
+    }
+    .scope-table td {
+      color: var(--color-slate-800);
+    }
+
+    /* 3. SUMMARY OF FINDINGS & MATRIX */
+    .domain-table, .findings-table, .rem-matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+    .domain-table th, .domain-table td,
+    .findings-table th, .findings-table td,
+    .rem-matrix-table th, .rem-matrix-table td {
+      border: 1px solid var(--color-slate-200);
+      padding: 8px 12px;
+      text-align: left;
+    }
+    .domain-table th, .findings-table th, .rem-matrix-table th {
+      background: var(--color-slate-100);
+      font-weight: 700;
+      color: var(--color-slate-700);
+      font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.4px;
     }
-    .badge {
+
+    /* BADGES */
+    .badge-sev {
       display: inline-block;
-      padding: 0.2rem 0.5rem;
+      padding: 2px 8px;
       border-radius: 4px;
-      font-size: 0.75rem;
+      font-size: 10.5px;
       font-weight: 700;
       text-transform: uppercase;
+      letter-spacing: 0.4px;
     }
-    .badge-Critical { background: #fee2e2; color: var(--crit-color); }
-    .badge-High { background: #ffedd5; color: var(--high-color); }
-    .badge-Medium { background: #fef3c7; color: var(--med-color); }
-    .badge-Low { background: #e0f2fe; color: var(--low-color); }
-    .code-snippet {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.8rem;
+    .badge-Critical { background: var(--sev-crit-bg); color: var(--sev-crit); border: 1px solid var(--sev-crit-border); }
+    .badge-High { background: var(--sev-high-bg); color: var(--sev-high); border: 1px solid var(--sev-high-border); }
+    .badge-Medium { background: var(--sev-med-bg); color: var(--sev-med); border: 1px solid var(--sev-med-border); }
+    .badge-Low { background: var(--sev-low-bg); color: var(--sev-low); border: 1px solid var(--sev-low-border); }
+
+    .tag-compliance {
+      display: inline-block;
       background: #f1f5f9;
-      padding: 0.5rem 0.75rem;
-      border-radius: 4px;
-      margin-top: 0.5rem;
+      border: 1px solid #cbd5e1;
+      color: #334155;
+      font-size: 9.5px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 3px;
+      margin-right: 3px;
+      margin-bottom: 2px;
+    }
+
+    /* 4. DETAILED FINDING ITEM CARDS */
+    .finding-card {
+      border: 1px solid var(--color-slate-200);
+      border-radius: 6px;
+      padding: 14px;
+      margin-bottom: 14px;
+      background: #ffffff;
+      page-break-inside: avoid;
+    }
+    .finding-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--color-slate-100);
+    }
+    .finding-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--color-slate-900);
+    }
+    .finding-field-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--color-slate-500);
+      margin-top: 6px;
+      margin-bottom: 2px;
+      display: block;
+    }
+    .finding-desc {
+      font-size: 12px;
+      color: var(--color-slate-700);
+      line-height: 1.5;
+    }
+    .finding-evidence {
+      background: #f8fafc;
+      border: 1px solid var(--color-slate-200);
+      border-left: 3px solid var(--sev-high);
+      padding: 6px 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-slate-800);
+      border-radius: 3px;
+      margin-top: 4px;
       word-break: break-all;
       white-space: pre-wrap;
     }
+    .finding-cmd-box {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      margin-top: 6px;
+      word-break: break-all;
+      white-space: pre-wrap;
+    }
+
+    /* 6. APPENDICES & DEFINITIONS */
+    .glossary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .glossary-item {
+      background: var(--color-slate-50);
+      border: 1px solid var(--color-slate-200);
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+    .glossary-term {
+      font-weight: 700;
+      color: var(--color-slate-900);
+      font-size: 12px;
+      margin-bottom: 3px;
+    }
+    .glossary-def {
+      font-size: 11px;
+      color: var(--color-slate-600);
+      line-height: 1.45;
+    }
+
+    /* REPORT FOOTER */
+    .report-footer {
+      border-top: 1px solid var(--color-slate-200);
+      padding-top: 16px;
+      margin-top: 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--color-slate-500);
+    }
+
+    /* PRINT SPECIFIC RULES */
     @media print {
-      body { padding: 0; }
-      .btn-print { display: none; }
-      .scorecard-banner { break-inside: avoid; }
-      .category-table, .rem-table { break-inside: auto; }
-      tr { break-inside: avoid; }
+      body {
+        background: #ffffff !important;
+        padding: 0 !important;
+      }
+      .top-action-bar {
+        display: none !important;
+      }
+      .report-wrapper {
+        border: none !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+      }
+      .report-body {
+        padding: 12mm 15mm !important;
+      }
+      .report-section {
+        page-break-inside: avoid;
+      }
+      .finding-card {
+        page-break-inside: avoid;
+      }
+      .exec-grid {
+        page-break-inside: avoid;
+      }
+      tr {
+        page-break-inside: avoid;
+      }
     }
   </style>
 </head>
 <body>
 
-<div class="report-container">
-  <header class="report-header">
-    <div style="display: flex; align-items: center; gap: 16px;">
-      <img src="/static/img/logo.png" alt="Lynislens Logo" style="height: 52px; width: auto; object-fit: contain;">
-      <div>
-        <h1 class="brand-title">Executive Security Posture Report</h1>
-        <p class="report-sub">Automated Lynis Audit & Hardening Assessment | {{ app_title }} v{{ version }}</p>
-      </div>
-    </div>
-    <div class="print-actions">
-      <button onclick="window.print()" class="btn-print">Print / Save as PDF</button>
-    </div>
-  </header>
-
-  <section class="scorecard-banner">
-    <div class="score-badge">
-      <div class="score-value {% if scorecard.overall_score >= 80 %}score-ok{% elif scorecard.overall_score >= 60 %}score-med{% else %}score-crit{% endif %}">{{ scorecard.overall_score }}</div>
-      <div class="score-grade">Grade: {{ scorecard.letter_grade }}</div>
-      <div style="font-size: 0.8rem; font-weight: 700; margin-top: 0.4rem; color: var(--text-dark);">{{ scorecard.risk_level }}</div>
-    </div>
+<div class="report-wrapper">
+  <!-- Top Non-Printed Action Strip -->
+  <div class="top-action-bar">
     <div>
-      <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Executive Summary</h2>
-      <p style="color: #334155; font-size: 0.95rem;">{{ scorecard.executive_summary }}</p>
-      
-      <div class="meta-grid">
-        <div class="meta-item">
-          <span class="meta-label">Hostname</span>
-          <span class="meta-val">{{ scorecard.hostname }}</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Operating System</span>
-          <span class="meta-val">{{ scorecard.os_name }}</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Kernel Version</span>
-          <span class="meta-val">{{ scorecard.os_kernel_version or 'N/A' }}</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Lynis Hardening Index</span>
-          <span class="meta-val">{{ scorecard.hardening_index }}/100</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Firewall Active</span>
-          <span class="meta-val">{% if scorecard.firewall_active %}Yes (Active){% else %}No (Disabled){% endif %}</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Total Findings</span>
-          <span class="meta-val">{{ scorecard.total_findings }} ({{ scorecard.critical_count }} Critical, {{ scorecard.high_count }} High)</span>
+      <strong>Enterprise Audit Report Viewer</strong>
+      <span style="margin-left: 12px;">Confidential Assessment Output</span>
+    </div>
+    <button onclick="window.print()" class="btn-print" id="btnPrintReport">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+      Print / Save as PDF
+    </button>
+  </div>
+
+  <div class="report-body">
+    <!-- Header / Brand Cover -->
+    <header class="report-header">
+      <div class="brand-section">
+        <img src="/static/img/logo.png" alt="Lynislens Logo" class="brand-logo-img">
+        <div>
+          <h1 class="report-main-title">Executive Security Posture Report</h1>
+          <p class="report-subtitle">Automated Linux Security Audit, Hardening & Compliance Verification</p>
         </div>
       </div>
-    </div>
-  </section>
+      <div class="header-metadata">
+        <div><strong>Target Host:</strong> {{ scorecard.hostname }}</div>
+        <div><strong>Assessment Date:</strong> {{ generated_at }}</div>
+        <div><strong>Engine:</strong> Lynis Enterprise Hardening Suite v{{ version }}</div>
+        <div><strong>Classification:</strong> Confidential / Internal Security Use</div>
+      </div>
+    </header>
 
-  <h2 class="section-title">Security Domain Health Breakdown</h2>
-  <table class="category-table">
-    <thead>
-      <tr>
-        <th>Domain Category</th>
-        <th>Score</th>
-        <th>Total Issues</th>
-        <th>Critical / High</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for name, cat in scorecard.categories.items() %}
-      <tr>
-        <td><strong>{{ name }}</strong></td>
-        <td><strong>{{ cat.score }}/100</strong></td>
-        <td>{{ cat.total_issues }}</td>
-        <td>{{ cat.critical_count }} Crit / {{ cat.high_count }} High</td>
-        <td>
-          <span class="badge {% if cat.score >= 80 %}badge-Low{% elif cat.score >= 60 %}badge-Medium{% else %}badge-Critical{% endif %}">
-            {{ cat.status_label }}
-          </span>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <!-- =================================================================== -->
+    <!-- SECTION 1: EXECUTIVE SUMMARY -->
+    <!-- =================================================================== -->
+    <section class="report-section">
+      <div class="section-heading">
+        <span class="section-num">1</span>
+        <span>Executive Summary</span>
+      </div>
 
-  <h2 class="section-title">Prioritized Remediation Checklist</h2>
-  <table class="rem-table">
-    <thead>
-      <tr>
-        <th style="width: 90px;">Severity</th>
-        <th style="width: 100px;">Test ID</th>
-        <th>Finding & Business Impact</th>
-        <th style="width: 320px;">Remediation Command</th>
-      </tr>
-    </thead>
-    <tbody>
+      <div class="exec-grid">
+        <!-- Hero Score Box -->
+        <div class="score-hero-box">
+          <div class="score-hero-val {% if scorecard.overall_score >= 80 %}ok{% elif scorecard.overall_score >= 60 %}med{% else %}crit{% endif %}">
+            {{ scorecard.overall_score }}<span style="font-size: 24px; color: var(--color-slate-500);">/100</span>
+          </div>
+          <div class="score-grade-badge">Grade: {{ scorecard.letter_grade }}</div>
+
+          {% set posture_label = "Satisfactory" if scorecard.overall_score >= 80 else ("Needs Improvement" if scorecard.overall_score >= 60 else "Critical Attention Required") %}
+          {% set posture_class = "Satisfactory" if scorecard.overall_score >= 80 else ("NeedsImprovement" if scorecard.overall_score >= 60 else "CriticalAttention") %}
+          
+          <div class="posture-status-banner posture-{{ posture_class }}">
+            Posture: {{ posture_label }}
+          </div>
+          <div style="font-size: 10px; color: var(--color-slate-500); margin-top: 6px;">
+            Hardening Index: <strong>{{ scorecard.hardening_index }}/100</strong>
+          </div>
+        </div>
+
+        <!-- Executive Narrative -->
+        <div class="exec-narrative">
+          <h4>Overall Security Posture</h4>
+          <p>{{ scorecard.executive_summary }}</p>
+
+          <h4>Major Findings & Business Impact</h4>
+          <p>
+            {% if scorecard.critical_count > 0 or scorecard.high_count > 0 %}
+            The audit identified <strong>{{ scorecard.critical_count }} critical</strong> and <strong>{{ scorecard.high_count }} high-severity</strong> configuration gaps. Highest-risk exposures include unrestricted remote administrative access (SSH root login), unconfigured perimeter firewalls, or unpatched packages, representing exposure to credential compromise, ransomware infection, and regulatory non-compliance.
+            {% else %}
+            The host exhibits a solid baseline configuration with no active critical vulnerabilities. Remaining items represent preventative hardening adjustments and audit logging improvements.
+            {% endif %}
+          </p>
+
+          <!-- KPI Metric Cards -->
+          <div class="kpi-row">
+            <div class="kpi-card">
+              <div class="kpi-num" style="color: var(--sev-crit);">{{ scorecard.critical_count }}</div>
+              <div class="kpi-label">Critical Risks</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-num" style="color: var(--sev-high);">{{ scorecard.high_count }}</div>
+              <div class="kpi-label">High Risks</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-num" style="color: var(--sev-med);">{{ scorecard.medium_count }}</div>
+              <div class="kpi-label">Medium Risks</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-num" style="color: var(--sev-low);">{{ scorecard.low_count }}</div>
+              <div class="kpi-label">Low / Info</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Strategic Roadmap -->
+      <h4 style="font-size: 13px; font-weight: 700; color: var(--color-slate-900); margin-top: 14px; margin-bottom: 6px;">
+        Strategic Remediation Roadmap
+      </h4>
+      <div class="roadmap-grid">
+        <div class="roadmap-card" style="border-top: 3px solid var(--sev-crit);">
+          <div class="roadmap-tier-title" style="color: var(--sev-crit);">Tier 1: Immediate (0–30 Days)</div>
+          <ul>
+            <li>Disable direct SSH root authentication</li>
+            <li>Enable & configure host firewall (UFW / iptables)</li>
+            <li>Apply security updates for unpatched packages</li>
+            <li>Remediate all flagged warnings</li>
+          </ul>
+        </div>
+        <div class="roadmap-card" style="border-top: 3px solid var(--sev-med);">
+          <div class="roadmap-tier-title" style="color: var(--sev-med);">Tier 2: Short-Term (30–90 Days)</div>
+          <ul>
+            <li>Configure core dump limits (`limits.conf`)</li>
+            <li>Tune sysctl network parameter hardening</li>
+            <li>Establish auditd daemon accounting rules</li>
+            <li>Enforce password aging & hashing standards</li>
+          </ul>
+        </div>
+        <div class="roadmap-card" style="border-top: 3px solid var(--sev-low);">
+          <div class="roadmap-tier-title" style="color: var(--sev-low);">Tier 3: Ongoing (Continuous)</div>
+          <ul>
+            <li>Automate continuous daily audit scans</li>
+            <li>File integrity monitoring (AIDE / Tripwire)</li>
+            <li>Implement central syslog forwarding</li>
+            <li>Quarterly CIS / NIST compliance reviews</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- SECTION 2: ASSESSMENT SCOPE AND METHODOLOGY -->
+    <!-- =================================================================== -->
+    <section class="report-section">
+      <div class="section-heading">
+        <span class="section-num">2</span>
+        <span>Assessment Scope & Methodology</span>
+      </div>
+
+      <table class="scope-table">
+        <tbody>
+          <tr>
+            <th>Target Hostname</th>
+            <td><strong>{{ scorecard.hostname }}</strong></td>
+            <th>Host / IP Address</th>
+            <td><code>{{ scorecard.ip_address or '127.0.0.1 (Local Node)' }}</code></td>
+          </tr>
+          <tr>
+            <th>Operating System</th>
+            <td>{{ scorecard.os_name }}</td>
+            <th>Kernel Version</th>
+            <td><code>{{ scorecard.os_kernel_version or 'N/A' }}</code></td>
+          </tr>
+          <tr>
+            <th>Auditing Engine</th>
+            <td>Lynis Security Engine v3.x & Enterprise Ruleset</td>
+            <th>Scan Execution Mode</th>
+            <td>Automated Non-Interactive Batch Scan (`--quick --cronjob`)</td>
+          </tr>
+          <tr>
+            <th>Compliance Baselines</th>
+            <td>CIS Linux Server Benchmark (L1/L2), NIST CSF v2.0, ISO/IEC 27001, PCI-DSS v4.0, HIPAA, SOC 2</td>
+            <th>Package Inventory</th>
+            <td>{{ scorecard.installed_packages }} total packages ({{ scorecard.vulnerable_packages }} vulnerable flagged)</td>
+          </tr>
+          <tr>
+            <th>Audit Scope & Boundaries</th>
+            <td colspan="3">
+              Comprehensive internal audit covering user accounts, SSH configuration, kernel parameters, file systems, installed services, logging facilities, storage permissions, and perimeter firewall controls.
+            </td>
+          </tr>
+          <tr>
+            <th>Audit Constraints</th>
+            <td colspan="3">
+              Assessment utilizes non-destructive configuration interrogation and compliance inspection. Active exploits and disruptive network denial-of-service tests were intentionally excluded from this review.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- SECTION 3: SUMMARY OF FINDINGS (THE DASHBOARD) -->
+    <!-- =================================================================== -->
+    <section class="report-section">
+      <div class="section-heading">
+        <span class="section-num">3</span>
+        <span>Summary of Findings (The Dashboard)</span>
+      </div>
+
+      <h4 style="font-size: 13px; font-weight: 700; color: var(--color-slate-900); margin-bottom: 6px;">
+        Security Domain Health Breakdown
+      </h4>
+      <table class="domain-table">
+        <thead>
+          <tr>
+            <th>Domain Category</th>
+            <th style="width: 80px; text-align: center;">Score</th>
+            <th style="width: 100px; text-align: center;">Total Items</th>
+            <th style="width: 130px; text-align: center;">Critical / High</th>
+            <th style="width: 130px; text-align: center;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for name, cat in scorecard.categories.items() %}
+          <tr>
+            <td><strong>{{ name }}</strong></td>
+            <td style="text-align: center; font-weight: 700; font-family: var(--font-mono);">
+              {{ cat.score }}/100
+            </td>
+            <td style="text-align: center;">{{ cat.total_issues }}</td>
+            <td style="text-align: center; font-weight: 600;">
+              <span style="color: var(--sev-crit);">{{ cat.critical_count }} Crit</span> / 
+              <span style="color: var(--sev-high);">{{ cat.high_count }} High</span>
+            </td>
+            <td style="text-align: center;">
+              <span class="badge-sev {% if cat.score >= 80 %}badge-Low{% elif cat.score >= 60 %}badge-Medium{% else %}badge-Critical{% endif %}">
+                {{ cat.status_label }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <!-- Risk Rating Matrix -->
+      <h4 style="font-size: 13px; font-weight: 700; color: var(--color-slate-900); margin-top: 18px; margin-bottom: 6px;">
+        Vulnerability Likelihood & Business Impact Matrix
+      </h4>
+      <table class="rem-matrix-table">
+        <thead>
+          <tr>
+            <th style="width: 140px;">Impact / Likelihood</th>
+            <th style="text-align: center;">Low Likelihood</th>
+            <th style="text-align: center;">Medium Likelihood</th>
+            <th style="text-align: center;">High Likelihood</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>High Business Impact</th>
+            <td style="background: var(--sev-med-bg); text-align: center; color: var(--sev-med); font-weight: 600;">
+              Medium Risk
+            </td>
+            <td style="background: var(--sev-high-bg); text-align: center; color: var(--sev-high); font-weight: 700;">
+              High Risk
+            </td>
+            <td style="background: var(--sev-crit-bg); text-align: center; color: var(--sev-crit); font-weight: 800;">
+              Critical Risk ({{ scorecard.critical_count }})
+            </td>
+          </tr>
+          <tr>
+            <th>Moderate Business Impact</th>
+            <td style="background: var(--sev-low-bg); text-align: center; color: var(--sev-low); font-weight: 600;">
+              Low Risk
+            </td>
+            <td style="background: var(--sev-med-bg); text-align: center; color: var(--sev-med); font-weight: 600;">
+              Medium Risk ({{ scorecard.medium_count }})
+            </td>
+            <td style="background: var(--sev-high-bg); text-align: center; color: var(--sev-high); font-weight: 700;">
+              High Risk ({{ scorecard.high_count }})
+            </td>
+          </tr>
+          <tr>
+            <th>Low Business Impact</th>
+            <td style="background: var(--sev-info-bg); text-align: center; color: var(--sev-info); font-weight: 600;">
+              Informational
+            </td>
+            <td style="background: var(--sev-low-bg); text-align: center; color: var(--sev-low); font-weight: 600;">
+              Low Risk ({{ scorecard.low_count }})
+            </td>
+            <td style="background: var(--sev-med-bg); text-align: center; color: var(--sev-med); font-weight: 600;">
+              Medium Risk
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- SECTION 4: DETAILED TECHNICAL FINDINGS & EVIDENCE -->
+    <!-- =================================================================== -->
+    <section class="report-section">
+      <div class="section-heading">
+        <span class="section-num">4</span>
+        <span>Detailed Technical Findings & Evidence</span>
+      </div>
+
+      <p style="color: var(--color-slate-600); font-size: 12px; margin-bottom: 14px;">
+        Below is the detailed catalog of technical vulnerabilities, including proof-of-concept configuration directives, risk descriptions, and multi-standard compliance mappings.
+      </p>
+
       {% for item in scorecard.remediation_feed %}
-      <tr>
-        <td>
-          <span class="badge badge-{{ item.severity }}">{{ item.severity }}</span>
-        </td>
-        <td><code>{{ item.test_id }}</code></td>
-        <td>
-          <strong>{{ item.title }}</strong>
-          <p style="font-size: 0.85rem; color: #475569; margin: 0.25rem 0;">{{ item.plain_english }}</p>
-          <p style="font-size: 0.8rem; color: #b91c1c;"><strong>Impact:</strong> {{ item.business_impact }}</p>
-        </td>
-        <td>
-          <div class="code-snippet">{{ item.remediation_cmd }}</div>
-          {% if item.rollback_note %}
-          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;"><em>Rollback: {{ item.rollback_note }}</em></div>
-          {% endif %}
-        </td>
-      </tr>
+      <div class="finding-card">
+        <div class="finding-card-header">
+          <div>
+            <span style="font-family: var(--font-mono); font-weight: 700; color: #ea580c; margin-right: 8px;">[{{ item.test_id }}]</span>
+            <span class="finding-title">{{ item.title }}</span>
+            <span class="tag-compliance" style="margin-left: 6px; font-size: 10px;">{{ item.category }}</span>
+          </div>
+          <div>
+            <span class="badge-sev badge-{{ item.severity }}">{{ item.severity }}</span>
+          </div>
+        </div>
+
+        <!-- 1. CONTROL DETAIL -->
+        <span class="finding-field-label" style="color: #0369a1;">1. Control Detail & Governance Specification</span>
+        <div class="finding-desc" style="background: #f0f9ff; border-left: 3px solid #0284c7; padding: 6px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0;">
+          {{ item.control_detail if item.control_detail else ('Lynis Security Control ' + item.test_id + ' verifies baseline hardening configuration and system security posture.') }}
+        </div>
+
+        <!-- Compliance Mapping -->
+        {% if item.compliance_mapping %}
+        <div style="margin-bottom: 8px;">
+          {% for std, ref in item.compliance_mapping.items() %}
+          <span class="tag-compliance"><strong>{{ std }}:</strong> {{ ref }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- 2. DESCRIPTION -->
+        <span class="finding-field-label" style="color: #334155;">2. Technical Description & Threat Vector</span>
+        <div class="finding-desc">{{ item.description if item.description else item.plain_english }}</div>
+
+        {% if item.business_impact %}
+        <span class="finding-field-label" style="color: #b91c1c;">Business & Risk Impact</span>
+        <div class="finding-desc" style="color: #b91c1c; font-weight: 500;">{{ item.business_impact }}</div>
+        {% endif %}
+
+        <!-- 3. HOW TO SOLVE -->
+        <span class="finding-field-label" style="color: #15803d;">3. How to Solve & Remediation Action</span>
+        <div class="finding-desc" style="background: #f0fdf4; border-left: 3px solid #16a34a; padding: 6px 10px; border-radius: 0 4px 4px 0; white-space: pre-line;">{{ item.how_to_solve if item.how_to_solve else ('1. Execute the remediation command below.\n2. Verify proper operational status.\n3. Ensure configurations are applied permanently.') }}</div>
+
+        <div class="finding-cmd-box" style="margin-top: 6px;">{{ item.remediation_cmd if item.remediation_cmd else 'sudo apt update && sudo apt --with-new-pkgs upgrade -y' }}</div>
+
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--color-slate-500); margin-top: 4px;">
+          <span><strong>Estimated Effort:</strong> {{ item.estimated_time }} (Difficulty: {{ item.difficulty }})</span>
+          {% if item.rollback_note %}<span><strong>Rollback:</strong> {{ item.rollback_note }}</span>{% endif %}
+        </div>
+      </div>
       {% endfor %}
+
       {% if scorecard.remediation_feed|length == 0 %}
-      <tr>
-        <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">
-          No outstanding remediation items. System satisfies security baseline requirements.
-        </td>
-      </tr>
+      <div style="text-align: center; padding: 24px; background: var(--color-slate-50); border: 1px dashed var(--color-slate-300); border-radius: 6px; color: var(--color-slate-600);">
+        No outstanding technical findings detected. All evaluated test parameters satisfy current hardening baselines.
+      </div>
       {% endif %}
-    </tbody>
-  </table>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- SECTION 5: REMEDIATION PLAN & RECOMMENDATIONS -->
+    <!-- =================================================================== -->
+    <section class="report-section">
+      <div class="section-heading">
+        <span class="section-num">5</span>
+        <span>Remediation Plan & Recommendations</span>
+      </div>
+
+      <p style="color: var(--color-slate-600); font-size: 12px; margin-bottom: 12px;">
+        Actionable step-by-step terminal commands, effort estimations, and compensating controls for prioritized remediation.
+      </p>
+
+      <table class="findings-table">
+        <thead>
+          <tr>
+            <th style="width: 90px;">Severity</th>
+            <th style="width: 100px;">Test ID</th>
+            <th>Remediation Action & Compensating Controls</th>
+            <th style="width: 100px;">Effort</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in scorecard.remediation_feed %}
+          <tr>
+            <td>
+              <span class="badge-sev badge-{{ item.severity }}">{{ item.severity }}</span>
+            </td>
+            <td><code>{{ item.test_id }}</code></td>
+            <td>
+              <strong>{{ item.title }}</strong>
+              {% if item.how_to_solve %}
+              <div style="font-size: 11px; color: #1e293b; margin: 4px 0; white-space: pre-line; background: #f8fafc; padding: 6px 8px; border-radius: 4px; border: 1px solid #e2e8f0;">
+                <strong style="color: #15803d;">How to Solve:</strong><br>{{ item.how_to_solve }}
+              </div>
+              {% endif %}
+              <div class="finding-cmd-box">{{ item.remediation_cmd }}</div>
+              {% if item.rollback_note %}
+              <div style="font-size: 11px; color: var(--color-slate-500); margin-top: 4px;">
+                <strong>Rollback Note:</strong> {{ item.rollback_note }}
+              </div>
+              {% endif %}
+              <div style="font-size: 11px; color: #475569; margin-top: 4px;">
+                <strong>Compensating Control:</strong> In legacy environments where immediate configuration modification is restricted, implement network perimeter firewall ACLs, isolate host in an isolated VLAN, and restrict access via bastion host jump box.
+              </div>
+            </td>
+            <td>
+              <div style="font-size: 11px; font-weight: 600;">{{ item.estimated_time }}</div>
+              <div style="font-size: 10px; color: var(--color-slate-500);">Difficulty: {{ item.difficulty }}</div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- SECTION 6: APPENDICES & RAW DATA -->
+    <!-- =================================================================== -->
+    <section class="report-section">
+      <div class="section-heading">
+        <span class="section-num">6</span>
+        <span>Appendices & Raw Data</span>
+      </div>
+
+      <h4 style="font-size: 13px; font-weight: 700; color: var(--color-slate-900); margin-bottom: 6px;">
+        Raw Scan Parameters & Execution Metadata
+      </h4>
+      <div style="background: var(--color-slate-50); border: 1px solid var(--color-slate-200); border-radius: 6px; padding: 12px; font-family: var(--font-mono); font-size: 11px; color: var(--color-slate-700); line-height: 1.6;">
+        <div><strong>AUDIT_TARGET:</strong> {{ scorecard.hostname }} (IP: {{ scorecard.ip_address or '127.0.0.1' }})</div>
+        <div><strong>OS_RELEASE:</strong> {{ scorecard.os_name }} (Kernel: {{ scorecard.os_kernel_version or 'Linux' }})</div>
+        <div><strong>LYNIS_HARDENING_INDEX:</strong> {{ scorecard.hardening_index }}/100</div>
+        <div><strong>FIREWALL_STATUS:</strong> {% if scorecard.firewall_active %}ACTIVE (Protected){% else %}DISABLED / NOT DETECTED (Exposed){% endif %}</div>
+        <div><strong>PACKAGE_INVENTORY:</strong> {{ scorecard.installed_packages }} total installed, {{ scorecard.vulnerable_packages }} vulnerable flagged</div>
+        <div><strong>TOTAL_FINDINGS_PROCESSED:</strong> {{ scorecard.total_findings }} items ({{ scorecard.critical_count }} Critical, {{ scorecard.high_count }} High, {{ scorecard.medium_count }} Medium, {{ scorecard.low_count }} Low)</div>
+        <div><strong>REPORT_FILE_EXPORTS:</strong> /var/log/lynis-report.dat | /var/log/lynis.log</div>
+      </div>
+
+      <h4 style="font-size: 13px; font-weight: 700; color: var(--color-slate-900); margin-top: 18px; margin-bottom: 6px;">
+        Glossary & Methodologies
+      </h4>
+      <div class="glossary-grid">
+        <div class="glossary-item">
+          <div class="glossary-term">Lynis Hardening Index</div>
+          <div class="glossary-def">A 100-point normalized metric reflecting the completeness of security controls, authentication safeguards, file protections, and kernel parameters against industry benchmarks.</div>
+        </div>
+        <div class="glossary-item">
+          <div class="glossary-term">CIS Benchmark Controls</div>
+          <div class="glossary-def">Center for Internet Security consensus-based best practice guides for establishing a secure configuration posture across Linux enterprise environments.</div>
+        </div>
+        <div class="glossary-item">
+          <div class="glossary-term">Zero Trust Architecture</div>
+          <div class="glossary-def">Security model requiring strict identity verification for every person and device attempting to access resources, regardless of network location.</div>
+        </div>
+        <div class="glossary-item">
+          <div class="glossary-term">Compensating Controls</div>
+          <div class="glossary-def">Alternative security countermeasures designed to mitigate risk when standard security requirements cannot be directly implemented due to operational constraints.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="report-footer">
+      <div>Generated by <strong>{{ app_title }} v{{ version }}</strong> — Automated Linux Security Audit Suite</div>
+      <div>Page 1 of Executive Report | Classification: <strong>Confidential</strong></div>
+    </footer>
+  </div>
 </div>
 
 </body>

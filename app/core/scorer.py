@@ -23,12 +23,16 @@ class RemediationItem(BaseModel):
     title: str
     category: str
     severity: str  # Critical, High, Medium, Low
-    plain_english: str
-    business_impact: str
-    remediation_cmd: str
-    estimated_time: str
-    difficulty: str
+    control_detail: str = ""
+    description: str = ""
+    how_to_solve: str = ""
+    plain_english: str = ""
+    business_impact: str = ""
+    remediation_cmd: str = ""
+    estimated_time: str = "5 mins"
+    difficulty: str = "Easy"
     rollback_note: str = ""
+    compliance_mapping: Dict[str, str] = Field(default_factory=dict)
     is_warning: bool = False
     deduction_points: int = 0
 
@@ -92,12 +96,16 @@ def calculate_scorecard(report: LynisReportData) -> AuditScorecard:
             title=details["title"],
             category=details["category"],
             severity=severity,
-            plain_english=details["plain_english"],
-            business_impact=details["business_impact"],
-            remediation_cmd=details["remediation_cmd"],
-            estimated_time=details["estimated_time"],
-            difficulty=details["difficulty"],
+            control_detail=details.get("control_detail", ""),
+            description=details.get("description", details.get("plain_english", "")),
+            how_to_solve=details.get("how_to_solve", ""),
+            plain_english=details.get("plain_english", details.get("description", "")),
+            business_impact=details.get("business_impact", ""),
+            remediation_cmd=details.get("remediation_cmd", ""),
+            estimated_time=details.get("estimated_time", "5 mins"),
+            difficulty=details.get("difficulty", "Easy"),
             rollback_note=details.get("rollback_note", ""),
+            compliance_mapping=details.get("compliance_mapping", {}),
             is_warning=True,
             deduction_points=deduction
         )
@@ -119,12 +127,16 @@ def calculate_scorecard(report: LynisReportData) -> AuditScorecard:
             title=details["title"],
             category=details["category"],
             severity=severity,
-            plain_english=details["plain_english"],
-            business_impact=details["business_impact"],
-            remediation_cmd=details["remediation_cmd"],
-            estimated_time=details["estimated_time"],
-            difficulty=details["difficulty"],
+            control_detail=details.get("control_detail", ""),
+            description=details.get("description", details.get("plain_english", "")),
+            how_to_solve=details.get("how_to_solve", ""),
+            plain_english=details.get("plain_english", details.get("description", "")),
+            business_impact=details.get("business_impact", ""),
+            remediation_cmd=details.get("remediation_cmd", ""),
+            estimated_time=details.get("estimated_time", "5 mins"),
+            difficulty=details.get("difficulty", "Easy"),
             rollback_note=details.get("rollback_note", ""),
+            compliance_mapping=details.get("compliance_mapping", {}),
             is_warning=False,
             deduction_points=deduction
         )
