@@ -1,9 +1,8 @@
-<!-- MODAL: Remote Server Connection & Setup -->
 <div id="serverModal" class="modal-overlay">
-  <div class="modal-window" style="width: 580px;">
+  <div class="modal-window" style="width: 620px; max-width: 95vw;">
     <div class="modal-header">
       <div style="display: flex; align-items: center; gap: 8px;">
-        <img src="/static/img/logo.png" alt="Lynislens" style="height: 20px; width: auto;">
+        <img src="/static/img/logo-square.png" alt="Lynislens" style="height: 24px; width: 24px; object-fit: contain;">
         <h3 id="serverModalTitle">Add & Connect Linux Server</h3>
       </div>
       <button id="btnCloseServerModal" class="btn-close">&times;</button>
@@ -11,8 +10,11 @@
 
     <!-- Mode Selector Tabs inside Modal -->
     <div class="modal-tab-header">
-      <button type="button" class="modal-tab-btn active" id="tabBtnPush" data-target="modalTabPush">
-        1-Line Setup (Enterprise Agent)
+      <button type="button" class="modal-tab-btn active" id="tabBtnNativeLynis" data-target="modalTabNativeLynis">
+        Native Lynis (--upload)
+      </button>
+      <button type="button" class="modal-tab-btn" id="tabBtnPush" data-target="modalTabPush">
+        1-Line Push Agent
       </button>
       <button type="button" class="modal-tab-btn" id="tabBtnSSH" data-target="modalTabSSH">
         Direct SSH (Lab Mode)
@@ -20,8 +22,122 @@
     </div>
 
     <div class="modal-body">
+      <!-- TAB 0: Native Lynis Upload (TrikuSec compatible) -->
+      <div id="modalTabNativeLynis" class="modal-tab-pane active">
+        <div class="enterprise-banner">
+          <strong>Native Lynis Enterprise Upload API</strong>
+          <p>Connect any server with existing Lynis installed. Simply configure <code>custom.prf</code> to push reports directly to this central hub.</p>
+        </div>
+
+        <div class="setup-steps-grid">
+          <div class="step-card">
+            <div class="step-number">1</div>
+            <div>
+              <strong>Configure Lynis Profile</strong>
+              <div class="step-desc">Add the upload server & token into <code>/etc/lynis/custom.prf</code></div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <div>
+              <strong>Execute Audit & Upload</strong>
+              <div class="step-desc">Run <code>sudo lynis audit system --upload</code></div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <div>
+              <strong>Automatic Ingestion</strong>
+              <div class="step-desc">Server is auto-registered & score appears instantly on your dashboard.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+          <label>Step 1: Install Lynis & Prepare Config Directory (Run on Target Server):</label>
+          <div class="terminal-command-box">
+            <code>sudo apt update && sudo apt install -y lynis && sudo mkdir -p /etc/lynis</code>
+            <button type="button" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+          <label>Step 2: Pre-Check Connectivity (Run on remote server to test connection):</label>
+          <div class="terminal-command-box">
+            <code id="nativeLynisCheckCmd">curl -s http://127.0.0.1:8000/api/lynis/license/</code>
+            <button type="button" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy</span>
+            </button>
+          </div>
+          <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 3px;"><em>Returns <code>OK</code> if dashboard is reachable.</em></div>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+          <label>Step 3: 1-Line Profile Injector Command (Run on Target Server):</label>
+          <div class="terminal-command-box">
+            <code id="nativeLynisInjectCmd">echo -e "\nupload=yes\nupload_server=http://127.0.0.1:8000/api/lynis/upload/\nlicense_key=[FETCHING_TOKEN]" | sudo tee -a /etc/lynis/custom.prf</code>
+            <button type="button" id="btnCopyNativeInjectCmd" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy</span>
+            </button>
+          </div>
+          <details style="margin-top: 6px; font-size: 11px; color: var(--text-muted);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--text-main); outline: none;">Or view raw /etc/lynis/custom.prf content</summary>
+            <div class="terminal-command-box" style="padding: 8px 12px; margin-top: 6px;">
+              <code id="nativeLynisPrfContent" style="white-space: pre-wrap; font-size: 11.5px; line-height: 1.5;">upload=yes
+upload_server=http://127.0.0.1:8000/api/lynis/upload/
+license_key=[FETCHING_TOKEN]</code>
+              <button type="button" id="btnCopyNativePrf" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Config">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span>Copy</span>
+              </button>
+            </div>
+          </details>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+          <label>Step 4: Scan & Upload Command:</label>
+          <div class="terminal-command-box">
+            <code id="nativeLynisScanCmd">sudo lynis audit system --upload</code>
+            <button type="button" id="btnCopyNativeScanCmd" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="nativeListenBox" class="agent-listen-card" style="margin-top: 12px;">
+          <span class="pulse-indicator"></span>
+          <span id="nativeListenText">Listening for incoming audit uploads...</span>
+        </div>
+
+        <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+          <button type="button" id="btnRefreshTokensNative" class="btn btn-secondary btn-sm">Generate New Token</button>
+          <button type="button" id="btnDoneNative" class="btn btn-primary">Done / Close</button>
+        </div>
+      </div>
+
       <!-- TAB 1: 1-Line Enterprise Push Agent -->
-      <div id="modalTabPush" class="modal-tab-pane active">
+      <div id="modalTabPush" class="modal-tab-pane">
         <div class="enterprise-banner">
           <strong>Enterprise Push Architecture (Zero Ingress Required)</strong>
           <p>Seamlessly audits servers across AWS, DigitalOcean, GCP, private VPCs, and local Kali VMs without open
@@ -52,8 +168,22 @@
           </div>
         </div>
 
-        <div class="form-group" style="margin-top: 15px;">
-          <label for="agentCronIntervalSelect">Audit Frequency Schedule (Cron):</label>
+        <div class="form-group" style="margin-top: 12px;">
+          <label>Step 1: Pre-Flight Connectivity Check (Run on remote server to confirm connection):</label>
+          <div class="terminal-command-box">
+            <code id="agentHealthCheckCmd">curl -I http://127.0.0.1:8000/health</code>
+            <button type="button" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 12px;">
+          <label for="agentCronIntervalSelect">Step 2: Choose Audit Schedule Frequency (Cron):</label>
           <select id="agentCronIntervalSelect" class="form-input" style="font-weight:600;">
             <option value="5m">Every 5 Minutes (Real-Time SecOps / Lab Mode)</option>
             <option value="15m">Every 15 Minutes (Active Hardening)</option>
@@ -64,18 +194,32 @@
         </div>
 
         <div class="form-group" style="margin-top: 10px;">
-          <label>1-Line Linux Onboarding Command:</label>
+          <label>Step 3: 1-Line Linux Onboarding Command (Run with root/sudo on target host):</label>
           <div class="terminal-command-box">
-            <code
-              id="agentCommandText">curl -sSL http://127.0.0.1:8000/install.sh | sudo bash -s -- --token [FETCHING_TOKEN] --server http://127.0.0.1:8000 --cron daily</code>
-            <button type="button" id="btnCopyAgentCmd" class="btn btn-sm btn-primary btn-copy-cmd"
-              title="Copy Command">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+            <code id="agentCommandText">curl -sSL http://127.0.0.1:8000/install.sh | sudo bash -s -- --token [FETCHING_TOKEN] --server http://127.0.0.1:8000 --cron daily</code>
+            <button type="button" id="btnCopyAgentCmd" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
-              <span>Copy Command</span>
+              <span>Copy</span>
+            </button>
+          </div>
+          <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 4px;">
+            <em>Note: Replace <code>127.0.0.1</code> with your dashboard host's reachable LAN IP (e.g. <code>192.168.x.x</code>) when running on external machines or VMs.</em>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+          <label>Step 4: Instant Verification & Direct Push (Trigger immediate scan):</label>
+          <div class="terminal-command-box">
+            <code>sudo lynislens-scan</code>
+            <button type="button" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy</span>
             </button>
           </div>
         </div>
@@ -94,6 +238,56 @@
 
       <!-- TAB 2: Direct SSH Connection (Lab Mode) -->
       <div id="modalTabSSH" class="modal-tab-pane">
+        <div style="background: var(--bg-hover); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 14px; margin-bottom: 14px; font-size: 11px; line-height: 1.6; color: var(--text-muted);">
+          <div style="font-weight: 700; font-size: 11.5px; margin-bottom: 4px; color: var(--text-main);">SSH Prerequisites & Non-Blocking Sudo:</div>
+          Remote node must have Port 22 open. If sudo prompts for a password, automated scans will hang or show <em>"Permission denied"</em>. Run the setup commands below on the target server first.
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+          <label>Step 1: Enable & Start SSH Server (Run on Target Server):</label>
+          <div class="terminal-command-box">
+            <code>sudo systemctl enable --now ssh || sudo systemctl enable --now sshd</code>
+            <button type="button" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+          <label>Step 2: Grant Passwordless Sudo for Lynis (Prevents password prompt hangs & permission errors):</label>
+          <div class="terminal-command-box">
+            <code>echo "$USER ALL=(ALL) NOPASSWD: /usr/sbin/lynis, /usr/bin/lynis, /opt/lynis/lynis" | sudo tee /etc/sudoers.d/99-lynislens-audit && sudo chmod 0440 /etc/sudoers.d/99-lynislens-audit</code>
+            <button type="button" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+          <label>Step 3: Test SSH Connection From Your Dashboard Terminal (Verify credentials before registering):</label>
+          <div class="terminal-command-box">
+            <code>ssh &lt;USERNAME&gt;@&lt;REMOTE_IP&gt; "sudo lynis --version"</code>
+            <button type="button" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy</span>
+            </button>
+          </div>
+        </div>
+
+        <div style="margin: 14px 0 10px 0; border-top: 1px solid var(--border-color); padding-top: 12px; font-weight: 700; font-size: 11.5px; color: var(--text-main);">
+          Step 4: Register Node Credentials:
+        </div>
         <form id="serverForm">
           <input type="hidden" id="editServerId" value="">
 

@@ -11,7 +11,9 @@
         const data = await res.json();
         window.LynislensState.activeEnrollmentToken = data.token;
 
+        const sysTokenInput = document.getElementById('sysActiveToken');
         const tokenInput = document.getElementById('settingsActiveToken');
+        if (sysTokenInput) sysTokenInput.value = data.token;
         if (tokenInput) tokenInput.value = data.token;
 
         updateAgentCommandBoxes(data.token);
@@ -27,7 +29,10 @@
       if (res.ok) {
         const data = await res.json();
         window.LynislensState.activeEnrollmentToken = data.token;
+        
+        const sysTokenInput = document.getElementById('sysActiveToken');
         const tokenInput = document.getElementById('settingsActiveToken');
+        if (sysTokenInput) sysTokenInput.value = data.token;
         if (tokenInput) tokenInput.value = data.token;
 
         updateAgentCommandBoxes(data.token);
@@ -40,28 +45,68 @@
 
   function updateAgentCommandBoxes(token) {
     const origin = window.location.origin;
-    const cronSelect = document.getElementById('agentCronIntervalSelect')?.value || 'daily';
+    const cronSelect = document.getElementById('sysCronIntervalSelect')?.value 
+      || document.getElementById('agentCronIntervalSelect')?.value 
+      || document.getElementById('settingsCronIntervalSelect')?.value 
+      || 'daily';
+
     const cmd = `curl -sSL ${origin}/install.sh | sudo bash -s -- --token ${token} --server ${origin} --cron ${cronSelect}`;
 
     const agentCommandText = document.getElementById('agentCommandText');
     const sysSetupCommandText = document.getElementById('sysSetupCommandText');
+    const sysSetupCommandTextPane = document.getElementById('sysSetupCommandTextPane');
+    const nativeLynisInjectCmd = document.getElementById('nativeLynisInjectCmd');
+    const nativeLynisPrfContent = document.getElementById('nativeLynisPrfContent');
+    const sysSetupNativeInjectCmd = document.getElementById('sysSetupNativeInjectCmd');
 
     if (agentCommandText) agentCommandText.textContent = cmd;
     if (sysSetupCommandText) sysSetupCommandText.textContent = cmd;
+    if (sysSetupCommandTextPane) sysSetupCommandTextPane.textContent = cmd;
+
+    const injectStr = `echo -e "\\nupload=yes\\nupload_server=${origin}/api/lynis/upload/\\nlicense_key=${token}" | sudo tee -a /etc/lynis/custom.prf`;
+    if (nativeLynisInjectCmd) nativeLynisInjectCmd.textContent = injectStr;
+    if (sysSetupNativeInjectCmd) sysSetupNativeInjectCmd.textContent = injectStr;
+
+    if (nativeLynisPrfContent) {
+      nativeLynisPrfContent.textContent = `upload=yes\nupload_server=${origin}/api/lynis/upload/\nlicense_key=${token}`;
+    }
+
+    const sysSetupHealthCheckCmd = document.getElementById('sysSetupHealthCheckCmd');
+    if (sysSetupHealthCheckCmd) sysSetupHealthCheckCmd.textContent = `curl -I ${origin}/health`;
+
+    const agentHealthCheckCmd = document.getElementById('agentHealthCheckCmd');
+    if (agentHealthCheckCmd) agentHealthCheckCmd.textContent = `curl -I ${origin}/health`;
+
+    const sysSetupNativeCheckCmd = document.getElementById('sysSetupNativeCheckCmd');
+    if (sysSetupNativeCheckCmd) sysSetupNativeCheckCmd.textContent = `curl -s ${origin}/api/lynis/license/`;
+
+    const nativeLynisCheckCmd = document.getElementById('nativeLynisCheckCmd');
+    if (nativeLynisCheckCmd) nativeLynisCheckCmd.textContent = `curl -s ${origin}/api/lynis/license/`;
   }
 
   function loadSavedSettings() {
+    // 1. Idle Sleep / Auto-Logout Timeout
+    const idleSelect = document.getElementById('settingsIdleTimeoutSelect');
+    if (idleSelect && typeof window.getIdleTimeout === 'function') {
+      const currentTimeout = window.getIdleTimeout();
+      idleSelect.value = String(currentTimeout);
+    }
+
+    // 2. Profile Details
     const profileJson = localStorage.getItem('lynislens_profile');
     if (profileJson) {
       try {
         const profile = JSON.parse(profileJson);
         const orgNameInput = document.getElementById('settingsOrgName');
         const auditorNameInput = document.getElementById('settingsAuditorName');
+        const benchmarkSelect = document.getElementById('settingsBenchmarkPolicy');
         if (orgNameInput && profile.company) orgNameInput.value = profile.company;
         if (auditorNameInput && profile.auditorName) auditorNameInput.value = profile.auditorName;
+        if (benchmarkSelect && profile.benchmarkCode) benchmarkSelect.value = profile.benchmarkCode;
       } catch (e) {}
     }
 
+    // 3. Webhook Settings
     const webhookJson = localStorage.getItem('lynislens_webhook');
     if (webhookJson) {
       try {
@@ -77,15 +122,28 @@
     }
   }
 
+  function saveIdleTimeoutSetting() {
+    const idleSelect = document.getElementById('settingsIdleTimeoutSelect');
+    if (!idleSelect) return;
+    const val = parseInt(idleSelect.value, 10);
+    if (typeof window.setIdleTimeout === 'function') {
+      window.setIdleTimeout(val);
+      const label = idleSelect.options[idleSelect.selectedIndex]?.text || 'Timeout';
+      window.showToast(`Inactivity Sleep Timeout set to: ${label}`, 'success');
+    }
+  }
+
   function saveProfileSettings() {
     const orgName = document.getElementById('settingsOrgName')?.value || 'Enterprise Security Hub';
     const auditorName = document.getElementById('settingsAuditorName')?.value || 'SecOps Auditor';
+    const benchmarkCode = document.getElementById('settingsBenchmarkPolicy')?.value || 'CIS';
 
     const profile = {
       auditorName,
       company: orgName,
       role: 'Enterprise Security Lead',
-      benchmark: 'CIS Linux Benchmark (Level 2 Server)'
+      benchmarkCode: benchmarkCode,
+      benchmark: `${benchmarkCode} Security Benchmark Policy`
     };
 
     localStorage.setItem('lynislens_profile', JSON.stringify(profile));
@@ -143,36 +201,63 @@
 
   window.fetchEnrollmentToken = fetchEnrollmentToken;
   window.generateNewToken = generateNewToken;
+  window.updateAgentCommandBoxes = updateAgentCommandBoxes;
   window.renderSettingsTab = renderSettingsTab;
+  window.saveIdleTimeoutSetting = saveIdleTimeoutSetting;
 
   document.addEventListener('DOMContentLoaded', () => {
     const btnSettingsRefreshToken = document.getElementById('btnSettingsRefreshToken');
+    const btnSysRefreshToken = document.getElementById('btnSysRefreshToken');
     const btnRefreshTokens = document.getElementById('btnRefreshTokens');
+    const btnRefreshTokensNative = document.getElementById('btnRefreshTokensNative');
+    
     const btnSettingsSaveProfile = document.getElementById('btnSettingsSaveProfile');
     const btnSaveWebhook = document.getElementById('btnSaveWebhook');
     const btnTestWebhook = document.getElementById('btnTestWebhook');
+    const btnSaveIdleTimeout = document.getElementById('btnSaveIdleTimeout');
+    const settingsIdleTimeoutSelect = document.getElementById('settingsIdleTimeoutSelect');
+
     const btnSettingsCopyCmd = document.getElementById('btnSettingsCopyCmd');
+    const btnCopySysCmd = document.getElementById('btnCopySysCmd');
+    const btnCopySysCmdPane = document.getElementById('btnCopySysCmdPane');
+
     const agentCronIntervalSelect = document.getElementById('agentCronIntervalSelect');
     const sysCronIntervalSelect = document.getElementById('sysCronIntervalSelect');
     const settingsCronIntervalSelect = document.getElementById('settingsCronIntervalSelect');
 
-    if (btnSettingsRefreshToken) btnSettingsRefreshToken.addEventListener('click', generateNewToken);
-    if (btnRefreshTokens) btnRefreshTokens.addEventListener('click', generateNewToken);
+    [btnSettingsRefreshToken, btnSysRefreshToken, btnRefreshTokens, btnRefreshTokensNative].forEach(btn => {
+      if (btn) btn.addEventListener('click', generateNewToken);
+    });
+
     if (btnSettingsSaveProfile) btnSettingsSaveProfile.addEventListener('click', saveProfileSettings);
     if (btnSaveWebhook) btnSaveWebhook.addEventListener('click', saveWebhookSettings);
     if (btnTestWebhook) btnTestWebhook.addEventListener('click', testWebhookAlert);
+    if (btnSaveIdleTimeout) btnSaveIdleTimeout.addEventListener('click', saveIdleTimeoutSetting);
 
-    if (btnSettingsCopyCmd) {
-      btnSettingsCopyCmd.addEventListener('click', () => {
-        const text = document.getElementById('agentCommandText')?.innerText || '';
-        navigator.clipboard.writeText(text);
-        window.showToast('Install command copied!', 'success');
-      });
+    if (settingsIdleTimeoutSelect) {
+      settingsIdleTimeoutSelect.addEventListener('change', saveIdleTimeoutSetting);
     }
+
+    [btnSettingsCopyCmd, btnCopySysCmd, btnCopySysCmdPane].forEach(btn => {
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const origin = window.location.origin;
+          const token = window.LynislensState.activeEnrollmentToken || 'LL-TOKEN-DEFAULT';
+          const cronVal = (sysCronIntervalSelect || agentCronIntervalSelect || settingsCronIntervalSelect)?.value || 'daily';
+          const cmd = `curl -sSL ${origin}/install.sh | sudo bash -s -- --token ${token} --server ${origin} --cron ${cronVal}`;
+          navigator.clipboard.writeText(cmd);
+          window.showToast('1-Line install command copied to clipboard!', 'success');
+        });
+      }
+    });
 
     [agentCronIntervalSelect, sysCronIntervalSelect, settingsCronIntervalSelect].forEach(sel => {
       if (sel) {
         sel.addEventListener('change', () => {
+          const val = sel.value;
+          [agentCronIntervalSelect, sysCronIntervalSelect, settingsCronIntervalSelect].forEach(other => {
+            if (other && other !== sel) other.value = val;
+          });
           if (window.LynislensState.activeEnrollmentToken) {
             updateAgentCommandBoxes(window.LynislensState.activeEnrollmentToken);
           }

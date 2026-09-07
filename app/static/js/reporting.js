@@ -42,8 +42,8 @@
             <td><code>${window.escapeHtml(item.hostname || 'Local Machine')}</code></td>
             <td><span class="badge badge-info" style="font-size:10px;">${window.escapeHtml(item.server_name || 'Host')}</span></td>
             <td>${item.total_findings || 0} Findings</td>
-            <td><strong style="color:${item.overall_score >= 80 ? '#10b981' : item.overall_score >= 70 ? '#f59e0b' : '#ef4444'}">${item.overall_score || '--'} / 100</strong></td>
-            <td><span class="badge-priority priority-${(item.letter_grade || 'C').toLowerCase() === 'a' ? 'p4' : (item.letter_grade || 'C').toLowerCase() === 'b' ? 'p3' : 'p2'}">Grade ${window.escapeHtml(item.letter_grade || 'C')}</span></td>
+            <td><strong style="color:${item.overall_score >= 90 ? '#10b981' : item.overall_score >= 80 ? '#3b82f6' : item.overall_score >= 70 ? '#d97706' : item.overall_score >= 60 ? '#ea580c' : '#ef4444'}">${item.overall_score || '--'} / 100</strong></td>
+            <td><span class="badge-priority priority-${(item.letter_grade || 'C').toLowerCase() === 'a' || (item.letter_grade || 'C').toLowerCase() === 'a+' ? 'p4' : (item.letter_grade || 'C').toLowerCase() === 'b' ? 'p3' : (item.letter_grade || 'C').toLowerCase() === 'c' ? 'p2' : (item.letter_grade || 'C').toLowerCase() === 'd' ? 'p1' : 'p0'}">Grade ${window.escapeHtml(item.letter_grade || 'C')}</span></td>
             <td style="text-align: right;">
               <button type="button" class="btn btn-sm btn-secondary" onclick="window.open('/report', '_blank')">View Report</button>
             </td>

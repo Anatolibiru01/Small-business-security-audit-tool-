@@ -209,10 +209,16 @@
     }
 
     if (leftSidebarDrawer) {
-      leftSidebarDrawer.addEventListener('mouseenter', () => clearTimeout(drawerHoverTimeout));
+      leftSidebarDrawer.addEventListener('mouseenter', () => {
+        clearTimeout(drawerHoverTimeout);
+        leftSidebarDrawer.classList.add('hover-expanded');
+      });
       leftSidebarDrawer.addEventListener('mouseleave', () => {
         clearTimeout(drawerHoverTimeout);
-        drawerHoverTimeout = setTimeout(closeLeftDrawer, 280);
+        drawerHoverTimeout = setTimeout(() => {
+          leftSidebarDrawer.classList.remove('hover-expanded');
+          leftSidebarDrawer.classList.remove('active');
+        }, 150);
       });
     }
 

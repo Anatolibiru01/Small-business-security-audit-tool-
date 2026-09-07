@@ -77,6 +77,64 @@ def generate_enrollment_token() -> str:
     return f"LL-TOKEN-{secrets.token_hex(4).upper()}-{secrets.token_hex(4).upper()}"
 
 
+def get_active_enrollment_token() -> str:
+    """
+    Retrieve the current active enrollment token from persistent database storage.
+    If none exists yet, one is created and saved.
+    This ensures the token stays stable across browser refreshes.
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS app_settings (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        )
+    """)
+    cursor.execute("SELECT value FROM app_settings WHERE key = 'active_enrollment_token'")
+    row = cursor.fetchone()
+    if row and row["value"]:
+        token = row["value"]
+        conn.close()
+        return token
+
+    # Generate initial persistent token
+    token = generate_enrollment_token()
+    now = datetime.utcnow().isoformat()
+    cursor.execute(
+        "INSERT OR REPLACE INTO app_settings (key, value, updated_at) VALUES (?, ?, ?)",
+        ("active_enrollment_token", token, now)
+    )
+    conn.commit()
+    conn.close()
+    return token
+
+
+def rotate_active_enrollment_token() -> str:
+    """
+    Manually rotate the active enrollment token when the user explicitly requests it.
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS app_settings (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        )
+    """)
+    new_token = generate_enrollment_token()
+    now = datetime.utcnow().isoformat()
+    cursor.execute(
+        "INSERT OR REPLACE INTO app_settings (key, value, updated_at) VALUES (?, ?, ?)",
+        ("active_enrollment_token", new_token, now)
+    )
+    conn.commit()
+    conn.close()
+    return new_token
+
+
 class ServerBase(BaseModel):
     name: str = Field(..., description="Friendly name for the server")
     host: str = Field(..., description="IP address or domain name")
@@ -324,7 +382,16 @@ def create_or_update_push_server(
     cursor = conn.cursor()
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    existing = get_server_by_token(token)
+    existing = get_server_by_token(token) if token else None
+    if not existing and (hostname or ip):
+        target_h = hostname if hostname and hostname != "testclient" else ""
+        target_ip = ip if ip and ip != "testclient" else ""
+        if target_h or target_ip:
+            cursor.execute("SELECT * FROM servers WHERE (name = ? AND name != '') OR (host = ? AND host != '')", (target_h, target_ip))
+            row = cursor.fetchone()
+            if row:
+                existing = _row_to_profile(row)
+
     if existing:
         # Update server host & heartbeat & hostname from report data
         resolved_host = ip if (ip and ip != "testclient") else (hostname or existing.host or "127.0.0.1")
@@ -337,7 +404,6 @@ def create_or_update_push_server(
         conn.commit()
         conn.close()
         return get_server_by_id(existing.id)
-
 
     # Auto-register new host profile for this token
     display_name = hostname if (hostname and hostname != "testclient") else (ip or "Enterprise Linux Host")

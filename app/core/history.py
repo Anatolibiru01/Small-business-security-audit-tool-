@@ -175,6 +175,28 @@ def _enrich_scorecard_data(data: Dict[str, Any]) -> AuditScorecard:
             item["difficulty"] = details.get("difficulty", item.get("difficulty", "Easy"))
             item["rollback_note"] = details.get("rollback_note", item.get("rollback_note", ""))
 
+    # Ensure letter_grade and risk_level dynamically match the current 5-tier standard
+    score = data.get("overall_score")
+    if score is not None:
+        if score >= 95:
+            data["letter_grade"] = "A+"
+            data["risk_level"] = "Low Risk"
+        elif score >= 90:
+            data["letter_grade"] = "A"
+            data["risk_level"] = "Low Risk"
+        elif score >= 80:
+            data["letter_grade"] = "B"
+            data["risk_level"] = "Low Risk"
+        elif score >= 70:
+            data["letter_grade"] = "C"
+            data["risk_level"] = "Moderate Risk"
+        elif score >= 60:
+            data["letter_grade"] = "D"
+            data["risk_level"] = "Needs Attention"
+        else:
+            data["letter_grade"] = "F"
+            data["risk_level"] = "Critical Risk"
+
     return AuditScorecard(**data)
 
 

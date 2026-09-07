@@ -92,5 +92,39 @@
     };
   }
 
+  let ambientSource = null;
+
+  function initAmbientSSEStream() {
+    if (ambientSource) {
+      ambientSource.close();
+      ambientSource = null;
+    }
+
+    try {
+      ambientSource = new EventSource('/api/scan/stream');
+      ambientSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.is_complete || data.stage === 'Completed' || data.scorecard) {
+            if (typeof window.fetchServersList === 'function') {
+              window.fetchServersList();
+            }
+            if (typeof window.fetchLatestScan === 'function') {
+              window.fetchLatestScan();
+            }
+          }
+        } catch (e) {}
+      };
+      ambientSource.onerror = () => {
+        if (ambientSource) ambientSource.close();
+        ambientSource = null;
+        setTimeout(initAmbientSSEStream, 5000);
+      };
+    } catch (err) {
+      console.warn('Could not initialize ambient SSE stream:', err);
+    }
+  }
+
   window.startLiveAuditStream = startLiveAuditStream;
+  window.initAmbientSSEStream = initAmbientSSEStream;
 })();

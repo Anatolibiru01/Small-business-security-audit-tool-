@@ -36,6 +36,8 @@ from app.core.servers import (
     update_server,
     delete_server,
     generate_enrollment_token,
+    get_active_enrollment_token,
+    rotate_active_enrollment_token,
     get_server_by_token,
     create_or_update_push_server,
     update_server_last_scan,
@@ -83,6 +85,7 @@ class StartScanRequest(BaseModel):
     server_id: Optional[int] = None
     username: str = ""
     password: str = ""
+    sudo_password: Optional[str] = None
     simulate: bool = False
     profile: Optional[str] = "standard"
 
@@ -208,16 +211,24 @@ async def report_page(
 
 
 @app.get("/api/token")
+@app.get("/api/agent/token")
+async def get_current_enrollment_token():
+    """
+    Get the persistent active enrollment token (stable across browser refreshes).
+    """
+    token = get_active_enrollment_token()
+    return {"token": token}
+
+
 @app.post("/api/token")
 @app.post("/api/token/rotate")
-@app.get("/api/agent/token")
 @app.post("/api/agent/token/refresh")
 @app.post("/api/servers/token")
-async def create_new_enrollment_token():
+async def rotate_current_enrollment_token():
     """
-    Generate or rotate an enterprise enrollment token for 1-line agent onboarding.
+    Manually rotate the enterprise enrollment token when explicitly requested.
     """
-    token = generate_enrollment_token()
+    token = rotate_active_enrollment_token()
     return {"token": token}
 
 
@@ -236,6 +247,8 @@ async def test_webhook_alert(request: Request):
         return {"status": "success", "message": "Test alert dispatched."}
 
 
+@app.post("/api/lynis/upload/")
+@app.post("/api/lynis/upload")
 @app.post("/api/agent/report")
 async def receive_agent_report(
     request: Request,
@@ -244,24 +257,52 @@ async def receive_agent_report(
     x_host_ip: Optional[str] = Header(None, alias="X-Host-IP")
 ):
     """
-    Enterprise Central Ingestion Endpoint.
-    Receives raw /var/log/lynis-report.dat payload from remote cron agents,
+    Lynis Native & Enterprise Agent Central Ingestion Endpoint.
+    Receives audit reports from 'lynis audit system --upload' or custom push agents,
     computes the scorecard, updates server metrics, and publishes real-time UI updates.
     """
-    body_bytes = await request.body()
-    raw_report = body_bytes.decode("utf-8", errors="replace")
+    raw_report = ""
+    token = ""
+    host_id = ""
+
+    # Check if request is multipart/form-data or urlencoded form
+    content_type = request.headers.get("content-type", "").lower()
+    if "form" in content_type or "multipart" in content_type:
+        try:
+            form = await request.form()
+            form_data_field = form.get("data") or form.get("report") or form.get("file") or ""
+            if hasattr(form_data_field, "read"):
+                file_bytes = await form_data_field.read()
+                raw_report = file_bytes.decode("utf-8", errors="replace")
+            elif isinstance(form_data_field, bytes):
+                raw_report = form_data_field.decode("utf-8", errors="replace")
+            else:
+                raw_report = str(form_data_field)
+
+            token = form.get("licensekey") or form.get("license_key") or form.get("token") or ""
+            host_id = form.get("hostid") or form.get("hostid2") or ""
+        except Exception:
+            pass
+
+    if not raw_report:
+        body_bytes = await request.body()
+        raw_report = body_bytes.decode("utf-8", errors="replace")
+
+    if not token:
+        token = x_agent_token or request.query_params.get("token") or request.query_params.get("licensekey") or "LL-DEFAULT-AGENT"
+
+    token = str(token).strip()
 
     if not raw_report.strip():
         raise HTTPException(status_code=400, detail="Empty Lynis report payload.")
-
-    token = (x_agent_token or "LL-DEFAULT-AGENT").strip()
 
     # 1. Parse report data
     report_data = parse_lynis_report(raw_report)
     
     # Determine hostname & IP
-    hostname = x_host_name or report_data.hostname or "linux-enterprise-host"
-    ip = x_host_ip or report_data.ip_address or (request.client.host if request.client else "127.0.0.1")
+    hostname = x_host_name or report_data.hostname or (f"node-{str(host_id)[:8]}" if host_id else "linux-remote-node")
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    ip = x_host_ip or report_data.ip_address or client_ip
 
     # 2. Auto-enroll or update server registry
     server = create_or_update_push_server(
@@ -290,13 +331,17 @@ async def receive_agent_report(
     completion_event = ScanProgressEvent(
         stage="Completed",
         progress_percent=100,
-        message=f"Agent report received from {server.name}! Score: {scorecard.overall_score}/100 ({scorecard.letter_grade})",
+        message=f"Audit report uploaded from {server.name}! Score: {scorecard.overall_score}/100 ({scorecard.letter_grade})",
         is_complete=True,
         scorecard=scorecard,
         server_id=server.id,
         server_name=server.name
     )
     await scan_manager.broadcast(completion_event)
+
+    # If requested by native Lynis client (/api/lynis/upload), return plain text OK response
+    if "lynis" in request.url.path:
+        return Response(content="OK\n", media_type="text/plain", status_code=200)
 
     return {
         "status": "success",
@@ -309,6 +354,30 @@ async def receive_agent_report(
         "record_id": record_id,
         "message": "Enterprise audit report ingested and scored successfully."
     }
+
+
+@app.api_route("/api/lynis/license/", methods=["GET", "POST", "HEAD", "OPTIONS", "PUT"])
+@app.api_route("/api/lynis/license", methods=["GET", "POST", "HEAD", "OPTIONS", "PUT"])
+@app.api_route("/api/lynis/upload/license", methods=["GET", "POST", "HEAD", "OPTIONS", "PUT"])
+@app.api_route("/api/lynis/upload/license/", methods=["GET", "POST", "HEAD", "OPTIONS", "PUT"])
+@app.api_route("/license", methods=["GET", "POST", "HEAD", "OPTIONS", "PUT"])
+@app.api_route("/license/", methods=["GET", "POST", "HEAD", "OPTIONS", "PUT"])
+@app.api_route("/api/license", methods=["GET", "POST", "HEAD", "OPTIONS", "PUT"])
+@app.api_route("/api/license/", methods=["GET", "POST", "HEAD", "OPTIONS", "PUT"])
+async def check_lynis_license():
+    """Lynis client license validation handshake."""
+    return Response(content="OK\n", media_type="text/plain", status_code=200)
+
+
+@app.api_route("/api/lynis/version/", methods=["GET", "POST", "HEAD", "OPTIONS", "PUT"])
+@app.api_route("/api/lynis/version", methods=["GET", "POST", "HEAD", "OPTIONS", "PUT"])
+@app.api_route("/api/lynis/upload/version", methods=["GET", "POST", "HEAD", "OPTIONS", "PUT"])
+@app.api_route("/api/lynis/upload/version/", methods=["GET", "POST", "HEAD", "OPTIONS", "PUT"])
+@app.api_route("/version", methods=["GET", "POST", "HEAD", "OPTIONS", "PUT"])
+@app.api_route("/version/", methods=["GET", "POST", "HEAD", "OPTIONS", "PUT"])
+async def get_lynis_version_check():
+    """Lynis client version compatibility verification."""
+    return Response(content="OK\n", media_type="text/plain", status_code=200)
 
 
 # ============================================================================
@@ -500,7 +569,7 @@ async def start_scan(payload: StartScanRequest, background_tasks: BackgroundTask
         _execute_scan_worker,
         server_id=payload.server_id,
         username=payload.username,
-        password=payload.password,
+        password=payload.password or payload.sudo_password or "",
         simulate=payload.simulate
     )
 

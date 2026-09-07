@@ -51,8 +51,8 @@ class CategoryScore(BaseModel):
 class AuditScorecard(BaseModel):
     # Overall Metrics
     overall_score: int  # 0 to 100
-    letter_grade: str  # A+, A, B, C, F
-    risk_level: str  # Low Risk, Moderate Risk, High Risk, Critical Risk
+    letter_grade: str  # A+, A, B, C, D, F
+    risk_level: str  # Low Risk, Moderate Risk, Needs Attention, Critical Risk
     executive_summary: str
     
     # Counts
@@ -153,23 +153,27 @@ def calculate_scorecard(report: LynisReportData) -> AuditScorecard:
     medium_count = sum(1 for i in remediation_items if i.severity == "Medium")
     low_count = sum(1 for i in remediation_items if i.severity == "Low")
 
-    # Determine Grade and Risk Level
-    if overall_score >= 90:
+    # Determine Grade and Risk Level (aligned with documented scoring matrix)
+    if overall_score >= 95:
         letter_grade = "A+"
+        risk_level = "Low Risk"
+        exec_summary = "Your system security posture is outstanding. Core protections are active and attack surfaces are hardened."
+    elif overall_score >= 90:
+        letter_grade = "A"
         risk_level = "Low Risk"
         exec_summary = "Your system security posture is excellent. Core protections are active and attack surfaces are well restricted."
     elif overall_score >= 80:
-        letter_grade = "A"
-        risk_level = "Low Risk"
-        exec_summary = "Good security baseline with minor configuration recommendations remaining."
-    elif overall_score >= 70:
         letter_grade = "B"
-        risk_level = "Moderate Risk"
-        exec_summary = "Fair security status, but key areas (such as access control or logging) require attention to prevent intrusion."
-    elif overall_score >= 50:
+        risk_level = "Low Risk"
+        exec_summary = "Solid security baseline with minor configuration recommendations remaining."
+    elif overall_score >= 70:
         letter_grade = "C"
-        risk_level = "High Risk"
-        exec_summary = "Elevated risk detected. High-priority vulnerabilities or unhardened services need immediate remediation."
+        risk_level = "Moderate Risk"
+        exec_summary = "Moderate risk detected. Key areas (such as access control or logging) require attention to prevent intrusion."
+    elif overall_score >= 60:
+        letter_grade = "D"
+        risk_level = "Needs Attention"
+        exec_summary = "Elevated risk detected. High-priority vulnerabilities or unhardened services require immediate remediation."
     else:
         letter_grade = "F"
         risk_level = "Critical Risk"

@@ -57,6 +57,67 @@
     }
   }
 
+  const DEFAULT_IDLE_TIMEOUT_SECONDS = 1800; // 30 Minutes
+  let idleTimer = null;
+
+  function getIdleTimeout() {
+    const saved = localStorage.getItem('lynislens_idle_timeout');
+    if (saved !== null && saved !== undefined) {
+      const parsed = parseInt(saved, 10);
+      if (!isNaN(parsed)) return parsed;
+    }
+    return DEFAULT_IDLE_TIMEOUT_SECONDS;
+  }
+
+  function setIdleTimeout(seconds) {
+    localStorage.setItem('lynislens_idle_timeout', String(seconds));
+    resetIdleTimer();
+  }
+
+  function lockSession() {
+    if (idleTimer) {
+      clearTimeout(idleTimer);
+      idleTimer = null;
+    }
+    localStorage.removeItem('lynislens_owner_auth');
+    const authOverlay = document.getElementById('authOverlay');
+    if (authOverlay) authOverlay.classList.remove('hidden');
+
+    const ownerPasswordInput = document.getElementById('ownerPassword');
+    if (ownerPasswordInput) ownerPasswordInput.value = '';
+
+    // Close open modals, palette, and drawer on lock
+    const openModals = document.querySelectorAll('.modal-overlay:not(.hidden)');
+    openModals.forEach(m => m.classList.add('hidden'));
+    const palette = document.getElementById('commandPaletteOverlay');
+    if (palette) palette.classList.add('hidden');
+    const drawer = document.getElementById('leftDrawer');
+    if (drawer) drawer.classList.remove('open');
+    const drawerOverlay = document.getElementById('drawerOverlay');
+    if (drawerOverlay) drawerOverlay.classList.remove('open');
+  }
+
+  function resetIdleTimer() {
+    if (idleTimer) {
+      clearTimeout(idleTimer);
+      idleTimer = null;
+    }
+    const timeoutSecs = getIdleTimeout();
+    // Only schedule auto-lock if user is authenticated and timeout > 0 (0 = disabled/never)
+    if (localStorage.getItem('lynislens_owner_auth') && timeoutSecs > 0) {
+      idleTimer = setTimeout(() => {
+        lockSession();
+      }, timeoutSecs * 1000);
+    }
+  }
+
+  function setupActivityListeners() {
+    const activityEvents = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'click', 'wheel'];
+    activityEvents.forEach(evt => {
+      window.addEventListener(evt, resetIdleTimer, { passive: true });
+    });
+  }
+
   function checkAuth() {
     const isAuth = localStorage.getItem('lynislens_owner_auth');
     updateUserProfileDisplay();
@@ -64,8 +125,13 @@
     const authOverlay = document.getElementById('authOverlay');
     if (!isAuth) {
       if (authOverlay) authOverlay.classList.remove('hidden');
+      if (idleTimer) {
+        clearTimeout(idleTimer);
+        idleTimer = null;
+      }
     } else {
       if (authOverlay) authOverlay.classList.add('hidden');
+      resetIdleTimer();
       if (typeof window.bootstrapApp === 'function') {
         window.bootstrapApp();
       }
@@ -73,14 +139,15 @@
   }
 
   function handleLogout() {
-    localStorage.removeItem('lynislens_owner_auth');
-    const authOverlay = document.getElementById('authOverlay');
-    if (authOverlay) authOverlay.classList.remove('hidden');
-    window.showToast("Signed out of Lynislens Enterprise.", "info");
+    lockSession();
   }
 
   window.checkAuth = checkAuth;
   window.handleLogout = handleLogout;
+  window.resetIdleTimer = resetIdleTimer;
+  window.lockSession = lockSession;
+  window.getIdleTimeout = getIdleTimeout;
+  window.setIdleTimeout = setIdleTimeout;
   window.getMasterUsername = getMasterUsername;
   window.getMasterPassword = getMasterPassword;
   window.setMasterPassword = setMasterPassword;
@@ -291,6 +358,9 @@
         handleLogout();
       });
     }
+
+    // Setup user activity listeners for 30s auto-lock
+    setupActivityListeners();
 
     // Initial check
     checkAuth();

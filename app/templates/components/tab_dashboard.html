@@ -29,7 +29,6 @@
         </svg>
         Export PDF
       </button>
-      <button id="btnTriggerScan" class="btn btn-sm btn-primary">Run Audit</button>
     </div>
   </div>
 
@@ -39,12 +38,12 @@
       <div class="empty-message">
         <img src="/static/img/logo.png" alt="Lynislens Logo"
           style="height: 64px; width: auto; margin-bottom: 16px; object-fit: contain;">
-        <h3>No Audit Results Loaded</h3>
-        <p>Run a new security audit or connect an Enterprise Push agent to populate metrics, scorecards, and
-          charts.</p>
+        <h3>No Audit Results Loaded for Selected Target</h3>
+        <p>This node is registered, but no security audit scan has been executed or uploaded yet.<br>
+        Click <strong>Execute Security Audit</strong> to launch a scan, or upload report telemetry from the remote agent.</p>
         <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
-          <button id="btnStartFirstScan" class="btn btn-primary">Start Local Audit</button>
-          <button id="btnStartFirstRemote" class="btn btn-secondary">+ Connect Remote Agent</button>
+          <button id="btnStartFirstScan" class="btn btn-primary">Execute Security Audit</button>
+          <button id="btnStartFirstRemote" class="btn btn-secondary">+ Connect Another Agent</button>
         </div>
       </div>
     </div>
@@ -88,143 +87,223 @@
     </div>
 
     <div id="resultsState" class="state-container">
-      <div class="dashboard-grid">
-        <!-- Executive Summary Panel -->
-        <div class="panel summary-panel">
-          <div class="panel-header">Executive Summary</div>
-          <div class="panel-body">
-            <div class="score-display">
-              <div class="score-value" id="scoreNumber">--</div>
-              <div class="score-label">Overall Security Score</div>
-              <div class="grade-badge" id="gradeBadge">Grade --</div>
+      <div class="dash-executive-canvas">
+        
+        <!-- 1. TOP KPI METRICS ROW (4 Floating Elevated Cards exactly matching reference image) -->
+        <div class="kpi-metrics-row">
+          <!-- Card 1: Visitors & Buyers / Node Telemetry -->
+          <div class="ref-kpi-card">
+            <div class="ref-kpi-icon-bubble icon-cyan">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
             </div>
-            <div class="meta-info-grid">
-              <div class="meta-info-col">
-                <div class="meta-item"><strong>Host</strong><span id="hostNameVal">--</span></div>
-                <div class="meta-item"><strong>OS</strong><span id="osNameVal">--</span></div>
-                <div class="meta-item"><strong>Kernel</strong><span id="kernelVal">--</span></div>
-                <div class="meta-item"><strong>Firewall Status</strong><span id="metricFirewall">--</span></div>
+            <div class="ref-kpi-body">
+              <div class="ref-kpi-value" id="hostNameVal">Local Machine</div>
+              <div class="ref-kpi-label">Target Node Telemetry</div>
+              <div class="ref-kpi-sub"><span id="osNameVal">Linux OS</span> • <span id="metricFirewall"><span class="badge-status status-connected"><i class="fas fa-shield-alt"></i> Active & Filtering</span></span></div>
+            </div>
+          </div>
+
+          <!-- Card 2: Conversion / Hardening Index -->
+          <div class="ref-kpi-card">
+            <div class="ref-kpi-icon-bubble icon-teal">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 2a10 10 0 0 1 10 10"></path>
+              </svg>
+            </div>
+            <div class="ref-kpi-body">
+              <div class="ref-kpi-value teal-highlight" id="kpiHardeningScore">--%</div>
+              <div class="ref-kpi-label">Hardening Index</div>
+              <div class="ref-kpi-sub" id="hardeningIndexVal">-- / 100 Audit Score</div>
+            </div>
+          </div>
+
+          <!-- Card 3: Profit / Security Posture & Grade -->
+          <div class="ref-kpi-card centered-card">
+            <div class="ref-kpi-body" style="text-align: center;">
+              <div class="ref-kpi-value" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span id="gradeBadge" class="grade-badge" style="font-size: 1.15rem; padding: 4px 14px; border-radius: 999px;">Grade --</span>
               </div>
-              <div class="meta-info-col">
-                <div class="meta-item"><strong>Hardening Index</strong><span id="hardeningIndexVal"
-                    class="mono-stat">-- / 100</span></div>
-                <div class="meta-item"><strong>Risk Level</strong><span id="riskLevelPill">--</span></div>
-                <div class="meta-item"><strong>Open Warnings</strong><span id="metricWarnings"
-                    class="badge-sev sev-high">0</span></div>
-                <div class="meta-item"><strong>Suggestions</strong><span id="metricSuggestions"
-                    class="badge-sev sev-low">0</span></div>
+              <div class="ref-kpi-label" style="margin-top: 4px;">Security Posture</div>
+              <div class="ref-kpi-sub"><span id="riskLevelPill">Moderate Risk</span> • <span id="metricWarnings">0</span> Warnings <span id="metricSuggestions" style="display:none;">0</span></div>
+            </div>
+          </div>
+
+          <!-- Card 4: Tasks / Remediation Rate with Slider Header -->
+          <div class="ref-kpi-card">
+            <div class="ref-kpi-slider-header">
+              <div class="ref-slider-track">
+                <div class="ref-slider-fill" id="kpiSliderFill" style="width: 59%;"></div>
+                <div class="ref-slider-thumb" id="kpiSliderThumb" style="left: 59%;"></div>
               </div>
+            </div>
+            <div class="ref-kpi-body" style="text-align: center; margin-top: 4px;">
+              <div class="ref-kpi-value teal-highlight" id="kpiRemediationPercent">--%</div>
+              <div class="ref-kpi-label">Remediation & Compliance</div>
+              <div class="ref-kpi-sub" id="kpiTasksFixedLabel">Tasks: 18 / 24 Cleared</div>
             </div>
           </div>
         </div>
 
-        <!-- Findings Distribution: Open-Middle Doughnut Chart -->
-        <div class="panel chart-panel">
-          <div class="panel-header">Findings Distribution</div>
-          <div class="panel-body chart-container" style="display: flex; flex-direction: column;">
-            <div style="flex: 1; min-height: 175px; position: relative;">
-              <canvas id="severityPieChart"></canvas>
+        <!-- 2. MAIN 3-COLUMN REFERENCE LAYOUT (Matching image) -->
+        <div class="dash-ref-layout">
+          
+          <!-- COLUMN 1 (LEFT): Visitors & Buyers Timeline + Profit Performance Breakdown -->
+          <div class="dash-col dash-col-left">
+            <!-- Top: Hardening Timeline Curve (Like Visitors & Buyers) -->
+            <div class="ref-chart-card">
+              <div class="ref-card-header">
+                <span class="ref-card-title">Visitors & Buyers (Hardening Posture)</span>
+                <span class="ref-card-badge"><i class="fas fa-wave-square"></i> Multi-Scan</span>
+              </div>
+              <div class="ref-chart-canvas-wrap" style="height: 195px; position: relative;">
+                <canvas id="historyTrendChart"></canvas>
+              </div>
             </div>
-            <div class="chart-legend-grid" id="pieChartLegend">
-              <div class="legend-item"><span class="legend-dot dot-red"></span><span class="legend-label">Critical
-                  / High</span><strong id="legendCountRed" class="legend-val">0</strong></div>
-              <div class="legend-item"><span class="legend-dot dot-yellow"></span><span
-                  class="legend-label">Medium Risk</span><strong id="legendCountYellow"
-                  class="legend-val">0</strong></div>
-              <div class="legend-item"><span class="legend-dot dot-green"></span><span class="legend-label">Low /
-                  Healthy</span><strong id="legendCountGreen" class="legend-val">0</strong></div>
-              <div class="legend-item"><span class="legend-dot dot-blue"></span><span class="legend-label">Info /
-                  N/A</span><strong id="legendCountBlue" class="legend-val">0</strong></div>
-            </div>
-          </div>
-        </div>
 
-        <!-- Category Breakdown Bar Chart -->
-        <div class="panel chart-panel">
-          <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
-            <span>Category Breakdown</span>
-            <span id="categoryAvgBadge" class="badge-status status-info" style="font-size: 9.5px;">Avg: --%</span>
-          </div>
-          <div class="panel-body chart-container" style="display: flex; flex-direction: column;">
-            <div style="flex: 1; min-height: 175px; position: relative;">
-              <canvas id="categoryBarChart"></canvas>
+            <!-- Bottom: Category Breakdown Bar Chart (Like Profit Performance) -->
+            <div class="ref-chart-card">
+              <div class="ref-card-header">
+                <span class="ref-card-title">Profit Performance (Domain Security)</span>
+                <span id="categoryAvgBadge" class="ref-card-badge">Avg: --%</span>
+              </div>
+              <div class="ref-chart-canvas-wrap" style="height: 195px; position: relative;">
+                <canvas id="categoryBarChart"></canvas>
+              </div>
             </div>
-            <!-- Category Insights & Domain Intelligence Footer -->
-            <div class="category-insights-grid" id="categoryInsightsGrid">
-              <div class="cat-insight-card cat-insight-strong" id="catInsightStrong"
-                title="Strongest security category">
-                <div class="cat-insight-header">
-                  <span class="cat-insight-tag tag-strong">● STRONGEST</span>
-                  <span class="cat-insight-score" id="strongestCatScore">--%</span>
+          </div>
+
+          <!-- COLUMN 2 (CENTER): Hero Score Donut Gauge (Top) & Funding Sources Radar (Bottom) -->
+          <div class="dash-col dash-col-center">
+            <!-- Top: Centered Hero Donut Gauge with Center Score (Conversion) -->
+            <div class="ref-chart-card donut-hero-card">
+              <div class="ref-card-header" style="justify-content: center;">
+                <span class="ref-card-title">Conversion (Overall Security Score)</span>
+              </div>
+              <div class="donut-hero-container">
+                <div class="donut-chart-box">
+                  <canvas id="severityPieChart"></canvas>
+                  <!-- Floating Center Metric -->
+                  <div class="donut-center-anchor">
+                    <span id="scoreNumber" class="donut-center-score">--</span>
+                    <span class="donut-center-sub">COMPLIANCE</span>
+                  </div>
                 </div>
-                <div class="cat-insight-name" id="strongestCatName">Evaluating...</div>
-              </div>
-              <div class="cat-insight-card cat-insight-weak" id="catInsightWeak"
-                title="Weakest security category — Click to filter findings" style="cursor: pointer;">
-                <div class="cat-insight-header">
-                  <span class="cat-insight-tag tag-weak">▲ PRIORITY FOCUS</span>
-                  <span class="cat-insight-score" id="weakestCatScore">--%</span>
+                <!-- Clean Minimalist Legend Pills -->
+                <div class="donut-clean-legend" id="pieChartLegend">
+                  <span class="donut-legend-pill"><i class="dot-red"></i> High: <strong id="legendCountRed">0</strong></span>
+                  <span class="donut-legend-pill"><i class="dot-yellow"></i> Med: <strong id="legendCountYellow">0</strong></span>
+                  <span class="donut-legend-pill"><i class="dot-green"></i> Clean: <strong id="legendCountGreen">0</strong></span>
+                  <span class="donut-legend-pill"><i class="dot-blue"></i> Info: <strong id="legendCountBlue">0</strong></span>
                 </div>
-                <div class="cat-insight-name" id="weakestCatName">Evaluating...</div>
+              </div>
+            </div>
+
+            <!-- Bottom: 6-Domain Defense Radar (Funding Sources by Tasks) -->
+            <div class="ref-chart-card">
+              <div class="ref-card-header" style="justify-content: center;">
+                <span class="ref-card-title">Funding Sources by Tasks (Defense Vectors)</span>
+              </div>
+              <div class="ref-chart-canvas-wrap" style="height: 200px; position: relative;">
+                <canvas id="defenseRadarChart"></canvas>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- ROW 2: Enterprise Posture Intelligence (Trend Line, 6-Domain Radar, & Attack Surface Exposure) -->
-      <div class="dashboard-grid dashboard-grid-compact" style="margin-top: 12px; margin-bottom: 0;">
-        <!-- Historical Hardening Score Trend Line Chart -->
-        <div class="panel chart-panel">
-          <div class="panel-header"
-            style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px;">
-            <span>Historical Hardening Score Trend</span>
-            <span class="badge-status status-info" style="font-size:9.5px;">Timeline Analytics</span>
+          <!-- COLUMN 3 (RIGHT): Task Manager Progress Bars & Calendar Matrix -->
+          <div class="dash-col dash-col-right">
+            <!-- Top: Task Manager Progress Bars (Matching right side of reference) -->
+            <div class="ref-chart-card">
+              <div class="ref-card-header" style="justify-content: center;">
+                <span class="ref-card-title">Task Manager</span>
+              </div>
+              <div class="task-manager-list" id="taskManagerList">
+                <div class="task-row">
+                  <span class="task-label">Task 1: Identity & Access</span>
+                  <div class="task-bar-track">
+                    <div class="task-bar-fill bar-blue" id="taskBar1" style="width: 82%;"></div>
+                  </div>
+                </div>
+                <div class="task-row">
+                  <span class="task-label">Task 2: Kernel & OS Posture</span>
+                  <div class="task-bar-track">
+                    <div class="task-bar-fill bar-teal" id="taskBar2" style="width: 74%;"></div>
+                  </div>
+                </div>
+                <div class="task-row">
+                  <span class="task-label">Task 3: Critical Remediations</span>
+                  <div class="task-bar-track">
+                    <div class="task-bar-fill bar-red" id="taskBar3" style="width: 58%;"></div>
+                  </div>
+                </div>
+                <div class="task-row">
+                  <span class="task-label">Task 4: Crypto & SSL Services</span>
+                  <div class="task-bar-track">
+                    <div class="task-bar-fill bar-orange" id="taskBar4" style="width: 88%;"></div>
+                  </div>
+                </div>
+                <div class="task-row">
+                  <span class="task-label">Task 5: Logging & Audit Logs</span>
+                  <div class="task-bar-track">
+                    <div class="task-bar-fill bar-emerald" id="taskBar5" style="width: 80%;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom: Authentic Reference Calendar Matrix (Years + Months) -->
+            <div class="ref-chart-card">
+              <div class="ref-card-header">
+                <span class="ref-card-title">Audit Schedule & History</span>
+                <span class="ref-card-badge" id="portExposureBadge"><i class="fas fa-calendar-check"></i> Live</span>
+              </div>
+              <div class="cal-matrix-container">
+                <!-- Year Selector Row (Matching reference pills) -->
+                <div class="cal-year-row">
+                  <button type="button" class="cal-year-btn">2024</button>
+                  <button type="button" class="cal-year-btn">2025</button>
+                  <button type="button" class="cal-year-btn active">2026</button>
+                  <button type="button" class="cal-year-btn">2027</button>
+                </div>
+                <!-- 3x4 Month Grid (Matching reference pills) -->
+                <div class="cal-month-grid">
+                  <button type="button" class="cal-month-btn">JAN</button>
+                  <button type="button" class="cal-month-btn active" id="btnFilterCurrentAudit">FEB</button>
+                  <button type="button" class="cal-month-btn">MAR</button>
+                  <button type="button" class="cal-month-btn">APR</button>
+                  <button type="button" class="cal-month-btn">MAY</button>
+                  <button type="button" class="cal-month-btn">JUN</button>
+                  <button type="button" class="cal-month-btn">JUL</button>
+                  <button type="button" class="cal-month-btn">AUG</button>
+                  <button type="button" class="cal-month-btn">SEP</button>
+                  <button type="button" class="cal-month-btn">OCT</button>
+                  <button type="button" class="cal-month-btn">NOV</button>
+                  <button type="button" class="cal-month-btn">DEC</button>
+                </div>
+
+                <!-- Sleek pill action button below matrix -->
+                <div class="cal-action-wrap">
+                  <button type="button" class="ref-action-pill-btn" id="btnQuickGoFindings">
+                    <span>Review Findings & Remediation</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path d="M5 12h14"></path>
+                      <path d="m12 5 7 7-7 7"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="panel-body chart-container" style="min-height: 135px; height: 135px; padding: 6px 12px;">
-            <canvas id="historyTrendChart"></canvas>
-          </div>
+
         </div>
 
-        <!-- 6-Domain Security Defense Radar Chart -->
-        <div class="panel chart-panel">
-          <div class="panel-header"
-            style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px;">
-            <span>6-Domain Defense Radar</span>
-            <span class="badge-status status-connected" style="font-size:9.5px;">Multi-Vector</span>
-          </div>
-          <div class="panel-body chart-container" style="min-height: 135px; height: 135px; padding: 4px 8px;">
-            <canvas id="defenseRadarChart"></canvas>
-          </div>
-        </div>
-
-        <!-- Attack Surface & Listening Port Exposure Table -->
-        <div class="panel">
-          <div class="panel-header"
-            style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px;">
-            <span>Attack Surface & Listening Ports</span>
-            <span class="badge-status status-connected" id="portExposureBadge"
-              style="font-size:9.5px;">Protected</span>
-          </div>
-          <div class="panel-body" style="padding: 0; height: 135px; overflow-y: auto;">
-            <table class="data-table" style="font-size: 11px; width: 100%;">
-              <thead>
-                <tr>
-                  <th style="padding: 4px 8px;">Port</th>
-                  <th style="padding: 4px 8px;">Service</th>
-                  <th style="padding: 4px 8px;">Protocol</th>
-                  <th style="padding: 4px 8px;">Shield</th>
-                </tr>
-              </thead>
-              <tbody id="attackSurfaceTableBody">
-                <tr>
-                  <td colspan="4" style="text-align:center; padding: 15px; color: var(--text-muted);">No open
-                    listening ports detected.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <!-- Hidden container preserving attack surface table hook for background scripts -->
+        <table style="display: none;"><tbody id="attackSurfaceTableBody"></tbody></table>
       </div>
     </div>
   </div>

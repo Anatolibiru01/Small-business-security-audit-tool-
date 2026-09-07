@@ -82,16 +82,16 @@
       return `
         <div class="remediation-card sev-border-${sevClass}" data-test-id="${window.escapeHtml(testId)}">
           <div class="remediation-card-header">
-            <div style="display:flex; align-items:center; gap:8px;">
-              <input type="checkbox" class="chk-finding-select" data-test-id="${window.escapeHtml(testId)}" style="cursor:pointer;">
+            <div class="remediation-header-left">
+              <input type="checkbox" class="chk-finding-select" data-test-id="${window.escapeHtml(testId)}" title="Select for playbook">
               <span class="badge-priority priority-${sevClass === 'critical' ? 'p1' : sevClass === 'high' ? 'p2' : sevClass === 'medium' ? 'p3' : 'p4'}">
                 ${window.escapeHtml(sev)}
               </span>
               <span class="finding-testid-pill">${window.escapeHtml(testId)}</span>
-              <strong class="remediation-title">${window.escapeHtml(title)}</strong>
+              <span class="remediation-title" title="${window.escapeHtml(title)}">${window.escapeHtml(title)}</span>
             </div>
-            <button type="button" class="btn-toggle-detail" aria-label="Toggle details">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <button type="button" class="btn-toggle-detail" aria-label="Toggle details" title="Toggle remediation details">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
             </button>

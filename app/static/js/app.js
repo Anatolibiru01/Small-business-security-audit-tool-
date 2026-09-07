@@ -17,16 +17,19 @@
 
   window.closeAllModals = closeAllModals;
 
-  function bootstrapApp() {
+  async function bootstrapApp() {
     console.log('Bootstrapping Lynislens Enterprise Suite v2.0...');
     if (typeof window.fetchServersList === 'function') {
-      window.fetchServersList();
+      await window.fetchServersList();
     }
     if (typeof window.fetchLatestScan === 'function') {
       window.fetchLatestScan();
     }
     if (typeof window.fetchEnrollmentToken === 'function') {
       window.fetchEnrollmentToken();
+    }
+    if (typeof window.initAmbientSSEStream === 'function') {
+      window.initAmbientSSEStream();
     }
   }
 

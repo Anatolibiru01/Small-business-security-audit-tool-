@@ -17,8 +17,8 @@ def test_calculate_scorecard_from_sample():
     assert isinstance(scorecard, AuditScorecard)
     # With 4 critical/high warnings and several suggestions, score should reflect risk
     assert 0 <= scorecard.overall_score <= 100
-    assert scorecard.letter_grade in ["A+", "A", "B", "C", "F"]
-    assert scorecard.risk_level in ["Low Risk", "Moderate Risk", "High Risk", "Critical Risk"]
+    assert scorecard.letter_grade in ["A+", "A", "B", "C", "D", "F"]
+    assert scorecard.risk_level in ["Low Risk", "Moderate Risk", "Needs Attention", "High Risk", "Critical Risk"]
     
     # Check category breakdowns
     assert "Network & Perimeter" in scorecard.categories

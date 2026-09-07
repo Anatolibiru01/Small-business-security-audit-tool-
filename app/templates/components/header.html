@@ -1,12 +1,30 @@
 <!-- TOP DESKTOP SOFTWARE MENU BAR -->
 <div class="menu-bar">
   <div class="menu-left-section" id="menuLeftSection">
-    <!-- Brand Logo as Menu Trigger Button -->
-    <button type="button" class="menu-brand-btn hamburger-menu" id="menuHamburger"
-      title="Open Navigation Menu (Click or Hover Left Edge)" aria-label="Open Navigation Menu" tabindex="0">
-      <img src="/static/img/logo.png" alt="Lynislens Logo" class="brand-logo">
-      <span class="brand-title">Lynislens</span>
-      <span class="brand-badge">ENTERPRISE</span>
+    <!-- Mobile Navigation Drawer Toggle Hamburger Button -->
+    <button type="button" id="menuHamburger" class="hamburger-btn" aria-label="Toggle navigation menu" title="Open Navigation Menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+
+    <!-- Mobile Header Brand (Visible on mobile/tablets) -->
+    <div class="mobile-header-brand">
+      <img src="/static/img/logo-square.png" alt="Lynislens" class="mobile-brand-logo">
+      <span class="mobile-brand-title">Lynislens</span>
+    </div>
+
+    <!-- Quick Command Palette Spotlight Trigger Button -->
+    <button type="button" id="btnOpenCmdPalette" class="btn-menu-action btn-cmd-spotlight-trigger"
+      title="Quick Search & Navigation (Ctrl+K)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <span>Command Palette</span>
+      <kbd class="cmd-kbd">Ctrl+K</kbd>
     </button>
 
     <!-- Direct Raw Export Action Button -->
@@ -18,17 +36,6 @@
         <line x1="12" y1="15" x2="12" y2="3"></line>
       </svg>
       Export Raw (.dat)
-    </button>
-
-    <!-- Quick Command Palette Spotlight Trigger Button -->
-    <button type="button" id="btnOpenCmdPalette" class="btn-menu-action btn-cmd-spotlight-trigger"
-      title="Quick Search & Navigation (Ctrl+K)">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="11" cy="11" r="8"></circle>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-      </svg>
-      <span>Command Palette</span>
-      <kbd class="cmd-kbd">Ctrl+K</kbd>
     </button>
   </div>
 
@@ -140,8 +147,8 @@
 <!-- ACTIVE MODULE BREADCRUMB / HEADER STRIP (BELOW TOP NAV) -->
 <div class="active-module-strip">
   <div class="module-breadcrumb">
-    <span class="breadcrumb-root">SUITE MODULE</span>
-    <span class="breadcrumb-sep">/</span>
+    <!-- <span class="breadcrumb-root">SUITE MODULE</span> -->
+    <!-- <span class="breadcrumb-sep">/</span> -->
     <span class="breadcrumb-active" id="currentModuleTitle">
       <span id="currentModuleName">Dashboard & Executive Summary</span>
     </span>

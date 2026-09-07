@@ -1,139 +1,142 @@
 <!-- ===================================================================== -->
-<!-- 6. SETTINGS TAB -->
+<!-- 6. SETTINGS & ENTERPRISE CONFIGURATION TAB -->
 <!-- ===================================================================== -->
 <div id="tabSettings" class="tab-pane">
   <div class="subnav-bar">
     <div class="subnav-left">
-      <span style="font-size:12px; font-weight:700; color:var(--text-main);">Enterprise Suite Settings &
-        Policies</span>
+      <span style="font-size:12px; font-weight:700; color:var(--text-main);">Enterprise Suite Configuration & Security Policies</span>
+    </div>
+    <div class="subnav-right">
+      <span class="badge-status status-connected" style="font-size: 9.5px;">Active SecOps Profile</span>
     </div>
   </div>
 
-  <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr;">
-    <!-- Setting Card 1: Enterprise Agent Token -->
+  <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+    <!-- SECTION 1: Session Security & Master Access Control -->
     <div class="panel">
-      <div class="panel-header">Enterprise Agent Enrollment</div>
+      <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <span>1. Access Control & Session Security</span>
+        <span class="badge-status status-connected" style="font-size:9px;">RBAC • Superadmin</span>
+      </div>
       <div class="panel-body" style="font-size:12px;">
-        <p>Remote nodes authenticate outbound reports using this enrollment token.</p>
-        <div class="form-group" style="margin-top: 10px;">
-          <label>Active Enrollment Token:</label>
-          <input type="text" id="settingsActiveToken" class="form-input mono-stat" readonly
-            value="Loading token...">
+        <!-- Sleep Time / Idle Auto-Logout Setting -->
+        <div class="form-group" style="margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color);">
+          <label for="settingsIdleTimeoutSelect" style="font-weight: 600; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
+            <span>Inactivity Sleep / Auto-Logout Timeout:</span>
+            <span id="idleTimeoutBadge" class="badge badge-primary" style="font-size: 9.5px;">Active</span>
+          </label>
+          <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">
+            Automatically locks the active auditor session when no mouse or keyboard activity is detected.
+          </p>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <select id="settingsIdleTimeoutSelect" class="form-input" style="font-weight: 600;">
+              <option value="300">5 Minutes (High Security / Strict)</option>
+              <option value="900">15 Minutes (Standard Security)</option>
+              <option value="1800" selected>30 Minutes (Enterprise Default)</option>
+              <option value="3600">1 Hour (Extended Audit Session)</option>
+              <option value="14400">4 Hours (Full Shift Monitoring)</option>
+              <option value="0">Never / Disabled (Lab & Demo Mode)</option>
+            </select>
+            <button type="button" id="btnSaveIdleTimeout" class="btn btn-secondary btn-sm" style="white-space: nowrap;">Apply Timeout</button>
+          </div>
         </div>
-        <div class="form-group" style="margin-top: 10px;">
-          <label for="settingsCronIntervalSelect">Default Agent Audit Frequency (Cron):</label>
-          <select id="settingsCronIntervalSelect" class="form-input" style="font-weight:600;">
-            <option value="5m">Every 5 Minutes (Real-Time SecOps / Lab Mode)</option>
-            <option value="15m">Every 15 Minutes (Active Hardening)</option>
-            <option value="30m">Every 30 Minutes</option>
-            <option value="1h">Every 1 Hour (Continuous Compliance)</option>
-            <option value="daily" selected>Daily at 03:00 AM (Enterprise Baseline - Default)</option>
-          </select>
-        </div>
-        <div style="display:flex; gap:10px; margin-top:10px;">
-          <button type="button" id="btnSettingsRefreshToken" class="btn btn-secondary btn-sm">Generate New
-            Token</button>
-          <button type="button" id="btnSettingsCopyCmd" class="btn btn-primary btn-sm btn-copy-cmd"
-            title="Copy Install Command">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-            </svg>
-            <span>Copy Install Command</span>
-          </button>
-        </div>
+
+        <!-- Master Password Update Form -->
+        <form id="settingsChangePasswordForm">
+          <label style="font-weight: 600; color: var(--text-main); display: block; margin-bottom: 6px;">Update Master Access Password:</label>
+          <div class="form-group" style="margin-bottom: 8px;">
+            <input type="password" id="settingsCurrentPass" class="form-input" placeholder="Current Password (default: lynislens)" required>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <input type="password" id="settingsNewPass" class="form-input" placeholder="New Password (min 6 chars)" minlength="6" required>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <input type="password" id="settingsConfirmPass" class="form-input" placeholder="Confirm New Password" minlength="6" required>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+            <span style="font-size:10.5px; color:var(--text-muted);">Default: <strong>admin</strong> / <strong>lynislens</strong></span>
+            <button type="submit" id="btnSettingsUpdatePassword" class="btn btn-primary btn-sm">Update Password</button>
+          </div>
+        </form>
       </div>
     </div>
 
-    <!-- Setting Card 2: Organization & Auditor Profile -->
+    <!-- SECTION 2: Auditor Identity & Organization Profile -->
     <div class="panel">
-      <div class="panel-header">Auditor & Organization Profile</div>
+      <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <span>2. Auditor Identity & Organization Profile</span>
+        <span class="badge badge-info" style="font-size:9px;">Report Header</span>
+      </div>
       <div class="panel-body" style="font-size:12px;">
-        <div class="form-group">
-          <label>Organization Name:</label>
+        <p style="color: var(--text-muted); margin-bottom: 10px;">
+          These details are stamped on generated PDF reports, executive summaries, and compliance audit certificates.
+        </p>
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label for="settingsOrgName">Organization / Enterprise Entity:</label>
           <input type="text" id="settingsOrgName" class="form-input" value="Enterprise Security Hub">
         </div>
-        <div class="form-group">
-          <label>Auditor Name:</label>
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label for="settingsAuditorName">Lead Auditor Name & Title:</label>
           <input type="text" id="settingsAuditorName" class="form-input" value="SecOps Auditor">
         </div>
-        <button type="button" id="btnSettingsSaveProfile" class="btn btn-primary btn-sm"
-          style="margin-top:5px;">Save Profile Details</button>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label for="settingsBenchmarkPolicy">Primary Compliance Framework Policy:</label>
+          <select id="settingsBenchmarkPolicy" class="form-input" style="font-weight: 600;">
+            <option value="CIS" selected>CIS Linux Benchmark (Level 2 Server)</option>
+            <option value="NIST">NIST Cybersecurity Framework 2.0 (CSF)</option>
+            <option value="ISO">ISO/IEC 27001:2022 Security Controls</option>
+            <option value="PCI">PCI-DSS v4.0 Requirement 2 & 10</option>
+          </select>
+        </div>
+        <div style="display: flex; justify-content: flex-end;">
+          <button type="button" id="btnSettingsSaveProfile" class="btn btn-primary btn-sm">Save Profile Details</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Setting Card: Master Access & Password Management -->
-  <div class="panel" style="margin-top: 16px;">
+  <!-- SECTION 3: SecOps Webhook Alerts & SIEM Integration -->
+  <div class="panel" style="margin-bottom: 16px;">
     <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
-      <span>Master Access Credentials & Security</span>
-      <span class="badge-status status-connected" style="font-size:9.5px;">Superadmin Access</span>
+      <span>3. SecOps Webhook Alerts & SIEM Event Streaming</span>
+      <span class="badge-status status-connected" style="font-size:9px;">Automated Dispatch</span>
     </div>
     <div class="panel-body" style="font-size:12px;">
-      <form id="settingsChangePasswordForm">
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px;">
-          <div class="form-group">
-            <label for="settingsCurrentPass">Current Password <span class="required">*</span></label>
-            <input type="password" id="settingsCurrentPass" class="form-input"
-              placeholder="Current (default: lynislens)" required>
-          </div>
-          <div class="form-group">
-            <label for="settingsNewPass">New Password <span class="required">*</span></label>
-            <input type="password" id="settingsNewPass" class="form-input" placeholder="Minimum 6 characters"
-              minlength="6" required>
-          </div>
-          <div class="form-group">
-            <label for="settingsConfirmPass">Confirm New Password <span class="required">*</span></label>
-            <input type="password" id="settingsConfirmPass" class="form-input" placeholder="Repeat new password"
-              minlength="6" required>
-          </div>
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-          <span style="font-size:11px; color:var(--text-muted);">Default Initial Credentials: username
-            <strong>admin</strong>, password <strong>lynislens</strong></span>
-          <button type="submit" id="btnSettingsUpdatePassword" class="btn btn-primary btn-sm">Update Master
-            Password</button>
-        </div>
-      </form>
-    </div>
-  </div>
+      <p style="color: var(--text-muted); margin-bottom: 12px;">
+        Stream immediate vulnerability alerts, audit score drops, and critical findings directly to your Security Operations team channel.
+      </p>
 
-  <!-- Setting Card 3: Enterprise Webhook & SecOps Alerts -->
-  <div class="panel" style="margin-top: 16px;">
-    <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
-      <span>SecOps Webhook & Alerting Center</span>
-      <span class="badge-status status-connected" style="font-size:9.5px;">Real-Time Triggers</span>
-    </div>
-    <div class="panel-body" style="font-size:12px;">
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-        <div class="form-group">
-          <label for="settingsWebhookType">Webhook Provider / Channel:</label>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom: 10px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="settingsWebhookType">Webhook Provider / Destination:</label>
           <select id="settingsWebhookType" class="form-input">
             <option value="slack">Slack Incoming Webhook</option>
             <option value="discord">Discord Channel Webhook</option>
             <option value="teams">Microsoft Teams Webhook</option>
-            <option value="generic">Custom REST / SIEM JSON Webhook</option>
+            <option value="generic">Custom REST SIEM / JSON Endpoint</option>
           </select>
         </div>
-        <div class="form-group">
-          <label for="settingsWebhookTrigger">Trigger Alert Threshold:</label>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="settingsWebhookTrigger">Trigger Alert Condition:</label>
           <select id="settingsWebhookTrigger" class="form-input">
-            <option value="critical">Critical Vulnerabilities Only</option>
+            <option value="critical">Critical Severity Vulnerabilities Only</option>
             <option value="high" selected>Critical & High Severity Findings</option>
             <option value="score_drop">When Hardening Index drops below 70</option>
             <option value="all">Every Completed Audit Scan</option>
           </select>
         </div>
       </div>
-      <div class="form-group">
-        <label for="settingsWebhookUrl">Target Webhook URL Endpoint:</label>
-        <input type="url" id="settingsWebhookUrl" class="form-input"
-          placeholder="https://hooks.slack.com/services/... or https://discord.com/api/webhooks/...">
+
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label for="settingsWebhookUrl">Target Webhook HTTPS Endpoint URL:</label>
+        <input type="url" id="settingsWebhookUrl" class="form-input" placeholder="https://hooks.slack.com/services/... or https://discord.com/api/webhooks/...">
       </div>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+
+      <div style="display:flex; justify-content:space-between; align-items:center;">
         <button type="button" id="btnTestWebhook" class="btn btn-secondary btn-sm">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: -1px;">
             <path d="M22 2L11 13"></path>
             <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
           </svg>
@@ -144,11 +147,11 @@
     </div>
   </div>
 
-  <!-- Setting Card 4: Enrolled Infrastructure Management -->
-  <div class="panel" style="margin-top: 16px;">
+  <!-- SECTION 4: Registered Infrastructure Fleet & Decommissioning -->
+  <div class="panel">
     <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
-      <span>Enrolled Infrastructure Assets & Decommissioning</span>
-      <span style="font-size:11px; color:var(--text-muted);">Manage or remove registered Linux hosts</span>
+      <span>4. Managed Infrastructure Fleet Assets</span>
+      <span style="font-size:11px; color:var(--text-muted);">Decommission or manage enrolled nodes</span>
     </div>
     <div class="panel-body" style="padding: 0;">
       <table class="data-table">

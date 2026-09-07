@@ -166,16 +166,42 @@ app/
 
 ---
 
-## 🤖 Remote Push Agent Deployment (Zero Inbound Ports)
+## 🤖 Remote Node Connections & Fleet Ingestion
 
-For air-gapped, NATed, or cloud-hosted instances (AWS EC2, GCP, DigitalOcean, Hetzner, on-prem), deploy the lightweight push agent:
+Lynislens supports 3 flexible connection architectures to fit any network or cloud environment:
 
-1. Navigate to **Suite Settings** or **Agent Overview** in the dashboard to copy your active 1-line installer command.
-2. Run the command with root privileges on any remote Linux node:
+### Method 1: Native Lynis Client Upload (TrikuSec Compatible — Zero Agents)
+For any Linux server with Lynis already installed (`apt install lynis` / `dnf install lynis`):
+
+1. Configure your target machine's `/etc/lynis/custom.prf`:
    ```bash
-   curl -sSL http://<YOUR_LYNISLENS_IP>:8000/install.sh | sudo bash -s -- --token <ENROLLMENT_TOKEN> --server http://<YOUR_LYNISLENS_IP>:8000 --cron daily
+   echo -e "\nupload=yes\nupload_server=http://<YOUR_LYNISLENS_IP>:8000/api/lynis/upload/\nlicense_key=<ENROLLMENT_TOKEN>" | sudo tee -a /etc/lynis/custom.prf
    ```
-3. The installer deploys standalone Lynis into `/opt/lynis`, schedules non-interactive cron audits, and transmits cryptographic reports back to your central dashboard.
+2. Run the audit and upload directly to your central dashboard:
+   ```bash
+   sudo lynis audit system --upload
+   ```
+3. Schedule automated daily uploads (cron):
+   ```bash
+   echo "0 3 * * * root /usr/sbin/lynis audit system --cronjob --upload" | sudo tee /etc/cron.d/lynis-upload-audit
+   ```
+
+---
+
+### Method 2: 1-Line Standalone Push Agent Installer
+For fresh Linux nodes without Lynis installed (AWS EC2, GCP, DigitalOcean, Hetzner, on-prem):
+```bash
+curl -sSL http://<YOUR_LYNISLENS_IP>:8000/install.sh | sudo bash -s -- --token <ENROLLMENT_TOKEN> --server http://<YOUR_LYNISLENS_IP>:8000 --cron daily
+```
+*Deploys standalone Lynis into `/opt/lynis`, sets up scheduled cron audits, and uploads reports automatically.*
+
+---
+
+### Method 3: Direct Agentless Remote SSH Audit
+Audit remote servers directly from the dashboard without modifying the target system:
+1. Open **Fleet / Systems** -> **+ Connect Remote Agent** -> **Direct SSH**.
+2. Enter the target server IP, SSH port, and credentials.
+3. Select the server from the top dropdown and click **"Run Audit"** to stream live progress via SSE.
 
 ---
 

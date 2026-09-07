@@ -3,6 +3,18 @@
  * Version 2.0.0
  */
 
+// Initial target server restoration from localStorage
+let initialServerId = null;
+try {
+  const savedServer = localStorage.getItem('lynislens_selected_server');
+  if (savedServer && savedServer !== 'local') {
+    const parsed = Number(savedServer);
+    if (!isNaN(parsed)) {
+      initialServerId = parsed;
+    }
+  }
+} catch (e) {}
+
 // Global Suite State
 window.LynislensState = {
   currentScorecard: null,
@@ -12,7 +24,7 @@ window.LynislensState = {
   eventSource: null,
 
   serversList: [],
-  currentServerId: null, // null = Localhost Machine, number = remote server_id
+  currentServerId: initialServerId, // null = Localhost Machine, number = remote server_id
   activeEnrollmentToken: null,
   activeComplianceFramework: 'CIS',
 
