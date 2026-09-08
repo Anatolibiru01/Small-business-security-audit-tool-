@@ -22,6 +22,34 @@
     </div>
 
     <div class="modal-body">
+      <!-- Prerequisite: Hub Host IP Configuration (Applies to all onboarding methods) -->
+      <div class="host-config-card" style="background: var(--bg-hover); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <label style="font-weight: 700; font-size: 11.5px; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--brand-blue, #3b82f6)" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+            Prerequisite: Lynislens Hub Host IP / URL
+          </label>
+          <span id="modalHostIpBadge" class="badge badge-warning" style="font-size: 10px; padding: 2px 7px;">Localhost (127.0.0.1)</span>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <input type="text" id="modalCustomHubUrl" class="form-control" style="font-size: 12px; font-family: var(--font-mono); height: 32px;" placeholder="http://192.168.1.50:8000" />
+          <button type="button" id="btnDetectModalHostIp" class="btn btn-sm btn-primary" style="white-space: nowrap; height: 32px;" title="Auto-detect host IP">
+            🔍 Auto-Detect IP
+          </button>
+        </div>
+        <div id="modalDetectedIpsContainer" style="display: none; align-items: center; gap: 5px; margin-top: 6px; flex-wrap: wrap;">
+          <span style="font-size: 10.5px; color: var(--text-muted); font-weight: 600;">Candidates:</span>
+          <div id="modalDetectedIpsList" style="display: inline-flex; gap: 4px; flex-wrap: wrap;"></div>
+        </div>
+        <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 5px; line-height: 1.4;">
+          ⚠️ <em>If scanning external servers or WSL, replace <code>127.0.0.1</code> with your host's LAN IP (run <code>ipconfig</code> or <code>hostname -I</code>).</em>
+        </div>
+      </div>
+
       <!-- TAB 0: Native Lynis Upload (TrikuSec compatible) -->
       <div id="modalTabNativeLynis" class="modal-tab-pane active">
         <div class="enterprise-banner">

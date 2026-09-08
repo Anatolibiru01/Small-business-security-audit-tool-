@@ -43,14 +43,134 @@
     }
   }
 
+  function formatHubUrl(rawInput) {
+    let val = (rawInput || '').trim();
+    if (!val) {
+      return window.location.origin;
+    }
+
+    let protocol = 'http://';
+    if (val.startsWith('https://')) {
+      protocol = 'https://';
+      val = val.slice(8);
+    } else if (val.startsWith('http://')) {
+      protocol = 'http://';
+      val = val.slice(7);
+    }
+
+    // Strip trailing slashes or subpaths
+    val = val.split('/')[0].trim();
+    if (!val) {
+      return window.location.origin;
+    }
+
+    // Auto-append port 8000 (or current host port) if user only entered IP / hostname
+    const defaultPort = window.location.port || '8000';
+    if (!val.includes(':') && defaultPort) {
+      val = `${val}:${defaultPort}`;
+    }
+
+    return `${protocol}${val}`;
+  }
+
+  function getEffectiveHubUrl() {
+    const inputSys = document.getElementById('sysCustomHubUrl');
+    const inputModal = document.getElementById('modalCustomHubUrl');
+    let saved = null;
+    try { saved = localStorage.getItem('lynislens_custom_hub_url'); } catch(e) {}
+    
+    const activeVal = inputSys?.value || inputModal?.value || saved || '';
+    return formatHubUrl(activeVal);
+  }
+
+  function setEffectiveHubUrl(rawUrl, syncInputs = true) {
+    const cleanUrl = formatHubUrl(rawUrl);
+
+    try {
+      localStorage.setItem('lynislens_custom_hub_url', cleanUrl);
+    } catch (e) {}
+
+    if (syncInputs) {
+      const inputSys = document.getElementById('sysCustomHubUrl');
+      const inputModal = document.getElementById('modalCustomHubUrl');
+      if (inputSys && inputSys.value !== cleanUrl) inputSys.value = cleanUrl;
+      if (inputModal && inputModal.value !== cleanUrl) inputModal.value = cleanUrl;
+    }
+
+    const isLoopback = cleanUrl.includes('127.0.0.1') || cleanUrl.includes('localhost');
+    const badgeText = isLoopback ? 'Localhost (127.0.0.1)' : 'Reachable Host IP';
+    const badgeClass = isLoopback ? 'badge badge-warning' : 'badge badge-success';
+
+    const sysBadge = document.getElementById('sysSetupHostIpBadge');
+    const modalBadge = document.getElementById('modalHostIpBadge');
+    if (sysBadge) {
+      sysBadge.className = badgeClass;
+      sysBadge.textContent = badgeText;
+    }
+    if (modalBadge) {
+      modalBadge.className = badgeClass;
+      modalBadge.textContent = badgeText;
+    }
+
+    const token = window.LynislensState.activeEnrollmentToken || 'LL-TOKEN-DEFAULT';
+    updateAgentCommandBoxes(token);
+  }
+
+  async function detectNetworkHostIps(applyFirst = false) {
+    try {
+      const res = await fetch('/api/network/info');
+      if (!res.ok) return;
+      const data = await res.json();
+      const detected = data.detected_ips || [];
+      const port = data.default_port || 8000;
+
+      const sysContainer = document.getElementById('sysDetectedIpsContainer');
+      const sysList = document.getElementById('sysDetectedIpsList');
+      const modalContainer = document.getElementById('modalDetectedIpsContainer');
+      const modalList = document.getElementById('modalDetectedIpsList');
+
+      if (detected.length > 0) {
+        if (sysContainer) sysContainer.style.display = 'flex';
+        if (modalContainer) modalContainer.style.display = 'flex';
+
+        const pillsHtml = detected.map(ip => {
+          const url = `http://${ip}:${port}`;
+          return `<button type="button" class="btn btn-sm btn-secondary btn-ip-pill" data-ip-url="${url}" style="padding: 2px 8px; font-size: 11px; font-family: var(--font-mono);">${ip}:${port}</button>`;
+        }).join('');
+
+        if (sysList) sysList.innerHTML = pillsHtml;
+        if (modalList) modalList.innerHTML = pillsHtml;
+
+        // Attach click listeners to pills
+        document.querySelectorAll('.btn-ip-pill').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const url = btn.getAttribute('data-ip-url');
+            if (url) {
+              setEffectiveHubUrl(url);
+              window.showToast(`Hub Host URL updated to ${url}`, 'success');
+            }
+          });
+        });
+
+        if (applyFirst && detected[0]) {
+          const recommendedUrl = `http://${detected[0]}:${port}`;
+          setEffectiveHubUrl(recommendedUrl);
+          window.showToast(`Auto-detected Host LAN IP: ${recommendedUrl}`, 'info');
+        }
+      }
+    } catch (err) {
+      console.warn('Network auto-detection error:', err);
+    }
+  }
+
   function updateAgentCommandBoxes(token) {
-    const origin = window.location.origin;
+    const hubUrl = getEffectiveHubUrl();
     const cronSelect = document.getElementById('sysCronIntervalSelect')?.value 
       || document.getElementById('agentCronIntervalSelect')?.value 
       || document.getElementById('settingsCronIntervalSelect')?.value 
       || 'daily';
 
-    const cmd = `curl -sSL ${origin}/install.sh | sudo bash -s -- --token ${token} --server ${origin} --cron ${cronSelect}`;
+    const cmd = `curl -sSL ${hubUrl}/install.sh | sudo bash -s -- --token ${token} --server ${hubUrl} --cron ${cronSelect}`;
 
     const agentCommandText = document.getElementById('agentCommandText');
     const sysSetupCommandText = document.getElementById('sysSetupCommandText');
@@ -63,25 +183,25 @@
     if (sysSetupCommandText) sysSetupCommandText.textContent = cmd;
     if (sysSetupCommandTextPane) sysSetupCommandTextPane.textContent = cmd;
 
-    const injectStr = `echo -e "\\nupload=yes\\nupload_server=${origin}/api/lynis/upload/\\nlicense_key=${token}" | sudo tee -a /etc/lynis/custom.prf`;
+    const injectStr = `echo -e "\\nupload=yes\\nupload_server=${hubUrl}/api/lynis/upload/\\nlicense_key=${token}" | sudo tee -a /etc/lynis/custom.prf`;
     if (nativeLynisInjectCmd) nativeLynisInjectCmd.textContent = injectStr;
     if (sysSetupNativeInjectCmd) sysSetupNativeInjectCmd.textContent = injectStr;
 
     if (nativeLynisPrfContent) {
-      nativeLynisPrfContent.textContent = `upload=yes\nupload_server=${origin}/api/lynis/upload/\nlicense_key=${token}`;
+      nativeLynisPrfContent.textContent = `upload=yes\nupload_server=${hubUrl}/api/lynis/upload/\nlicense_key=${token}`;
     }
 
     const sysSetupHealthCheckCmd = document.getElementById('sysSetupHealthCheckCmd');
-    if (sysSetupHealthCheckCmd) sysSetupHealthCheckCmd.textContent = `curl -I ${origin}/health`;
+    if (sysSetupHealthCheckCmd) sysSetupHealthCheckCmd.textContent = `curl -I ${hubUrl}/health`;
 
     const agentHealthCheckCmd = document.getElementById('agentHealthCheckCmd');
-    if (agentHealthCheckCmd) agentHealthCheckCmd.textContent = `curl -I ${origin}/health`;
+    if (agentHealthCheckCmd) agentHealthCheckCmd.textContent = `curl -I ${hubUrl}/health`;
 
     const sysSetupNativeCheckCmd = document.getElementById('sysSetupNativeCheckCmd');
-    if (sysSetupNativeCheckCmd) sysSetupNativeCheckCmd.textContent = `curl -s ${origin}/api/lynis/license/`;
+    if (sysSetupNativeCheckCmd) sysSetupNativeCheckCmd.textContent = `curl -s ${hubUrl}/api/lynis/license/`;
 
     const nativeLynisCheckCmd = document.getElementById('nativeLynisCheckCmd');
-    if (nativeLynisCheckCmd) nativeLynisCheckCmd.textContent = `curl -s ${origin}/api/lynis/license/`;
+    if (nativeLynisCheckCmd) nativeLynisCheckCmd.textContent = `curl -s ${hubUrl}/api/lynis/license/`;
   }
 
   function loadSavedSettings() {
@@ -204,8 +324,68 @@
   window.updateAgentCommandBoxes = updateAgentCommandBoxes;
   window.renderSettingsTab = renderSettingsTab;
   window.saveIdleTimeoutSetting = saveIdleTimeoutSetting;
+  window.getEffectiveHubUrl = getEffectiveHubUrl;
+  window.setEffectiveHubUrl = setEffectiveHubUrl;
+  window.detectNetworkHostIps = detectNetworkHostIps;
 
   document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Hub URL from storage or default
+    const savedHubUrl = localStorage.getItem('lynislens_custom_hub_url') || window.location.origin;
+    setEffectiveHubUrl(savedHubUrl, true);
+
+    // Run network IP detection in background to discover LAN IPs
+    detectNetworkHostIps(false);
+
+    // Host IP input listeners for real-time dynamic updates on every keystroke/paste
+    const sysCustomHubUrl = document.getElementById('sysCustomHubUrl');
+    const modalCustomHubUrl = document.getElementById('modalCustomHubUrl');
+
+    if (sysCustomHubUrl) {
+      ['input', 'keyup', 'paste', 'change'].forEach(evt => {
+        sysCustomHubUrl.addEventListener(evt, () => {
+          setEffectiveHubUrl(sysCustomHubUrl.value, false);
+          if (modalCustomHubUrl && modalCustomHubUrl.value !== sysCustomHubUrl.value) {
+            modalCustomHubUrl.value = sysCustomHubUrl.value;
+          }
+        });
+      });
+    }
+
+    if (modalCustomHubUrl) {
+      ['input', 'keyup', 'paste', 'change'].forEach(evt => {
+        modalCustomHubUrl.addEventListener(evt, () => {
+          setEffectiveHubUrl(modalCustomHubUrl.value, false);
+          if (sysCustomHubUrl && sysCustomHubUrl.value !== modalCustomHubUrl.value) {
+            sysCustomHubUrl.value = modalCustomHubUrl.value;
+          }
+        });
+      });
+    }
+
+    // Auto-detect and reset buttons
+    const btnDetectSysHostIp = document.getElementById('btnDetectSysHostIp');
+    const btnDetectModalHostIp = document.getElementById('btnDetectModalHostIp');
+    const btnResetSysHostIp = document.getElementById('btnResetSysHostIp');
+
+    if (btnDetectSysHostIp) {
+      btnDetectSysHostIp.addEventListener('click', () => {
+        detectNetworkHostIps(true);
+      });
+    }
+
+    if (btnDetectModalHostIp) {
+      btnDetectModalHostIp.addEventListener('click', () => {
+        detectNetworkHostIps(true);
+      });
+    }
+
+    if (btnResetSysHostIp) {
+      btnResetSysHostIp.addEventListener('click', () => {
+        setEffectiveHubUrl(window.location.origin, true);
+        window.showToast('Reset Hub Host URL to localhost origin.', 'info');
+      });
+    }
+
     const btnSettingsRefreshToken = document.getElementById('btnSettingsRefreshToken');
     const btnSysRefreshToken = document.getElementById('btnSysRefreshToken');
     const btnRefreshTokens = document.getElementById('btnRefreshTokens');
@@ -241,10 +421,10 @@
     [btnSettingsCopyCmd, btnCopySysCmd, btnCopySysCmdPane].forEach(btn => {
       if (btn) {
         btn.addEventListener('click', () => {
-          const origin = window.location.origin;
+          const hubUrl = getEffectiveHubUrl();
           const token = window.LynislensState.activeEnrollmentToken || 'LL-TOKEN-DEFAULT';
           const cronVal = (sysCronIntervalSelect || agentCronIntervalSelect || settingsCronIntervalSelect)?.value || 'daily';
-          const cmd = `curl -sSL ${origin}/install.sh | sudo bash -s -- --token ${token} --server ${origin} --cron ${cronVal}`;
+          const cmd = `curl -sSL ${hubUrl}/install.sh | sudo bash -s -- --token ${token} --server ${hubUrl} --cron ${cronVal}`;
           navigator.clipboard.writeText(cmd);
           window.showToast('1-Line install command copied to clipboard!', 'success');
         });

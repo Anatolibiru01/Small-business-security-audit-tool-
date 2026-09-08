@@ -8,6 +8,7 @@ report rendering, and security posture intelligence.
 import os
 import json
 import asyncio
+import socket
 from datetime import datetime
 from typing import Optional, List
 from fastapi import FastAPI, Request, HTTPException, BackgroundTasks, Form, Depends, Query, Header
@@ -232,6 +233,48 @@ async def rotate_current_enrollment_token():
     """
     token = rotate_active_enrollment_token()
     return {"token": token}
+
+
+@app.get("/api/network/info")
+async def get_network_info(request: Request):
+    """
+    Return detected host LAN IPs and request header information to assist in onboarding target machines.
+    """
+    detected_ips = []
+    try:
+        # Probe outbound route to find primary local IP interface
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.settimeout(0.2)
+        s.connect(("8.8.8.8", 80))
+        primary_ip = s.getsockname()[0]
+        s.close()
+        if primary_ip and not primary_ip.startswith("127."):
+            detected_ips.append(primary_ip)
+    except Exception:
+        pass
+
+    try:
+        hostname = socket.gethostname()
+        for ip in socket.gethostbyname_ex(hostname)[2]:
+            if ip not in detected_ips and not ip.startswith("127."):
+                detected_ips.append(ip)
+    except Exception:
+        pass
+
+    host_header = request.headers.get("host", "127.0.0.1:8000")
+    port = 8000
+    if ":" in host_header:
+        try:
+            port = int(host_header.split(":")[1])
+        except Exception:
+            port = 8000
+
+    return {
+        "detected_ips": detected_ips,
+        "request_host": host_header,
+        "default_port": port,
+        "recommended_ip": detected_ips[0] if detected_ips else None
+    }
 
 
 @app.post("/api/webhook/test")
