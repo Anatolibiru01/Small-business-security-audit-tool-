@@ -40,7 +40,8 @@
           style="height: 64px; width: auto; margin-bottom: 16px; object-fit: contain;">
         <h3>No Audit Results Loaded for Selected Target</h3>
         <p>This node is registered, but no security audit scan has been executed or uploaded yet.<br>
-        Click <strong>Execute Security Audit</strong> to launch a scan, or upload report telemetry from the remote agent.</p>
+          Click <strong>Execute Security Audit</strong> to launch a scan, or upload report telemetry from the remote
+          agent.</p>
         <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
           <button id="btnStartFirstScan" class="btn btn-primary">Execute Security Audit</button>
           <button id="btnStartFirstRemote" class="btn btn-secondary">+ Connect Another Agent</button>
@@ -88,13 +89,14 @@
 
     <div id="resultsState" class="state-container">
       <div class="dash-executive-canvas">
-        
+
         <!-- 1. TOP KPI METRICS ROW (4 Floating Elevated Cards exactly matching reference image) -->
         <div class="kpi-metrics-row">
           <!-- Card 1: Visitors & Buyers / Node Telemetry -->
           <div class="ref-kpi-card">
             <div class="ref-kpi-icon-bubble icon-cyan">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                 <circle cx="9" cy="7" r="4"></circle>
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -104,14 +106,17 @@
             <div class="ref-kpi-body">
               <div class="ref-kpi-value" id="hostNameVal">Local Machine</div>
               <div class="ref-kpi-label">Target Node Telemetry</div>
-              <div class="ref-kpi-sub"><span id="osNameVal">Linux OS</span> • <span id="metricFirewall"><span class="badge-status status-connected"><i class="fas fa-shield-alt"></i> Active & Filtering</span></span></div>
+              <div class="ref-kpi-sub"><span id="osNameVal">Linux OS</span> • <span id="metricFirewall"><span
+                    class="badge-status status-connected"><i class="fas fa-shield-alt"></i> Active &
+                    Filtering</span></span></div>
             </div>
           </div>
 
           <!-- Card 2: Conversion / Hardening Index -->
           <div class="ref-kpi-card">
             <div class="ref-kpi-icon-bubble icon-teal">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <path d="M12 2a10 10 0 0 1 10 10"></path>
               </svg>
@@ -127,10 +132,13 @@
           <div class="ref-kpi-card centered-card">
             <div class="ref-kpi-body" style="text-align: center;">
               <div class="ref-kpi-value" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                <span id="gradeBadge" class="grade-badge" style="font-size: 1.15rem; padding: 4px 14px; border-radius: 999px;">Grade --</span>
+                <span id="gradeBadge" class="grade-badge"
+                  style="font-size: 1.15rem; padding: 4px 14px; border-radius: 999px;">Grade --</span>
               </div>
               <div class="ref-kpi-label" style="margin-top: 4px;">Security Posture</div>
-              <div class="ref-kpi-sub"><span id="riskLevelPill">Moderate Risk</span> • <span id="metricWarnings">0</span> Warnings <span id="metricSuggestions" style="display:none;">0</span></div>
+              <div class="ref-kpi-sub"><span id="riskLevelPill">Moderate Risk</span> • <span
+                  id="metricWarnings">0</span> Warnings <span id="metricSuggestions" style="display:none;">0</span>
+              </div>
             </div>
           </div>
 
@@ -152,13 +160,13 @@
 
         <!-- 2. MAIN 3-COLUMN REFERENCE LAYOUT (Matching image) -->
         <div class="dash-ref-layout">
-          
+
           <!-- COLUMN 1 (LEFT): Visitors & Buyers Timeline + Profit Performance Breakdown -->
           <div class="dash-col dash-col-left">
             <!-- Top: Hardening Timeline Curve (Like Visitors & Buyers) -->
             <div class="ref-chart-card">
               <div class="ref-card-header">
-                <span class="ref-card-title">Visitors & Buyers (Hardening Posture)</span>
+                <span class="ref-card-title">Hardening Posture</span>
                 <span class="ref-card-badge"><i class="fas fa-wave-square"></i> Multi-Scan</span>
               </div>
               <div class="ref-chart-canvas-wrap" style="height: 195px; position: relative;">
@@ -196,10 +204,14 @@
                 </div>
                 <!-- Clean Minimalist Legend Pills -->
                 <div class="donut-clean-legend" id="pieChartLegend">
-                  <span class="donut-legend-pill"><i class="dot-red"></i> High: <strong id="legendCountRed">0</strong></span>
-                  <span class="donut-legend-pill"><i class="dot-yellow"></i> Med: <strong id="legendCountYellow">0</strong></span>
-                  <span class="donut-legend-pill"><i class="dot-green"></i> Clean: <strong id="legendCountGreen">0</strong></span>
-                  <span class="donut-legend-pill"><i class="dot-blue"></i> Info: <strong id="legendCountBlue">0</strong></span>
+                  <span class="donut-legend-pill"><i class="dot-red"></i> High: <strong
+                      id="legendCountRed">0</strong></span>
+                  <span class="donut-legend-pill"><i class="dot-yellow"></i> Med: <strong
+                      id="legendCountYellow">0</strong></span>
+                  <span class="donut-legend-pill"><i class="dot-green"></i> Clean: <strong
+                      id="legendCountGreen">0</strong></span>
+                  <span class="donut-legend-pill"><i class="dot-blue"></i> Info: <strong
+                      id="legendCountBlue">0</strong></span>
                 </div>
               </div>
             </div>
@@ -260,37 +272,38 @@
             <div class="ref-chart-card">
               <div class="ref-card-header">
                 <span class="ref-card-title">Audit Schedule & History</span>
-                <span class="ref-card-badge" id="portExposureBadge"><i class="fas fa-calendar-check"></i> Live</span>
+                <span class="ref-card-badge" id="auditTimeBadge"><i class="far fa-clock"></i> <span id="auditLiveClock">--:--:--</span></span>
               </div>
               <div class="cal-matrix-container">
-                <!-- Year Selector Row (Matching reference pills) -->
-                <div class="cal-year-row">
+                <!-- Year Selector Row (Dynamically populated by Time Module) -->
+                <div class="cal-year-row" id="calYearRow">
                   <button type="button" class="cal-year-btn">2024</button>
                   <button type="button" class="cal-year-btn">2025</button>
-                  <button type="button" class="cal-year-btn active">2026</button>
+                  <button type="button" class="cal-year-btn">2026</button>
                   <button type="button" class="cal-year-btn">2027</button>
                 </div>
-                <!-- 3x4 Month Grid (Matching reference pills) -->
-                <div class="cal-month-grid">
-                  <button type="button" class="cal-month-btn">JAN</button>
-                  <button type="button" class="cal-month-btn active" id="btnFilterCurrentAudit">FEB</button>
-                  <button type="button" class="cal-month-btn">MAR</button>
-                  <button type="button" class="cal-month-btn">APR</button>
-                  <button type="button" class="cal-month-btn">MAY</button>
-                  <button type="button" class="cal-month-btn">JUN</button>
-                  <button type="button" class="cal-month-btn">JUL</button>
-                  <button type="button" class="cal-month-btn">AUG</button>
-                  <button type="button" class="cal-month-btn">SEP</button>
-                  <button type="button" class="cal-month-btn">OCT</button>
-                  <button type="button" class="cal-month-btn">NOV</button>
-                  <button type="button" class="cal-month-btn">DEC</button>
+                <!-- 3x4 Month Grid (Dynamically highlighted by Time Module) -->
+                <div class="cal-month-grid" id="calMonthGrid">
+                  <button type="button" class="cal-month-btn" data-month="0">JAN</button>
+                  <button type="button" class="cal-month-btn" data-month="1">FEB</button>
+                  <button type="button" class="cal-month-btn" data-month="2">MAR</button>
+                  <button type="button" class="cal-month-btn" data-month="3">APR</button>
+                  <button type="button" class="cal-month-btn" data-month="4">MAY</button>
+                  <button type="button" class="cal-month-btn" data-month="5">JUN</button>
+                  <button type="button" class="cal-month-btn" data-month="6">JUL</button>
+                  <button type="button" class="cal-month-btn" data-month="7">AUG</button>
+                  <button type="button" class="cal-month-btn" data-month="8">SEP</button>
+                  <button type="button" class="cal-month-btn" data-month="9">OCT</button>
+                  <button type="button" class="cal-month-btn" data-month="10">NOV</button>
+                  <button type="button" class="cal-month-btn" data-month="11">DEC</button>
                 </div>
 
                 <!-- Sleek pill action button below matrix -->
                 <div class="cal-action-wrap">
                   <button type="button" class="ref-action-pill-btn" id="btnQuickGoFindings">
                     <span>Review Findings & Remediation</span>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.5">
                       <path d="M5 12h14"></path>
                       <path d="m12 5 7 7-7 7"></path>
                     </svg>
@@ -303,7 +316,9 @@
         </div>
 
         <!-- Hidden container preserving attack surface table hook for background scripts -->
-        <table style="display: none;"><tbody id="attackSurfaceTableBody"></tbody></table>
+        <table style="display: none;">
+          <tbody id="attackSurfaceTableBody"></tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -316,14 +331,14 @@
         <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <span>Prioritized Remediation Checklist</span>
-            <span id="remediationActiveFilterBadge" class="badge-priority priority-p2"
-              style="display: none;">Filtered View</span>
+            <span id="remediationActiveFilterBadge" class="badge-priority priority-p2" style="display: none;">Filtered
+              View</span>
           </div>
           <div style="display: flex; align-items: center; gap: 10px;">
             <button type="button" id="btnToggleAllFindingDropdowns" class="btn btn-sm btn-secondary"
               style="font-size: 10.5px; padding: 2px 8px;">Expand All</button>
-            <span id="remediationCountText"
-              style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Showing 0 items</span>
+            <span id="remediationCountText" style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Showing
+              0 items</span>
           </div>
         </div>
 

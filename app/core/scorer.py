@@ -4,7 +4,8 @@ Calculates the 100-point security health score, risk grade, category metrics,
 and enriched plain-English remediation list.
 """
 
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
+from datetime import datetime
 from pydantic import BaseModel, Field
 from app.core.parser import LynisReportData
 from app.core.knowledge_base import get_remediation_details
@@ -71,6 +72,7 @@ class AuditScorecard(BaseModel):
     firewall_active: bool
     installed_packages: int
     vulnerable_packages: int
+    scan_time: Optional[str] = Field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     
     # Detailed collections
     categories: Dict[str, CategoryScore] = Field(default_factory=dict)

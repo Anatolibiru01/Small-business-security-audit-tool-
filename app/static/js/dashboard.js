@@ -14,6 +14,103 @@
     return isDark ? 'rgba(255, 255, 255, 0.07)' : 'rgba(0, 0, 0, 0.08)';
   }
 
+  // =========================================================================
+  // DYNAMIC TIME & CALENDAR MATRIX MODULE
+  // =========================================================================
+  let currentSelectedDate = new Date();
+
+  function getAuditTimestamp(scorecard) {
+    if (scorecard) {
+      const ts = scorecard.scan_time || scorecard.timestamp;
+      if (ts) {
+        // Handle "YYYY-MM-DD HH:MM:SS" or ISO formats
+        const parsed = new Date(typeof ts === 'string' ? ts.replace(' ', 'T') : ts);
+        if (!isNaN(parsed.getTime())) return parsed;
+      }
+    }
+    return new Date();
+  }
+
+  function updateCalendarMatrix(targetDateOrScorecard) {
+    let targetDate;
+    if (targetDateOrScorecard instanceof Date) {
+      targetDate = targetDateOrScorecard;
+    } else if (targetDateOrScorecard && typeof targetDateOrScorecard === 'object') {
+      targetDate = getAuditTimestamp(targetDateOrScorecard);
+    } else {
+      targetDate = new Date();
+    }
+    currentSelectedDate = targetDate;
+
+    const curYear = targetDate.getFullYear();
+    const curMonth = targetDate.getMonth(); // 0 to 11
+
+    // Update Year Selector Buttons
+    const yearContainer = document.getElementById('calYearRow');
+    if (yearContainer) {
+      const years = [curYear - 2, curYear - 1, curYear, curYear + 1];
+      yearContainer.innerHTML = '';
+      years.forEach(yr => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `cal-year-btn ${yr === curYear ? 'active' : ''}`;
+        btn.textContent = yr;
+        btn.onclick = (e) => {
+          e.preventDefault();
+          document.querySelectorAll('.cal-year-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentSelectedDate.setFullYear(yr);
+          if (window.LynislensState && window.LynislensState.trendChart) {
+            window.LynislensState.trendChart.update();
+          }
+        };
+        yearContainer.appendChild(btn);
+      });
+    }
+
+    // Update Month Buttons (Highlight the actual current month)
+    const monthBtns = document.querySelectorAll('.cal-month-btn');
+    monthBtns.forEach((btn) => {
+      const mIdx = parseInt(btn.getAttribute('data-month'), 10);
+      if (mIdx === curMonth) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+      btn.onclick = (e) => {
+        e.preventDefault();
+        monthBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentSelectedDate.setMonth(mIdx);
+        // Refresh trend chart highlight to this month
+        if (window.LynislensState && window.LynislensState.trendChart) {
+          const chart = window.LynislensState.trendChart;
+          if (chart.data && chart.data.datasets && chart.data.datasets.length >= 2) {
+            chart.data.datasets[0].pointRadius = (ctx) => ctx.dataIndex === mIdx ? 6 : 0;
+            chart.data.datasets[1].backgroundColor = chart.data.datasets[1].data.map((_, i) => i === mIdx ? '#0d9488' : 'rgba(148, 163, 184, 0.4)');
+            chart.update();
+          }
+        }
+      };
+    });
+  }
+
+  function initLiveTimeClock() {
+    function tick() {
+      const now = new Date();
+      const clockElem = document.getElementById('auditLiveClock');
+      if (clockElem) {
+        const monthShort = now.toLocaleString('en-US', { month: 'short' });
+        const day = now.getDate();
+        const year = now.getFullYear();
+        const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        clockElem.textContent = `${monthShort} ${day}, ${year} • ${timeStr}`;
+      }
+    }
+    tick();
+    setInterval(tick, 1000);
+  }
+
   function renderExecutiveSummary(scorecard) {
     if (!scorecard) return;
 
@@ -175,6 +272,9 @@
         }, 200 + i * 100);
       }
     });
+
+    // Update dynamic calendar matrix based on audit time
+    updateCalendarMatrix(scorecard);
   }
 
   function renderDoughnutChart(scorecard) {
@@ -325,15 +425,21 @@
     }
 
     const currentScore = (scorecard && scorecard.overall_score) || 67;
+    const auditDate = getAuditTimestamp(scorecard);
+    const activeMonthIdx = auditDate.getMonth(); // 0 to 11
+
     // 12 Months matching reference image "Visitors & Buyers"
     const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
     
-    // Sinusoidal wave curve matching reference image
-    const waveCurve = [58, currentScore, 75, 78, 70, 56, 48, 52, 60, 68, 74, 82];
+    // Sinusoidal wave curve adapting to real audit month
+    const waveCurve = [55, 60, 66, 72, 68, 56, 48, 52, 60, 68, 74, 82];
+    waveCurve[activeMonthIdx] = currentScore;
     
-    // Background bars for each month; active month (FEB) highlighted in dark teal!
-    const barData = [45, 62, 70, 58, 52, 48, 42, 49, 55, 64, 68, 72];
-    const barColors = barData.map((_, i) => i === 1 ? '#0d9488' : 'rgba(148, 163, 184, 0.4)');
+    // Background bars for each month; active audit month highlighted in dark teal!
+    const barData = [45, 58, 65, 60, 52, 48, 42, 50, 58, 64, 68, 72];
+    barData[activeMonthIdx] = Math.max(currentScore - 6, 42);
+
+    const barColors = barData.map((_, i) => i === activeMonthIdx ? '#0d9488' : 'rgba(148, 163, 184, 0.4)');
 
     window.LynislensState.trendChart = new Chart(ctx, {
       data: {
@@ -348,7 +454,7 @@
             fill: true,
             tension: 0.45,
             borderWidth: 2.5,
-            pointRadius: (ctx) => ctx.dataIndex === 1 ? 6 : 0,
+            pointRadius: (ctx) => ctx.dataIndex === activeMonthIdx ? 6 : 0,
             pointHoverRadius: 7,
             pointBackgroundColor: '#ffffff',
             pointBorderColor: '#0d9488',
@@ -670,27 +776,8 @@
       });
     }
 
-    // Calendar Timeline Year & Month Buttons
-    document.querySelectorAll('.cal-year-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        document.querySelectorAll('.cal-year-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        if (window.LynislensState && window.LynislensState.trendChart) {
-          window.LynislensState.trendChart.update('active');
-        }
-      });
-    });
-
-    document.querySelectorAll('.cal-month-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        document.querySelectorAll('.cal-month-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        if (window.LynislensState && window.LynislensState.trendChart) {
-          window.LynislensState.trendChart.update('active');
-        }
-      });
-    });
+    // Initialize Real-Time Clock & Dynamic Calendar Matrix
+    initLiveTimeClock();
+    updateCalendarMatrix(null);
   });
 })();

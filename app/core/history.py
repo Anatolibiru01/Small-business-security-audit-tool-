@@ -75,6 +75,7 @@ def save_scan_record(
     
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     scorecard_dict = scorecard.model_dump()
+    scorecard_dict["scan_time"] = timestamp
     
     cursor.execute("""
         INSERT INTO scan_records (
@@ -208,12 +209,14 @@ def get_scan_by_id(scan_id: int) -> Optional[AuditScorecard]:
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT scorecard_json FROM scan_records WHERE id = ?", (scan_id,))
+    cursor.execute("SELECT scorecard_json, timestamp FROM scan_records WHERE id = ?", (scan_id,))
     row = cursor.fetchone()
     conn.close()
     
     if row:
         data = json.loads(row["scorecard_json"])
+        if not data.get("scan_time") and row["timestamp"]:
+            data["scan_time"] = row["timestamp"]
         return _enrich_scorecard_data(data)
     return None
 
@@ -228,13 +231,13 @@ def get_latest_scan_for_server(server_id: Optional[int] = None) -> Optional[Audi
     
     if server_id is not None:
         cursor.execute("""
-            SELECT scorecard_json FROM scan_records
+            SELECT scorecard_json, timestamp FROM scan_records
             WHERE server_id = ?
             ORDER BY id DESC LIMIT 1
         """, (server_id,))
     else:
         cursor.execute("""
-            SELECT scorecard_json FROM scan_records
+            SELECT scorecard_json, timestamp FROM scan_records
             ORDER BY id DESC LIMIT 1
         """)
         
@@ -243,6 +246,8 @@ def get_latest_scan_for_server(server_id: Optional[int] = None) -> Optional[Audi
     
     if row:
         data = json.loads(row["scorecard_json"])
+        if not data.get("scan_time") and row["timestamp"]:
+            data["scan_time"] = row["timestamp"]
         return _enrich_scorecard_data(data)
     return None
 
