@@ -113,13 +113,21 @@ class ScanManager:
     def __init__(self):
         self.active_scans: Dict[int, bool] = {} # server_id -> is_scanning
         self.is_scanning = False # Global flag for local / active scans
-        self.last_scorecard: Optional[AuditScorecard] = None
+        self.last_local_scorecard: Optional[AuditScorecard] = None
         self.last_scorecards_by_server: Dict[int, AuditScorecard] = {}
         self.last_error: Optional[str] = None
         self.current_progress: int = 0
         self.current_stage: str = "Idle"
         self.current_message: str = "Ready to start audit"
         self.subscribers: list = []
+
+    @property
+    def last_scorecard(self) -> Optional[AuditScorecard]:
+        return self.last_local_scorecard
+
+    @last_scorecard.setter
+    def last_scorecard(self, val: Optional[AuditScorecard]):
+        self.last_local_scorecard = val
 
     def subscribe(self) -> asyncio.Queue:
         q = asyncio.Queue()
@@ -261,9 +269,8 @@ class ScanManager:
                 report_data = parse_lynis_report(report_text)
                 scorecard = calculate_scorecard(report_data)
                 
-                # Update server last scan in DB
+                # Update server last scan in DB and per-server cache
                 update_server_last_scan(server.id, scorecard.overall_score, scorecard.letter_grade)
-                self.last_scorecard = scorecard
                 self.last_scorecards_by_server[server.id] = scorecard
 
                 done_evt = ScanProgressEvent(
@@ -381,10 +388,11 @@ class ScanManager:
 
         report_data = parse_lynis_report(LYNIS_DEFAULT_REPORT_PATH)
         scorecard = calculate_scorecard(report_data)
-        self.last_scorecard = scorecard
         if server_id is not None:
             self.last_scorecards_by_server[server_id] = scorecard
             update_server_last_scan(server_id, scorecard.overall_score, scorecard.letter_grade)
+        else:
+            self.last_local_scorecard = scorecard
 
         yield ScanProgressEvent(
             stage="Completed",
@@ -457,10 +465,11 @@ suggestion[]=SSH-7408|Set MaxAuthTries to 3 in sshd_config||
             report_data.hostname = server_name
 
         scorecard = calculate_scorecard(report_data)
-        self.last_scorecard = scorecard
         if server_id is not None:
             self.last_scorecards_by_server[server_id] = scorecard
             update_server_last_scan(server_id, scorecard.overall_score, scorecard.letter_grade)
+        else:
+            self.last_local_scorecard = scorecard
 
         yield ScanProgressEvent(
             stage="Completed",

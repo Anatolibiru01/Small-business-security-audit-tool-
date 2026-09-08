@@ -611,7 +611,7 @@
 
     if (stateScanning) stateScanning.classList.remove('active');
 
-    if (!scorecard || !scorecard.overall_score) {
+    if (!scorecard || scorecard.overall_score === undefined || scorecard.overall_score === null) {
       if (stateEmpty) stateEmpty.classList.add('active');
       if (stateResults) stateResults.classList.remove('active');
       return;
@@ -632,7 +632,40 @@
     }
   }
 
+  async function refreshDashboardSnapshotDropdown() {
+    const select = document.getElementById('dashboardSnapshotSelect');
+    if (!select) return;
+
+    const currentServerId = window.LynislensState.currentServerId;
+    const targetQuery = (currentServerId !== null && currentServerId !== undefined) ? String(currentServerId) : 'local';
+
+    try {
+      const res = await fetch(`/api/history?server_id=${targetQuery}&limit=15`);
+      if (res.ok) {
+        const historyList = await res.json();
+        let html = `<option value="latest">● Live Latest Audit</option>`;
+        historyList.forEach((item) => {
+          const time = item.timestamp || `Snapshot #${item.id}`;
+          const score = (item.overall_score !== undefined && item.overall_score !== null) ? `${item.overall_score}/100` : '--';
+          const grade = item.letter_grade ? `(${item.letter_grade})` : '';
+          html += `<option value="${item.id}">Snapshot: ${time} — ${score} ${grade}</option>`;
+        });
+        select.innerHTML = html;
+        select.value = 'latest';
+      }
+    } catch (e) {
+      console.warn('Could not load snapshots list:', e);
+    }
+  }
+
   async function fetchLatestScan() {
+    // Hide historical notice banner if active
+    const histBanner = document.getElementById('historicalAuditBanner');
+    if (histBanner) histBanner.style.display = 'none';
+
+    const select = document.getElementById('dashboardSnapshotSelect');
+    if (select) select.value = 'latest';
+
     let url = '/api/scan/latest';
     if (window.LynislensState.currentServerId) {
       url += `?server_id=${window.LynislensState.currentServerId}`;
@@ -642,13 +675,53 @@
       const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
+        if (window.LynislensState.currentServerId === null) {
+          window.LynislensState.localScorecard = data;
+        }
         updateDashboardView(data);
+        refreshDashboardSnapshotDropdown();
       } else {
         updateDashboardView(null);
       }
     } catch (e) {
       console.error('Error fetching scan scorecard:', e);
       updateDashboardView(null);
+    }
+  }
+
+  async function loadHistoricalScan(scanId) {
+    try {
+      const res = await fetch(`/api/history/${scanId}`);
+      if (!res.ok) {
+        window.showToast('Unable to retrieve historical audit record.', 'error');
+        return;
+      }
+      const data = await res.json();
+      updateDashboardView(data);
+
+      const histBanner = document.getElementById('historicalAuditBanner');
+      const histText = document.getElementById('historicalAuditBannerText');
+      if (histBanner) {
+        histBanner.style.display = 'flex';
+      }
+      if (histText) {
+        const timeStr = data.scan_time || 'Archive';
+        const hostStr = data.hostname || 'Selected Target';
+        histText.textContent = `Viewing historical snapshot of ${hostStr} from ${timeStr}`;
+      }
+
+      const select = document.getElementById('dashboardSnapshotSelect');
+      if (select) {
+        select.value = String(scanId);
+      }
+
+      if (typeof window.switchMainTab === 'function') {
+        window.switchMainTab('tabDashboard');
+      }
+      window.showToast(`Loaded historical audit snapshot (${data.scan_time || 'Archive'}).`, 'info');
+    } catch (err) {
+      console.error('Error loading historical scan:', err);
+      window.showToast('Network error loading historical audit.', 'error');
     }
   }
 
@@ -660,8 +733,23 @@
   window.renderAttackSurfaceTable = renderAttackSurfaceTable;
   window.updateDashboardView = updateDashboardView;
   window.fetchLatestScan = fetchLatestScan;
+  window.loadHistoricalScan = loadHistoricalScan;
+  window.refreshDashboardSnapshotDropdown = refreshDashboardSnapshotDropdown;
 
   document.addEventListener('DOMContentLoaded', () => {
+    // Snapshot selector
+    const snapshotSelect = document.getElementById('dashboardSnapshotSelect');
+    if (snapshotSelect) {
+      snapshotSelect.addEventListener('change', (e) => {
+        const val = e.target.value;
+        if (val === 'latest') {
+          fetchLatestScan();
+        } else {
+          loadHistoricalScan(val);
+        }
+      });
+    }
+
     // Scan trigger buttons
     const btnTriggerScan = document.getElementById('btnTriggerScan');
     const btnStartFirstScan = document.getElementById('btnStartFirstScan');

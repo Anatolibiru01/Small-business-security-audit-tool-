@@ -51,7 +51,16 @@
 
   <!-- Audit History Table -->
   <div class="panel">
-    <div class="panel-header">Historical Audit Archives</div>
+    <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+      <span>Historical Audit Archives & Snapshots</span>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:11px; color:var(--text-muted); font-weight:500;">Filter Asset:</span>
+        <select id="historyTargetFilter" class="server-select" style="font-size:12px; padding:3px 8px;">
+          <option value="all">All Systems & Nodes</option>
+          <option value="local">Localhost (Local Machine)</option>
+        </select>
+      </div>
+    </div>
     <div class="panel-body" style="padding:0;">
       <table class="data-table">
         <thead>

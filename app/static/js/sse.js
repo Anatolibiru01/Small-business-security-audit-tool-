@@ -106,11 +106,22 @@
         try {
           const data = JSON.parse(event.data);
           if (data.is_complete || data.stage === 'Completed' || data.scorecard) {
+            // Always refresh servers fleet list in background
             if (typeof window.fetchServersList === 'function') {
               window.fetchServersList();
             }
-            if (typeof window.fetchLatestScan === 'function') {
-              window.fetchLatestScan();
+
+            // Only refresh the main dashboard view if the event belongs to the currently active target
+            const activeServerId = window.LynislensState.currentServerId;
+            const eventServerId = data.server_id !== undefined && data.server_id !== null ? Number(data.server_id) : null;
+            
+            const isLocalMatch = (activeServerId === null && eventServerId === null);
+            const isServerMatch = (activeServerId !== null && eventServerId !== null && Number(activeServerId) === eventServerId);
+
+            if (isLocalMatch || isServerMatch) {
+              if (typeof window.fetchLatestScan === 'function') {
+                window.fetchLatestScan();
+              }
             }
           }
         } catch (e) {}

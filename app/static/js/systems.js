@@ -79,6 +79,11 @@
     const totalCount = list.length + 1; // including Localhost
     if (countBadge) countBadge.textContent = `${totalCount} Total ${totalCount === 1 ? 'Asset' : 'Assets'}`;
 
+    const localCard = window.LynislensState.localScorecard || (window.LynislensState.currentServerId === null ? window.LynislensState.currentScorecard : null);
+    const localHIndex = (localCard && localCard.hardening_index !== undefined && localCard.hardening_index !== null) ? localCard.hardening_index : '--';
+    const localFindings = (localCard && localCard.total_findings !== undefined && localCard.total_findings !== null) ? localCard.total_findings : 0;
+    const localScanTime = (localCard && (localCard.scan_time || localCard.timestamp)) ? localCard.scan_time || localCard.timestamp : 'Real-Time';
+
     let rows = `
       <tr>
         <td><strong>Localhost Machine</strong></td>
@@ -86,9 +91,9 @@
         <td><span class="badge badge-info" style="font-size:10px;">Local Subprocess</span></td>
         <td>Linux (Native Host)</td>
         <td><span class="badge-status status-connected">Active</span></td>
-        <td class="mono-stat">${(window.LynislensState.currentScorecard && window.LynislensState.currentScorecard.hardening_index) || '--'} / 100</td>
-        <td>${(window.LynislensState.currentScorecard && window.LynislensState.currentScorecard.total_findings) || 0} Open</td>
-        <td>Real-Time</td>
+        <td class="mono-stat">${localHIndex} / 100</td>
+        <td>${localFindings} Open</td>
+        <td>${localScanTime}</td>
         <td style="text-align: right;">
           <button type="button" class="btn btn-sm btn-secondary" onclick="window.selectTargetServer('local')">Select</button>
         </td>
@@ -130,6 +135,9 @@
     } catch (e) {}
 
     updateTargetServerSelect();
+    if (typeof window.refreshDashboardSnapshotDropdown === 'function') {
+      window.refreshDashboardSnapshotDropdown();
+    }
     if (typeof window.fetchLatestScan === 'function') {
       window.fetchLatestScan();
     }

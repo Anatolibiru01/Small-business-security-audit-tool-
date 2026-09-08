@@ -111,3 +111,80 @@ def test_api_agent_report_missing_body():
     )
     assert res.status_code == 400
     assert "Empty Lynis report" in res.json()["detail"]
+
+
+def test_agent_push_does_not_overwrite_local_machine_scorecard():
+    from app.main import scan_manager
+    from app.core.scorer import AuditScorecard
+
+    # 1. Setup a local scorecard
+    local_card = AuditScorecard(
+        overall_score=92,
+        letter_grade="A",
+        risk_level="Low Risk",
+        executive_summary="Local host is healthy.",
+        total_findings=2,
+        critical_count=0,
+        high_count=0,
+        medium_count=1,
+        low_count=1,
+        os_name="Ubuntu Linux (Local)",
+        os_kernel_version="6.5.0-local",
+        hostname="localhost-machine",
+        ip_address="127.0.0.1",
+        hardening_index=88,
+        firewall_active=True,
+        installed_packages=500,
+        vulnerable_packages=0
+    )
+    scan_manager.last_local_scorecard = local_card
+
+    # 2. Remote agent pushes report
+    token_res = client.post("/api/servers/token")
+    token = token_res.json()["token"]
+
+    ingest_res = client.post(
+        "/api/agent/report",
+        headers={"X-Agent-Token": token, "Content-Type": "text/plain"},
+        content=SAMPLE_REPORT_DAT
+    )
+    assert ingest_res.status_code == 200
+    srv_id = ingest_res.json()["server_id"]
+
+    # 3. Verify local machine query still returns local card
+    local_res = client.get("/api/scan/latest")
+    assert local_res.status_code == 200
+    assert local_res.json()["hostname"] == "localhost-machine"
+    assert local_res.json()["overall_score"] == 92
+
+    # 4. Verify remote server query returns remote card
+    remote_res = client.get(f"/api/scan/latest?server_id={srv_id}")
+    assert remote_res.status_code == 200
+    assert remote_res.json()["hostname"] == "prod-app-server-01"
+
+
+def test_decommissioned_server_report_is_rejected_403():
+    # 1. Ingest report from a server
+    token_res = client.post("/api/servers/token")
+    token = token_res.json()["token"]
+
+    ingest_res = client.post(
+        "/api/agent/report",
+        headers={"X-Agent-Token": token, "Content-Type": "text/plain"},
+        content=SAMPLE_REPORT_DAT
+    )
+    assert ingest_res.status_code == 200
+    srv_id = ingest_res.json()["server_id"]
+
+    # 2. Decommission/delete the server
+    del_res = client.delete(f"/api/servers/{srv_id}")
+    assert del_res.status_code == 200
+
+    # 3. Subsequent push attempts must be rejected with 403 Forbidden
+    rejected_res = client.post(
+        "/api/agent/report",
+        headers={"X-Agent-Token": token, "Content-Type": "text/plain"},
+        content=SAMPLE_REPORT_DAT
+    )
+    assert rejected_res.status_code == 403
+    assert "decommissioned" in rejected_res.json()["detail"].lower()

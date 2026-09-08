@@ -22,6 +22,15 @@
           title="Delete and decommission selected server">Delete</button>
       </div>
 
+      <!-- Audit Snapshot Timeline Dropdown (Per-Server History) -->
+      <div class="server-control-bar" id="snapshotControlBar"
+        title="Switch between the live latest audit and past historical snapshots">
+        <span class="server-control-label">Audit:</span>
+        <select id="dashboardSnapshotSelect" class="server-select" style="max-width: 230px; font-weight: 500;">
+          <option value="latest">● Live Latest Audit</option>
+        </select>
+      </div>
+
       <button id="btnOpenExport" class="btn btn-sm btn-secondary" title="Export Full Executive PDF / HTML Report">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -89,6 +98,23 @@
 
     <div id="resultsState" class="state-container">
       <div class="dash-executive-canvas">
+
+        <!-- Historical Snapshot Notice Banner (Time-Travel Inspection) -->
+        <div id="historicalAuditBanner"
+          style="display:none; background: linear-gradient(90deg, rgba(245, 158, 11, 0.16), rgba(217, 119, 6, 0.08)); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 8px; padding: 10px 16px; margin-bottom: 16px; display: none; align-items: center; justify-content: space-between; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="badge badge-warning"
+              style="font-weight: 700; text-transform: uppercase; font-size: 11px; padding: 3px 8px;">Archived
+              Snapshot</span>
+            <span id="historicalAuditBannerText"
+              style="font-size: 13px; font-weight: 600; color: var(--text-main);">Viewing historical audit record from
+              --</span>
+          </div>
+          <button type="button" class="btn btn-sm btn-primary" onclick="window.fetchLatestScan()"
+            style="padding: 4px 12px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="fas fa-undo"></i> Return to Live Latest Audit
+          </button>
+        </div>
 
         <!-- 1. TOP KPI METRICS ROW (4 Floating Elevated Cards exactly matching reference image) -->
         <div class="kpi-metrics-row">
@@ -191,7 +217,7 @@
             <!-- Top: Centered Hero Donut Gauge with Center Score (Conversion) -->
             <div class="ref-chart-card donut-hero-card">
               <div class="ref-card-header" style="justify-content: center;">
-                <span class="ref-card-title">Conversion (Overall Security Score)</span>
+                <span class="ref-card-title">Conversion - Overall Security Score</span>
               </div>
               <div class="donut-hero-container">
                 <div class="donut-chart-box">
@@ -272,7 +298,8 @@
             <div class="ref-chart-card">
               <div class="ref-card-header">
                 <span class="ref-card-title">Audit Schedule & History</span>
-                <span class="ref-card-badge" id="auditTimeBadge"><i class="far fa-clock"></i> <span id="auditLiveClock">--:--:--</span></span>
+                <span class="ref-card-badge" id="auditTimeBadge"><i class="far fa-clock"></i> <span
+                    id="auditLiveClock">--:--:--</span></span>
               </div>
               <div class="cal-matrix-container">
                 <!-- Year Selector Row (Dynamically populated by Time Module) -->

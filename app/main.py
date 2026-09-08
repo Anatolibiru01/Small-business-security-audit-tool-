@@ -41,6 +41,8 @@ from app.core.servers import (
     get_server_by_token,
     create_or_update_push_server,
     update_server_last_scan,
+    is_node_decommissioned,
+    undecommission_node,
     init_servers_db
 )
 from app.core.agent_installer import generate_installer_script
@@ -189,10 +191,10 @@ async def report_page(
     scorecard = None
     if scan_id:
         scorecard = get_scan_by_id(scan_id)
-    elif server_id:
-        scorecard = get_latest_scan_for_server(server_id)
+    elif server_id is not None and str(server_id).lower() not in ["local", "localhost", "none", ""]:
+        scorecard = scan_manager.last_scorecards_by_server.get(int(server_id)) or get_latest_scan_for_server(int(server_id))
     else:
-        scorecard = scan_manager.last_scorecard or get_latest_scan_for_server()
+        scorecard = scan_manager.last_local_scorecard or get_latest_scan_for_server(None)
 
     if not scorecard:
         return HTMLResponse("<div style='font-family:sans-serif; text-align:center; padding:50px;'><h2>No Audit Results Found</h2><p>Please run an audit scan or select a connected agent first.</p></div>", status_code=200)
@@ -304,6 +306,13 @@ async def receive_agent_report(
     client_ip = request.client.host if request.client else "127.0.0.1"
     ip = x_host_ip or report_data.ip_address or client_ip
 
+    # Check if this node was decommissioned / removed by administrator
+    if is_node_decommissioned(token=token, hostname=hostname, ip=ip):
+        raise HTTPException(
+            status_code=403,
+            detail=f"Node '{hostname}' ({ip}) has been decommissioned from this platform. Telemetry upload rejected."
+        )
+
     # 2. Auto-enroll or update server registry
     server = create_or_update_push_server(
         token=token,
@@ -315,9 +324,8 @@ async def receive_agent_report(
     # 3. Calculate full scorecard
     scorecard = calculate_scorecard(report_data)
 
-    # 4. Update server profile status & score
+    # 4. Update server profile status & score (strictly in per-server cache)
     update_server_last_scan(server.id, scorecard.overall_score, scorecard.letter_grade)
-    scan_manager.last_scorecard = scorecard
     scan_manager.last_scorecards_by_server[server.id] = scorecard
 
     # 5. Persist to audit history
@@ -429,12 +437,13 @@ async def modify_server(server_id: int, payload: ServerUpdate):
 @app.delete("/api/servers/{server_id}")
 async def remove_server(server_id: int):
     """
-    Remove a server target profile.
+    Remove and decommission a server target profile.
     """
+    scan_manager.last_scorecards_by_server.pop(server_id, None)
     deleted = delete_server(server_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Server target not found.")
-    return {"status": "success", "message": f"Server {server_id} removed successfully."}
+    return {"status": "success", "message": f"Server {server_id} decommissioned and removed successfully."}
 
 
 @app.post("/api/servers/{server_id}/test", response_model=RemotePreflightStatus)
@@ -619,10 +628,10 @@ async def stream_scan_progress(server_id: Optional[int] = None):
 
         if not is_target_scanning:
             latest_card = None
-            if server_id is not None:
-                latest_card = scan_manager.last_scorecards_by_server.get(server_id) or get_latest_scan_for_server(server_id)
+            if server_id is not None and str(server_id).lower() not in ["local", "localhost", "none", ""]:
+                latest_card = scan_manager.last_scorecards_by_server.get(int(server_id)) or get_latest_scan_for_server(int(server_id))
             else:
-                latest_card = scan_manager.last_scorecard or get_latest_scan_for_server()
+                latest_card = scan_manager.last_local_scorecard or get_latest_scan_for_server(None)
 
             if latest_card:
                 init_event = ScanProgressEvent(
@@ -671,26 +680,27 @@ async def stream_scan_progress(server_id: Optional[int] = None):
 
 
 @app.get("/api/scan/latest")
-async def get_latest_scan(server_id: Optional[int] = None):
+async def get_latest_scan(server_id: Optional[str] = Query(None)):
     """
-    Get the most recently calculated scorecard (optionally filtered by server_id).
+    Get the most recently calculated scorecard (strictly isolated: Localhost vs Remote Server).
     """
-    if server_id is not None:
-        if server_id in scan_manager.last_scorecards_by_server:
-            return scan_manager.last_scorecards_by_server[server_id]
-        scorecard = get_latest_scan_for_server(server_id)
+    if server_id is not None and str(server_id).lower() not in ["local", "localhost", "none", ""]:
+        sid = int(server_id)
+        if sid in scan_manager.last_scorecards_by_server:
+            return scan_manager.last_scorecards_by_server[sid]
+        scorecard = get_latest_scan_for_server(sid)
         if scorecard:
             return scorecard
         raise HTTPException(status_code=404, detail="No scan results available for this server.")
 
-    if scan_manager.last_scorecard:
-        return scan_manager.last_scorecard
+    if scan_manager.last_local_scorecard:
+        return scan_manager.last_local_scorecard
     
-    scorecard = get_latest_scan_for_server()
+    scorecard = get_latest_scan_for_server(None)
     if scorecard:
         return scorecard
 
-    return {"message": "No scan results available. Start a new audit."}
+    raise HTTPException(status_code=404, detail="No scan results available for local machine. Start a new audit.")
 
 
 # ============================================================================
@@ -698,9 +708,9 @@ async def get_latest_scan(server_id: Optional[int] = None):
 # ============================================================================
 
 @app.get("/api/history")
-async def list_scan_history(limit: int = Query(20), server_id: Optional[int] = Query(None)):
+async def list_scan_history(limit: int = Query(20), server_id: Optional[str] = Query(None)):
     """
-    Get audit history list, optionally filtered by server_id.
+    Get audit history list, optionally filtered by server_id ('local' for localhost, integer ID for remote).
     """
     return get_scan_history(limit=limit, server_id=server_id)
 
@@ -731,7 +741,7 @@ async def delete_history_record(scan_id: int):
 async def export_html_report(
     request: Request,
     scan_id: Optional[int] = None,
-    server_id: Optional[int] = None
+    server_id: Optional[str] = None
 ):
     """
     Render a clean, printable executive audit report.
@@ -739,10 +749,10 @@ async def export_html_report(
     scorecard = None
     if scan_id:
         scorecard = get_scan_by_id(scan_id)
-    elif server_id:
-        scorecard = get_latest_scan_for_server(server_id)
+    elif server_id is not None and str(server_id).lower() not in ["local", "localhost", "none", ""]:
+        scorecard = scan_manager.last_scorecards_by_server.get(int(server_id)) or get_latest_scan_for_server(int(server_id))
     else:
-        scorecard = scan_manager.last_scorecard or get_latest_scan_for_server()
+        scorecard = scan_manager.last_local_scorecard or get_latest_scan_for_server(None)
 
     if not scorecard:
         return HTMLResponse("<h2>No audit results found to generate report.</h2>", status_code=404)
@@ -763,7 +773,7 @@ async def export_html_report(
 @app.get("/api/export/json")
 async def export_json_report(
     scan_id: Optional[int] = None,
-    server_id: Optional[int] = None
+    server_id: Optional[str] = None
 ):
     """
     Download raw JSON report data.
@@ -771,10 +781,13 @@ async def export_json_report(
     scorecard = None
     if scan_id:
         scorecard = get_scan_by_id(scan_id)
-    elif server_id:
-        scorecard = get_latest_scan_for_server(server_id)
+    elif server_id is not None and str(server_id).lower() not in ["local", "localhost", "none", ""]:
+        scorecard = scan_manager.last_scorecards_by_server.get(int(server_id)) or get_latest_scan_for_server(int(server_id))
     else:
-        scorecard = scan_manager.last_scorecard or get_latest_scan_for_server()
+        scorecard = scan_manager.last_local_scorecard or get_latest_scan_for_server(None)
+
+    if not scorecard:
+        raise HTTPException(status_code=404, detail="No audit report available to export.")
 
     content = scorecard.model_dump_json(indent=2)
     return Response(
@@ -787,7 +800,7 @@ async def export_json_report(
 @app.get("/api/export/raw")
 async def export_raw_dat_report(
     scan_id: Optional[int] = None,
-    server_id: Optional[int] = None
+    server_id: Optional[str] = None
 ):
     """
     Download the raw Lynis .dat report data file.
@@ -810,10 +823,10 @@ async def export_raw_dat_report(
     scorecard = None
     if scan_id:
         scorecard = get_scan_by_id(scan_id)
-    elif server_id:
-        scorecard = get_latest_scan_for_server(server_id)
+    elif server_id is not None and str(server_id).lower() not in ["local", "localhost", "none", ""]:
+        scorecard = scan_manager.last_scorecards_by_server.get(int(server_id)) or get_latest_scan_for_server(int(server_id))
     else:
-        scorecard = scan_manager.last_scorecard or get_latest_scan_for_server()
+        scorecard = scan_manager.last_local_scorecard or get_latest_scan_for_server(None)
 
     if not scorecard:
         raise HTTPException(status_code=404, detail="No audit report available to export.")
@@ -825,11 +838,11 @@ async def export_raw_dat_report(
         f"auditor=lynislens-auditor",
         f"hostname={scorecard.hostname}",
         f"os_name={scorecard.os_name}",
-        f"os_version={scorecard.kernel}",
+        f"os_version={scorecard.os_kernel_version}",
         f"hardening_index={scorecard.hardening_index}",
         f"overall_score={scorecard.overall_score}",
         f"firewall_active={1 if scorecard.firewall_active else 0}",
-        f"scan_timestamp={scorecard.scan_timestamp}",
+        f"scan_timestamp={scorecard.scan_time or datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
         ""
     ]
 

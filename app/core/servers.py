@@ -66,6 +66,17 @@ def init_servers_db():
     if "last_heartbeat" not in columns:
         cursor.execute("ALTER TABLE servers ADD COLUMN last_heartbeat TEXT")
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS decommissioned_nodes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            server_id INTEGER,
+            name TEXT,
+            host TEXT,
+            enrollment_token TEXT,
+            decommissioned_at TEXT NOT NULL
+        )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -284,6 +295,9 @@ def create_server(data: ServerCreate) -> ServerProfile:
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     token = data.enrollment_token or generate_enrollment_token()
     
+    # If this host was previously decommissioned, clear the blocklist entry
+    undecommission_node(data.host, data.name)
+    
     cursor.execute("""
         INSERT INTO servers (
             name, host, port, username, auth_type, password, private_key,
@@ -484,10 +498,68 @@ def update_server(server_id: int, update: ServerUpdate) -> Optional[ServerProfil
     return get_server_by_id(server_id)
 
 
-def delete_server(server_id: int) -> bool:
+def is_node_decommissioned(
+    token: Optional[str] = None,
+    hostname: Optional[str] = None,
+    ip: Optional[str] = None
+) -> bool:
+    """
+    Check if an incoming report is from a decommissioned node or token.
+    """
     init_servers_db()
     conn = get_db_connection()
     cursor = conn.cursor()
+    
+    h = (hostname or "").strip().lower()
+    i = (ip or "").strip().lower()
+
+    cursor.execute("""
+        SELECT id FROM decommissioned_nodes
+        WHERE (host IS NOT NULL AND host != '' AND (LOWER(host) = ? OR LOWER(host) = ?))
+           OR (name IS NOT NULL AND name != '' AND (LOWER(name) = ? OR LOWER(name) = ?))
+        LIMIT 1
+    """, (h, i, h, i))
+    
+    found = cursor.fetchone()
+    conn.close()
+    return found is not None
+
+
+def undecommission_node(host: str, name: Optional[str] = None):
+    """
+    Remove a node from the decommission blocklist when explicitly reconnected.
+    """
+    if not host and not name:
+        return
+    init_servers_db()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        DELETE FROM decommissioned_nodes
+        WHERE LOWER(host) = ? OR LOWER(name) = ?
+    """, ((host or "").strip().lower(), (name or host or "").strip().lower()))
+    conn.commit()
+    conn.close()
+
+
+def delete_server(server_id: int) -> bool:
+    """
+    Decommission and delete a server profile.
+    Saves the server identifiers to decommissioned_nodes so future unsolicited reports are blocked.
+    """
+    init_servers_db()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT name, host, enrollment_token FROM servers WHERE id = ?", (server_id,))
+    row = cursor.fetchone()
+    if row:
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        cursor.execute("""
+            INSERT INTO decommissioned_nodes (server_id, name, host, enrollment_token, decommissioned_at)
+            VALUES (?, ?, ?, ?, ?)
+        """, (server_id, row["name"], row["host"], row["enrollment_token"], now))
+
     cursor.execute("DELETE FROM servers WHERE id = ?", (server_id,))
     deleted = cursor.rowcount > 0
     conn.commit()

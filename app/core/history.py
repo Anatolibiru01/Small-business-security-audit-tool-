@@ -8,7 +8,7 @@ import os
 import sqlite3
 import json
 from datetime import datetime
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Union
 from app.core.scorer import AuditScorecard
 from app.config import DATA_DIR
 
@@ -110,16 +110,29 @@ def save_scan_record(
 
 def get_scan_history(
     limit: int = 20,
-    server_id: Optional[int] = None
+    server_id: Optional[Any] = None
 ) -> List[Dict[str, Any]]:
     """
     Retrieve past scan summaries, optionally filtered by server_id.
+    - server_id == 'local' or 'localhost': only returns local machine scans (WHERE server_id IS NULL)
+    - server_id is an integer (or int string): returns scans for that remote server
+    - server_id is None or 'all': returns scans across all assets
     """
     init_history_db()
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    if server_id is not None:
+    if str(server_id).lower() in ["local", "localhost", "null", "none_str"]:
+        cursor.execute("""
+            SELECT id, server_id, server_name, timestamp, hostname, os_name,
+                   overall_score, letter_grade, risk_level, total_findings,
+                   critical_count, high_count, medium_count, low_count, firewall_active
+            FROM scan_records
+            WHERE server_id IS NULL
+            ORDER BY id DESC
+            LIMIT ?
+        """, (limit,))
+    elif server_id is not None and str(server_id).isdigit():
         cursor.execute("""
             SELECT id, server_id, server_name, timestamp, hostname, os_name,
                    overall_score, letter_grade, risk_level, total_findings,
@@ -128,7 +141,7 @@ def get_scan_history(
             WHERE server_id = ?
             ORDER BY id DESC
             LIMIT ?
-        """, (server_id, limit))
+        """, (int(server_id), limit))
     else:
         cursor.execute("""
             SELECT id, server_id, server_name, timestamp, hostname, os_name,
@@ -221,23 +234,26 @@ def get_scan_by_id(scan_id: int) -> Optional[AuditScorecard]:
     return None
 
 
-def get_latest_scan_for_server(server_id: Optional[int] = None) -> Optional[AuditScorecard]:
+def get_latest_scan_for_server(server_id: Optional[Union[int, str]] = None) -> Optional[AuditScorecard]:
     """
-    Retrieve the most recent AuditScorecard, optionally for a specific server.
+    Retrieve the most recent AuditScorecard, strictly isolating Localhost vs Remote Servers.
+    - server_id is None or 'local': queries WHERE server_id IS NULL (Localhost machine)
+    - server_id is an integer (or numeric str): queries WHERE server_id = ? (Remote server)
     """
     init_history_db()
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    if server_id is not None:
+    if server_id is not None and str(server_id).lower() not in ["local", "localhost", "none", ""]:
         cursor.execute("""
             SELECT scorecard_json, timestamp FROM scan_records
             WHERE server_id = ?
             ORDER BY id DESC LIMIT 1
-        """, (server_id,))
+        """, (int(server_id),))
     else:
         cursor.execute("""
             SELECT scorecard_json, timestamp FROM scan_records
+            WHERE server_id IS NULL
             ORDER BY id DESC LIMIT 1
         """)
         

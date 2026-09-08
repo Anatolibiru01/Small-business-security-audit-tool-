@@ -172,6 +172,11 @@ HTTP_CODE=$(curl -s -w "%{{http_code}}" -o /tmp/lynislens-resp.json -X POST "$SE
 
 if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
   echo "[✔] Audit successfully published to Central Dashboard!"
+elif [ "$HTTP_CODE" -eq 403 ]; then
+  echo "[!] Notice: This machine has been decommissioned / removed from the Central Dashboard." >&2
+  echo "[*] Automatically disabling scheduled background audit cron..."
+  rm -f /etc/cron.d/lynislens-audit /etc/cron.daily/lynislens-audit 2>/dev/null || true
+  exit 0
 else
   echo "[!] Failed to push report (HTTP $HTTP_CODE). Check connection to $SERVER_URL." >&2
   cat /tmp/lynislens-resp.json 2>/dev/null || true
