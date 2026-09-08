@@ -46,9 +46,10 @@ Lynislens addresses this by providing:
 Lynislens Enterprise is engineered on top of the battle-tested open-source audit engine **[Lynis](https://cisofy.com/lynis/)**, created by **Michael Boelen** and maintained by **CISOfy**.
 
 ### The Essential Role of Lynis:
-1. **Low-Level Native Diagnostics**: Lynis inspects operating system internals, PAM configurations, SSH daemon directives, sysctl kernel memory tunables, systemd service unit permissions, cron tables, package repositories, and crypto policies without requiring intrusive agent binaries or disrupting production workloads.
-2. **Deterministic Test Identification**: Lynis assigns standard alphanumeric test identifiers (e.g. `AUTH-9288`, `KRNL-5820`, `PKGS-7392`, `SSH-7408`, `FIRE-4518`) that identify specific security checks.
-3. **Machine-Readable Report Format**: Lynis writes structured key-value reports to `/var/log/lynis-report.dat`, recording the Hardening Index, operating system metadata, installed packages, firewall status, warnings, suggestions, and listening services.
+1. **Core Capabilities**: Performs essential tasks including **Security auditing**, **Compliance testing**, **Penetration testing**, **Vulnerability detection**, and **System hardening**.
+2. **Low-Level Native Diagnostics**: Lynis inspects operating system internals, PAM configurations, SSH daemon directives, sysctl kernel memory tunables, systemd service unit permissions, cron tables, package repositories, and crypto policies without requiring intrusive agent binaries or disrupting production workloads.
+3. **Deterministic Test Identification**: Lynis assigns standard alphanumeric test identifiers (e.g. `AUTH-9288`, `KRNL-5820`, `PKGS-7392`, `SSH-7408`, `FIRE-4518`) that identify specific security checks.
+4. **Machine-Readable Report Format**: Lynis writes structured key-value reports to `/var/log/lynis-report.dat`, recording the Hardening Index, operating system metadata, installed packages, firewall status, warnings, suggestions, and listening services.
 
 ### Lynislens' Value-Added Layer:
 Lynislens acts as the **Enterprise Intelligence, Management, and Remediation Layer** for Lynis:

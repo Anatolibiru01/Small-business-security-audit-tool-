@@ -28,6 +28,7 @@ When launching Lynislens for the first time, authenticate using the default mast
 Lynislens is built with deep appreciation for **[Lynis](https://cisofy.com/lynis/)**, the industry-standard battle-tested open-source security auditing tool originally created by **Michael Boelen** and maintained by **CISOfy**.
 
 ### What Lynis Does:
+- **Core Capabilities**: Performs essential tasks including **Security auditing**, **Compliance testing**, **Penetration testing**, **Vulnerability detection**, and **System hardening**.
 - Lynis performs in-depth non-destructive security scanning directly on UNIX/Linux kernels, packages, authentication subsystems, network daemon configurations, file permissions, and logging daemons.
 - It produces rich machine-readable key-value diagnostic reports (`/var/log/lynis-report.dat`) and detailed execution logs (`/var/log/lynis.log`).
 
@@ -170,7 +171,7 @@ app/
 
 Lynislens supports 3 flexible connection architectures to fit any network or cloud environment:
 
-### Method 1: Native Lynis Client Upload (TrikuSec Compatible — Zero Agents)
+### Method 1: Native Lynis Client Upload (Zero Agents)
 For any Linux server with Lynis already installed (`apt install lynis` / `dnf install lynis`):
 
 1. Configure your target machine's `/etc/lynis/custom.prf`:
