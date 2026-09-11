@@ -104,12 +104,11 @@
               <div class="remediation-action-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
                   <span style="font-size:11px; font-weight:700; color:var(--brand-orange);">Recommended Remediation CLI:</span>
-                  <button type="button" class="btn btn-sm btn-secondary btn-copy-cmd" data-copy-cmd="${window.escapeHtml(fixCmd)}">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <button type="button" class="btn btn-sm btn-secondary btn-icon-copy btn-copy-cmd" data-copy-cmd="${window.escapeHtml(fixCmd)}" title="Copy Remediation Command">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                     </svg>
-                    <span>Copy Fix</span>
                   </button>
                 </div>
                 <pre class="code-snippet-box"><code>${window.escapeHtml(fixCmd)}</code></pre>
@@ -135,7 +134,7 @@
 
       if (header && body) {
         header.addEventListener('click', (e) => {
-          if (e.target.tagName === 'INPUT' || e.target.closest('.btn-copy-cmd')) return;
+          if (e.target.tagName === 'INPUT' || e.target.closest('.btn-copy-cmd, .btn-icon-copy')) return;
           const isHidden = body.style.display === 'none';
           body.style.display = isHidden ? 'block' : 'none';
           card.classList.toggle('expanded', isHidden);
@@ -150,8 +149,7 @@
         e.stopPropagation();
         const cmd = btn.getAttribute('data-copy-cmd');
         if (cmd) {
-          navigator.clipboard.writeText(cmd);
-          window.showToast('Remediation command copied to clipboard!', 'success');
+          window.copyToClipboard(cmd, btn, 'Remediation command copied to clipboard!');
         }
       });
     });
@@ -357,8 +355,7 @@
     if (btnCopyPlaybook) {
       btnCopyPlaybook.addEventListener('click', () => {
         const text = generatePlaybookContent(currentPlaybookFormat);
-        navigator.clipboard.writeText(text);
-        window.showToast('Playbook copied to clipboard!', 'success');
+        window.copyToClipboard(text, btnCopyPlaybook, 'Playbook copied to clipboard!');
       });
     }
 

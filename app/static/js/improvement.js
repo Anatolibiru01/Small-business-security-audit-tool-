@@ -46,9 +46,14 @@
                     <span class="badge-priority priority-${(item.severity || 'medium').toLowerCase() === 'critical' ? 'p1' : (item.severity || 'medium').toLowerCase() === 'high' ? 'p2' : 'p3'}">${window.escapeHtml(item.severity || 'Med')}</span>
                   </div>
                   ${fix ? `
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; background:var(--bg-card); padding:4px 8px; border-radius:4px;">
-                      <code style="font-size:10.5px; color:var(--brand-orange); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:80%;">${window.escapeHtml(fix)}</code>
-                      <button type="button" class="btn btn-sm btn-secondary btn-copy-cmd" data-copy-cmd="${window.escapeHtml(fix)}" style="font-size:10px; padding:2px 6px;">Copy</button>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; background:var(--bg-card); padding:4px 8px; border-radius:4px; gap:6px;">
+                      <code style="font-size:10.5px; color:var(--brand-orange); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1;">${window.escapeHtml(fix)}</code>
+                      <button type="button" class="btn btn-sm btn-secondary btn-icon-copy btn-copy-cmd" data-copy-cmd="${window.escapeHtml(fix)}" title="Copy Command">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                      </button>
                     </div>
                   ` : ''}
                 </div>
@@ -72,8 +77,7 @@
         e.stopPropagation();
         const cmd = btn.getAttribute('data-copy-cmd');
         if (cmd) {
-          navigator.clipboard.writeText(cmd);
-          window.showToast('Command copied to clipboard!', 'success');
+          window.copyToClipboard(cmd, btn, 'Command copied to clipboard!');
         }
       });
     });

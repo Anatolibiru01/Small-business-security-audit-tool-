@@ -41,6 +41,7 @@ class ScanProgressEvent(BaseModel):
     progress_percent: int
     message: str
     is_complete: bool = False
+    status: Optional[str] = None
     error: Optional[str] = None
     scorecard: Optional[AuditScorecard] = None
     server_id: Optional[int] = None
@@ -268,6 +269,8 @@ class ScanManager:
 
                 report_data = parse_lynis_report(report_text)
                 scorecard = calculate_scorecard(report_data)
+                scorecard.server_id = server.id
+                scorecard.server_name = server.name
                 
                 # Update server last scan in DB and per-server cache
                 update_server_last_scan(server.id, scorecard.overall_score, scorecard.letter_grade)
@@ -324,7 +327,7 @@ class ScanManager:
             server_name=server_name
         )
 
-        script = f"{lynis_bin} audit system --quick --auditor SmallBusinessSecurityAuditTool; chmod 644 {LYNIS_DEFAULT_REPORT_PATH}"
+        script = f"rm -f {LYNIS_DEFAULT_REPORT_PATH} 2>/dev/null; {lynis_bin} audit system --quick --auditor SmallBusinessSecurityAuditTool; chmod 644 {LYNIS_DEFAULT_REPORT_PATH}"
         cmd = ["sudo", "-S", "-p", "", "sh", "-c", script]
 
         proc = await asyncio.create_subprocess_exec(
@@ -389,9 +392,12 @@ class ScanManager:
         report_data = parse_lynis_report(LYNIS_DEFAULT_REPORT_PATH)
         scorecard = calculate_scorecard(report_data)
         if server_id is not None:
+            scorecard.server_id = server_id
+            scorecard.server_name = server_name
             self.last_scorecards_by_server[server_id] = scorecard
             update_server_last_scan(server_id, scorecard.overall_score, scorecard.letter_grade)
         else:
+            scorecard.server_name = "Localhost"
             self.last_local_scorecard = scorecard
 
         yield ScanProgressEvent(
@@ -466,9 +472,12 @@ suggestion[]=SSH-7408|Set MaxAuthTries to 3 in sshd_config||
 
         scorecard = calculate_scorecard(report_data)
         if server_id is not None:
+            scorecard.server_id = server_id
+            scorecard.server_name = server_name
             self.last_scorecards_by_server[server_id] = scorecard
             update_server_last_scan(server_id, scorecard.overall_score, scorecard.letter_grade)
         else:
+            scorecard.server_name = "Localhost"
             self.last_local_scorecard = scorecard
 
         yield ScanProgressEvent(

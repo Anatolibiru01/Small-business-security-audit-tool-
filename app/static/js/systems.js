@@ -18,6 +18,16 @@
             window.LynislensState.currentServerId = null;
             try { localStorage.setItem('lynislens_selected_server', 'local'); } catch(e){}
           }
+        } else {
+          // Auto-select most recently audited server if no specific local selection is saved in this browser origin
+          let saved = null;
+          try { saved = localStorage.getItem('lynislens_selected_server'); } catch(e){}
+          if (!saved && list.length > 0) {
+            const latestServer = list.find(s => s.last_score !== null && s.last_score !== undefined) || list[0];
+            if (latestServer) {
+              window.LynislensState.currentServerId = latestServer.id;
+            }
+          }
         }
 
         renderSystemsTab();
@@ -109,9 +119,9 @@
           <td><span class="badge badge-${srv.auth_type === 'push' ? 'success' : 'primary'}" style="font-size:10px;">${srv.auth_type === 'push' ? 'Push Agent' : 'Direct SSH'}</span></td>
           <td>${window.escapeHtml(srv.os_name || 'Linux')}</td>
           <td><span class="badge-status status-${isOnline ? 'connected' : 'checking'}">${isOnline ? 'Connected' : 'Enrolled'}</span></td>
-          <td class="mono-stat">${srv.hardening_index !== null && srv.hardening_index !== undefined ? srv.hardening_index : '--'} / 100</td>
+          <td class="mono-stat">${srv.last_score !== null && srv.last_score !== undefined ? srv.last_score : (srv.hardening_index !== null && srv.hardening_index !== undefined ? srv.hardening_index : '--')} / 100</td>
           <td>${srv.total_findings || 0} Open</td>
-          <td>${srv.last_audit || 'Pending first run'}</td>
+          <td>${srv.last_scan_at || srv.last_audit || 'Pending first run'}</td>
           <td style="text-align: right; display:flex; gap:6px; justify-content:flex-end;">
             <button type="button" class="btn btn-sm btn-secondary" onclick="window.selectTargetServer(${srv.id})">Select</button>
             <button type="button" class="btn btn-sm btn-danger" onclick="window.deleteServer(${srv.id})">Remove</button>
@@ -126,6 +136,7 @@
   function selectTargetServer(id) {
     const serverId = id === 'local' || id === null || id === undefined ? null : Number(id);
     window.LynislensState.currentServerId = serverId;
+    window.LynislensState.isExplicitTarget = (serverId === null);
     try {
       if (serverId === null) {
         localStorage.setItem('lynislens_selected_server', 'local');
@@ -250,8 +261,7 @@
         btnCopyActiveToken.addEventListener('click', () => {
           const tokenInput = document.getElementById('sysActiveToken');
           if (tokenInput && tokenInput.value && !tokenInput.value.includes('Loading')) {
-            navigator.clipboard.writeText(tokenInput.value);
-            window.showToast('Enrollment token copied to clipboard!', 'success');
+            window.copyToClipboard(tokenInput.value, btnCopyActiveToken, 'Enrollment token copied to clipboard!');
           }
         });
       }
@@ -322,109 +332,43 @@
     if (tabBtnPush) tabBtnPush.addEventListener('click', () => selectModalTab(tabBtnPush, modalTabPush));
     if (tabBtnSSH) tabBtnSSH.addEventListener('click', () => selectModalTab(tabBtnSSH, modalTabSSH));
 
-    // Copy command buttons
-    const btnCopyNativeInjectCmd = document.getElementById('btnCopyNativeInjectCmd');
-    const btnCopyNativePrf = document.getElementById('btnCopyNativePrf');
-    const btnCopyNativeScanCmd = document.getElementById('btnCopyNativeScanCmd');
-    const btnCopyAgentCmd = document.getElementById('btnCopyAgentCmd');
-    const btnCopySysCmd = document.getElementById('btnCopySysCmd');
-
-    if (btnCopyNativeInjectCmd) {
-      btnCopyNativeInjectCmd.addEventListener('click', () => {
-        const text = document.getElementById('nativeLynisInjectCmd')?.innerText || '';
-        navigator.clipboard.writeText(text);
-      });
-    }
-    if (btnCopyNativePrf) {
-      btnCopyNativePrf.addEventListener('click', () => {
-        const text = document.getElementById('nativeLynisPrfContent')?.innerText || '';
-        navigator.clipboard.writeText(text);
-      });
-    }
-    if (btnCopyNativeScanCmd) {
-      btnCopyNativeScanCmd.addEventListener('click', () => {
-        const text = document.getElementById('nativeLynisScanCmd')?.innerText || '';
-        navigator.clipboard.writeText(text);
-      });
-    }
-    const btnCopySysNativeInject = document.getElementById('btnCopySysNativeInject');
-    if (btnCopySysNativeInject) {
-      btnCopySysNativeInject.addEventListener('click', () => {
-        const text = document.getElementById('sysSetupNativeInjectCmd')?.innerText || '';
-        navigator.clipboard.writeText(text);
-      });
-    }
-
-    if (btnCopyAgentCmd) {
-      btnCopyAgentCmd.addEventListener('click', () => {
-        const text = document.getElementById('agentCommandText')?.innerText || '';
-        navigator.clipboard.writeText(text);
-      });
-    }
-    if (btnCopySysCmd) {
-      btnCopySysCmd.addEventListener('click', () => {
-        const text = document.getElementById('sysSetupCommandText')?.innerText || '';
-        navigator.clipboard.writeText(text);
-      });
-    }
-    const btnCopySysCmdPane = document.getElementById('btnCopySysCmdPane');
-    if (btnCopySysCmdPane) {
-      btnCopySysCmdPane.addEventListener('click', () => {
-        const text = document.getElementById('sysSetupCommandTextPane')?.innerText || '';
-        navigator.clipboard.writeText(text);
-        if (typeof window.showToast === 'function') window.showToast('Onboarding command copied to clipboard!', 'info');
-      });
-    }
-
-    const btnCopySysManualUpload = document.getElementById('btnCopySysManualUpload');
-    if (btnCopySysManualUpload) {
-      btnCopySysManualUpload.addEventListener('click', () => {
-        const text = document.getElementById('sysManualUploadCmd')?.innerText || 'sudo lynis audit system --upload';
-        navigator.clipboard.writeText(text);
-        if (typeof window.showToast === 'function') window.showToast('Command copied: sudo lynis audit system --upload', 'info');
-      });
-    }
-
-    const btnCopySysPushManualScan = document.getElementById('btnCopySysPushManualScan');
-    if (btnCopySysPushManualScan) {
-      btnCopySysPushManualScan.addEventListener('click', () => {
-        const text = document.getElementById('sysPushManualScanCmd')?.innerText || 'sudo lynis audit system --upload';
-        navigator.clipboard.writeText(text);
-        if (typeof window.showToast === 'function') window.showToast('Command copied: sudo lynis audit system --upload', 'info');
-      });
-    }
-
-    const btnCopySysNativeScan = document.getElementById('btnCopySysNativeScan');
-    if (btnCopySysNativeScan) {
-      btnCopySysNativeScan.addEventListener('click', () => {
-        const text = document.getElementById('sysNativeScanCmd')?.innerText || 'sudo lynis audit system --upload';
-        navigator.clipboard.writeText(text);
-        if (typeof window.showToast === 'function') window.showToast('Command copied: sudo lynis audit system --upload', 'info');
-      });
-    }
-
-    const btnCopySysCronUpload = document.getElementById('btnCopySysCronUpload');
-    if (btnCopySysCronUpload) {
-      btnCopySysCronUpload.addEventListener('click', () => {
-        const text = document.getElementById('sysCronUploadCmd')?.innerText || '';
-        navigator.clipboard.writeText(text);
-        if (typeof window.showToast === 'function') window.showToast('Cron command copied to clipboard!', 'info');
-      });
-    }
-
-    // Universal delegator for all .btn-copy-cmd buttons across all setup panes
+    // Universal delegator for all .btn-copy-cmd / .btn-icon-copy / .btn-copy-schema buttons across the application
     document.addEventListener('click', (e) => {
-      const copyBtn = e.target.closest('.btn-copy-cmd');
+      const copyBtn = e.target.closest('.btn-copy-cmd, .btn-icon-copy, .btn-copy-schema, [data-copy-cmd], [data-copy-target]');
       if (!copyBtn) return;
-      const box = copyBtn.closest('.terminal-command-box');
-      if (!box) return;
-      const codeElem = box.querySelector('code');
-      if (codeElem) {
-        const text = codeElem.innerText.trim();
-        if (text) {
-          navigator.clipboard.writeText(text);
-          if (typeof window.showToast === 'function') window.showToast('Command copied to clipboard!', 'info');
+
+      // Skip generate batch playbook button if clicked
+      if (copyBtn.id === 'btnGenerateBatchPlaybook') return;
+
+      let textToCopy = '';
+
+      // 1. Check explicit data-copy-cmd attribute
+      if (copyBtn.getAttribute('data-copy-cmd')) {
+        textToCopy = copyBtn.getAttribute('data-copy-cmd');
+      }
+      // 2. Check data-copy-target ID attribute
+      else if (copyBtn.getAttribute('data-copy-target')) {
+        const targetEl = document.getElementById(copyBtn.getAttribute('data-copy-target'));
+        if (targetEl) textToCopy = targetEl.innerText || targetEl.textContent || '';
+      }
+      // 3. Check if inside terminal-command-box
+      else {
+        const box = copyBtn.closest('.terminal-command-box');
+        if (box) {
+          const codeElem = box.querySelector('code');
+          if (codeElem) textToCopy = codeElem.innerText || codeElem.textContent || '';
         }
+      }
+
+      // 4. Fallback check for active token input if adjacent
+      if (!textToCopy && copyBtn.id === 'btnCopyActiveToken') {
+        const tokenInput = document.getElementById('sysActiveToken');
+        if (tokenInput) textToCopy = tokenInput.value;
+      }
+
+      if (textToCopy && textToCopy.trim()) {
+        e.stopPropagation();
+        window.copyToClipboard(textToCopy.trim(), copyBtn, 'Copied to clipboard!');
       }
     });
 

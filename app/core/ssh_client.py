@@ -258,6 +258,7 @@ def execute_remote_lynis_scan(
         # We output the report to /tmp/lynis-report.dat to avoid /var/log permission restrictions
         audit_script = (
             f'export PATH="$PATH:/usr/sbin:/sbin:/usr/local/sbin:/usr/local/bin:/opt/lynis"; '
+            f'{prefix}rm -f /tmp/lynis-report.dat /tmp/lynis.log /var/log/lynis-report.dat /var/log/lynis.log 2>/dev/null; '
             f'{prefix}{lynis_bin} audit system --quick --cronjob --auditor Lynislens '
             f'--report-file /tmp/lynis-report.dat --log-file /tmp/lynis.log; '
             f'{prefix}chmod 666 /tmp/lynis-report.dat /tmp/lynis.log /var/log/lynis-report.dat /var/log/lynis.log 2>/dev/null'

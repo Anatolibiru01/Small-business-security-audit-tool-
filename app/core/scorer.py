@@ -74,6 +74,10 @@ class AuditScorecard(BaseModel):
     vulnerable_packages: int
     scan_time: Optional[str] = Field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     
+    # Target association
+    server_id: Optional[int] = None
+    server_name: Optional[str] = None
+    
     # Detailed collections
     categories: Dict[str, CategoryScore] = Field(default_factory=dict)
     remediation_feed: List[RemediationItem] = Field(default_factory=list)
@@ -145,9 +149,14 @@ def calculate_scorecard(report: LynisReportData) -> AuditScorecard:
         remediation_items.append(item)
         seen_test_ids.add(s.test_id)
 
-    # Calculate Total Deductions
+    # Calculate Total Deductions & Overall 100-Point Health Score
     total_deductions = sum(item.deduction_points for item in remediation_items)
-    overall_score = max(0, min(100, 100 - total_deductions))
+    calculated_score = max(0, min(100, 100 - total_deductions))
+
+    if report.hardening_index > 0:
+        overall_score = report.hardening_index
+    else:
+        overall_score = calculated_score
 
     # Calculate Counts by Severity
     critical_count = sum(1 for i in remediation_items if i.severity == "Critical")

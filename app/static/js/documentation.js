@@ -82,8 +82,7 @@
         const targetId = btn.getAttribute('data-copy-target');
         const el = document.getElementById(targetId);
         if (el) {
-          navigator.clipboard.writeText(el.innerText);
-          window.showToast('Schema code payload copied!', 'success');
+          window.copyToClipboard(el.innerText || el.textContent || '', btn, 'Schema code payload copied!');
         }
       });
     });

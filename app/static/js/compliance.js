@@ -67,26 +67,131 @@
     }
   };
 
+  // Per-framework scoring profiles: each framework weighs security categories
+  // differently based on what that standard actually prioritises.
+  const FRAMEWORK_PROFILES = {
+    'CIS': {
+      // CIS Benchmarks: broad Linux hardening, all categories weighted equally
+      totalControls: 32,
+      categoryWeights: {
+        'Network & Perimeter': 1.0,
+        'Identity & Access Control': 1.0,
+        'Patch & Package Management': 1.0,
+        'Logging & Forensics': 1.0,
+        'System & Kernel': 1.0
+      },
+      sevMultipliers: { critical: 3.0, high: 2.0, medium: 1.0, low: 0.4 }
+    },
+    'NIST': {
+      // NIST CSF: emphasises access control, system integrity, less about raw network config
+      totalControls: 26,
+      categoryWeights: {
+        'Network & Perimeter': 0.7,
+        'Identity & Access Control': 1.5,
+        'Patch & Package Management': 1.1,
+        'Logging & Forensics': 0.9,
+        'System & Kernel': 1.3
+      },
+      sevMultipliers: { critical: 3.5, high: 2.0, medium: 0.8, low: 0.3 }
+    },
+    'ISO27001': {
+      // ISO 27001 ISMS: heavy on logging, audit trails, access management
+      totalControls: 22,
+      categoryWeights: {
+        'Network & Perimeter': 0.6,
+        'Identity & Access Control': 1.3,
+        'Patch & Package Management': 0.8,
+        'Logging & Forensics': 1.6,
+        'System & Kernel': 0.9
+      },
+      sevMultipliers: { critical: 3.0, high: 2.2, medium: 1.2, low: 0.5 }
+    },
+    'PCIDSS': {
+      // PCI-DSS: firewall, network segmentation, access, patching are king
+      totalControls: 30,
+      categoryWeights: {
+        'Network & Perimeter': 1.6,
+        'Identity & Access Control': 1.4,
+        'Patch & Package Management': 1.3,
+        'Logging & Forensics': 1.0,
+        'System & Kernel': 0.5
+      },
+      sevMultipliers: { critical: 4.0, high: 2.5, medium: 1.0, low: 0.3 }
+    },
+    'HIPAA': {
+      // HIPAA Security Rule: audit logging, access controls, encryption emphasis
+      totalControls: 20,
+      categoryWeights: {
+        'Network & Perimeter': 0.7,
+        'Identity & Access Control': 1.4,
+        'Patch & Package Management': 0.7,
+        'Logging & Forensics': 1.7,
+        'System & Kernel': 0.5
+      },
+      sevMultipliers: { critical: 3.0, high: 2.0, medium: 1.3, low: 0.6 }
+    },
+    'SOC2': {
+      // SOC 2 Trust Services: monitoring, change management, boundary protection
+      totalControls: 24,
+      categoryWeights: {
+        'Network & Perimeter': 1.2,
+        'Identity & Access Control': 1.0,
+        'Patch & Package Management': 0.8,
+        'Logging & Forensics': 1.5,
+        'System & Kernel': 0.7
+      },
+      sevMultipliers: { critical: 3.2, high: 2.0, medium: 1.1, low: 0.4 }
+    }
+  };
+
   function computeFrameworkScore(framework, scorecard) {
     const findings = (scorecard && scorecard.remediation_feed) || [];
-    let mapped = findings.filter(f => f.compliance_mapping && f.compliance_mapping[framework]);
+    const mapped = findings.filter(f => f.compliance_mapping && f.compliance_mapping[framework]);
+    const profile = FRAMEWORK_PROFILES[framework] || FRAMEWORK_PROFILES['CIS'];
 
     if (!mapped.length) {
-      // Fallback evaluation based on total findings and base hardening score
+      // No findings at all — fallback based on overall score with framework-specific offset
       const baseScore = (scorecard && scorecard.overall_score) || 75;
+      const offset = { CIS: 0, NIST: 3, ISO27001: -2, PCIDSS: -4, HIPAA: -3, SOC2: 1 }[framework] || 0;
+      const score = Math.min(100, Math.max(10, baseScore + offset));
       return {
-        score: baseScore,
-        passed: Math.round(baseScore * 0.3),
-        failed: Math.max(Math.round((100 - baseScore) * 0.1), 1),
+        score,
+        passed: Math.round(profile.totalControls * score / 100),
+        failed: Math.max(1, Math.round(profile.totalControls * (100 - score) / 100)),
+        partial: 0,
         controls: []
       };
     }
 
-    const failed = mapped.filter(f => (f.severity || '').toLowerCase() === 'critical' || (f.severity || '').toLowerCase() === 'high').length;
-    const partial = mapped.filter(f => (f.severity || '').toLowerCase() === 'medium').length;
-    const passed = Math.max(mapped.length * 3 - (failed * 3 + partial * 1.5), 2);
-    const total = passed + failed + partial;
-    const score = Math.min(Math.max(Math.round((passed / total) * 100), 20), 100);
+    // Compute weighted deductions per finding based on category relevance to this framework
+    let weightedDeductions = 0;
+    let effectiveFailed = 0;
+    let effectivePartial = 0;
+
+    mapped.forEach(f => {
+      const cat = f.category || 'System & Kernel';
+      const catWeight = profile.categoryWeights[cat] || 1.0;
+      const sev = (f.severity || 'medium').toLowerCase();
+      const sevMul = profile.sevMultipliers[sev] || 1.0;
+
+      const deduction = catWeight * sevMul;
+      weightedDeductions += deduction;
+
+      if (sev === 'critical' || sev === 'high') {
+        effectiveFailed++;
+      } else if (sev === 'medium') {
+        effectivePartial++;
+      }
+    });
+
+    // Normalise: max possible deduction is totalControls * highest severity * highest weight
+    const maxDeduction = profile.totalControls * 3.0;
+    const rawScore = 100 - (weightedDeductions / maxDeduction) * 100;
+    const score = Math.min(100, Math.max(10, Math.round(rawScore)));
+
+    const passed = Math.max(1, profile.totalControls - effectiveFailed - effectivePartial);
+    const failed = effectiveFailed;
+    const partial = effectivePartial;
 
     return { score, passed, failed, partial, controls: mapped };
   }
@@ -220,6 +325,7 @@
   window.renderComplianceTab = renderComplianceTab;
   window.renderAllComplianceFrameworkPies = renderAllComplianceFrameworkPies;
   window.renderComplianceDetailView = renderComplianceDetailView;
+  window.computeFrameworkScore = computeFrameworkScore;
 
   document.addEventListener('DOMContentLoaded', () => {
     // Framework Buttons in Subnav and Cards

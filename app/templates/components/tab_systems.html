@@ -34,12 +34,11 @@
             </label>
             <div style="display: flex; gap: 6px;">
               <input type="text" id="sysActiveToken" class="form-input mono-stat" readonly value="Loading token..." style="flex: 1; font-weight: 600;">
-              <button type="button" id="btnCopyActiveToken" class="btn btn-sm btn-secondary" title="Copy Token to Clipboard">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <button type="button" id="btnCopyActiveToken" class="btn btn-sm btn-secondary btn-icon-copy" title="Copy Token to Clipboard">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                 </svg>
-                <span>Copy</span>
               </button>
             </div>
           </div>
@@ -175,13 +174,12 @@
         <div class="form-group" style="margin-top: 10px;">
           <label>Step 1: Pre-Flight Connectivity Check (Run on remote server to confirm dashboard is reachable):</label>
           <div class="terminal-command-box">
-            <code id="sysSetupHealthCheckCmd">curl -I http://127.0.0.1:8000/health</code>
-            <button type="button" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+            <code id="sysSetupHealthCheckCmd">curl http://127.0.0.1:8000/health</code>
+            <button type="button" class="btn btn-sm btn-primary btn-icon-copy btn-copy-cmd" title="Copy Command">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
-              <span>Copy</span>
             </button>
           </div>
         </div>
@@ -190,12 +188,11 @@
           <label>Step 2: 1-Line Agent Onboarding Command (Run with root/sudo on target server):</label>
           <div class="terminal-command-box">
             <code id="sysSetupCommandTextPane">curl -sSL http://127.0.0.1:8000/install.sh | sudo bash -s -- --token [FETCHING_TOKEN] --server http://127.0.0.1:8000 --cron daily</code>
-            <button type="button" id="btnCopySysCmdPane" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+            <button type="button" id="btnCopySysCmdPane" class="btn btn-sm btn-primary btn-icon-copy btn-copy-cmd" title="Copy Command">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
-              <span>Copy</span>
             </button>
           </div>
           <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 4px;">
@@ -207,12 +204,11 @@
           <label>Step 3: Instant Audit Verification & Direct Push:</label>
           <div class="terminal-command-box">
             <code id="sysPushManualScanCmd">sudo lynislens-scan</code>
-            <button type="button" id="btnCopySysPushManualScan" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+            <button type="button" id="btnCopySysPushManualScan" class="btn btn-sm btn-primary btn-icon-copy btn-copy-cmd" title="Copy Command">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
-              <span>Copy</span>
             </button>
           </div>
         </div>
@@ -244,12 +240,11 @@
           <label>Step 1: Install Lynis & Prepare Config Directory (Run on Target Machine):</label>
           <div class="terminal-command-box">
             <code>sudo apt update && sudo apt install -y lynis && sudo mkdir -p /etc/lynis</code>
-            <button type="button" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+            <button type="button" class="btn btn-sm btn-primary btn-icon-copy btn-copy-cmd" title="Copy Command">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
-              <span>Copy</span>
             </button>
           </div>
         </div>
@@ -258,12 +253,11 @@
           <label>Step 2: Pre-Check Upload License Endpoint (Ensures connection works before scan):</label>
           <div class="terminal-command-box">
             <code id="sysSetupNativeCheckCmd">curl -s http://127.0.0.1:8000/api/lynis/license/</code>
-            <button type="button" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+            <button type="button" class="btn btn-sm btn-primary btn-icon-copy btn-copy-cmd" title="Copy Command">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
-              <span>Copy</span>
             </button>
           </div>
           <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 4px;">
@@ -275,12 +269,11 @@
           <label>Step 3: Inject Profile Configuration into <code>/etc/lynis/custom.prf</code>:</label>
           <div class="terminal-command-box">
             <code id="sysSetupNativeInjectCmd">echo -e "\nupload=yes\nupload_server=http://127.0.0.1:8000/api/lynis/upload/\nlicense_key=[FETCHING_TOKEN]" | sudo tee -a /etc/lynis/custom.prf</code>
-            <button type="button" id="btnCopySysNativeInject" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+            <button type="button" id="btnCopySysNativeInject" class="btn btn-sm btn-primary btn-icon-copy btn-copy-cmd" title="Copy Command">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
-              <span>Copy</span>
             </button>
           </div>
         </div>
@@ -289,12 +282,11 @@
           <label>Step 4: Execute Full Audit & Direct Upload to Central Hub:</label>
           <div class="terminal-command-box">
             <code id="sysNativeScanCmd">sudo lynis audit system --upload</code>
-            <button type="button" id="btnCopySysNativeScan" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+            <button type="button" id="btnCopySysNativeScan" class="btn btn-sm btn-primary btn-icon-copy btn-copy-cmd" title="Copy Command">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
-              <span>Copy</span>
             </button>
           </div>
         </div>
@@ -303,12 +295,11 @@
           <label>Step 5: Schedule Automated Daily Uploads (Cron):</label>
           <div class="terminal-command-box">
             <code id="sysCronUploadCmd">echo "0 3 * * * root /usr/sbin/lynis audit system --cronjob --upload > /dev/null 2>&1" | sudo tee /etc/cron.d/lynis-upload-audit</code>
-            <button type="button" id="btnCopySysCronUpload" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+            <button type="button" id="btnCopySysCronUpload" class="btn btn-sm btn-primary btn-icon-copy btn-copy-cmd" title="Copy Command">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
-              <span>Copy</span>
             </button>
           </div>
         </div>
@@ -340,12 +331,11 @@
           <label>Step 1: Enable & Start SSH Server (Run on Target Server):</label>
           <div class="terminal-command-box">
             <code>sudo systemctl enable --now ssh || sudo systemctl enable --now sshd</code>
-            <button type="button" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+            <button type="button" class="btn btn-sm btn-primary btn-icon-copy btn-copy-cmd" title="Copy Command">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
-              <span>Copy</span>
             </button>
           </div>
         </div>
@@ -354,12 +344,11 @@
           <label>Step 2: Grant Passwordless Sudo for Lynis (Prevents password prompt hangs & permission errors):</label>
           <div class="terminal-command-box">
             <code>echo "$USER ALL=(ALL) NOPASSWD: /usr/sbin/lynis, /usr/bin/lynis, /opt/lynis/lynis" | sudo tee /etc/sudoers.d/99-lynislens-audit && sudo chmod 0440 /etc/sudoers.d/99-lynislens-audit</code>
-            <button type="button" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+            <button type="button" class="btn btn-sm btn-primary btn-icon-copy btn-copy-cmd" title="Copy Command">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
-              <span>Copy</span>
             </button>
           </div>
         </div>
@@ -368,12 +357,11 @@
           <label>Step 3: Test SSH Connection From Your Dashboard Terminal (Verify credentials before registering):</label>
           <div class="terminal-command-box">
             <code>ssh &lt;USERNAME&gt;@&lt;REMOTE_IP&gt; "sudo lynis --version"</code>
-            <button type="button" class="btn btn-sm btn-primary btn-copy-cmd" title="Copy Command">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: -1px;">
+            <button type="button" class="btn btn-sm btn-primary btn-icon-copy btn-copy-cmd" title="Copy Command">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
-              <span>Copy</span>
             </button>
           </div>
         </div>

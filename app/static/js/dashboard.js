@@ -137,7 +137,10 @@
     // Score & Grade
     const scoreNumber = document.getElementById('scoreNumber');
     const gradeBadge = document.getElementById('gradeBadge');
-    const score = scorecard.overall_score !== undefined ? scorecard.overall_score : null;
+    const score = (scorecard.overall_score !== undefined && scorecard.overall_score !== null)
+      ? scorecard.overall_score
+      : (scorecard.hardening_index !== undefined ? scorecard.hardening_index : null);
+
     if (scoreNumber) {
       if (score !== null) {
         animateValue(scoreNumber, score, 1400);
@@ -153,8 +156,8 @@
 
     if (gradeBadge) {
       let grade = scorecard.letter_grade;
-      if (scorecard.overall_score !== undefined && scorecard.overall_score !== null) {
-        const s = scorecard.overall_score;
+      if (score !== null) {
+        const s = score;
         if (s >= 95) grade = 'A+';
         else if (s >= 90) grade = 'A';
         else if (s >= 80) grade = 'B';
@@ -170,12 +173,20 @@
     // Host & System Info
     const hostNameVal = document.getElementById('hostNameVal');
     const osNameVal = document.getElementById('osNameVal');
+    const nodeIpVal = document.getElementById('nodeIpVal');
     const kernelVal = document.getElementById('kernelVal');
+    const nodePkgsVal = document.getElementById('nodePkgsVal');
     const metricFirewall = document.getElementById('metricFirewall');
 
     if (hostNameVal) hostNameVal.textContent = scorecard.hostname || 'Local Machine';
     if (osNameVal) osNameVal.textContent = `${scorecard.os_name || 'Linux OS'} ${scorecard.os_version || ''}`.trim();
-    if (kernelVal) kernelVal.textContent = scorecard.kernel || '--';
+    if (nodeIpVal) nodeIpVal.textContent = scorecard.ip_address || '127.0.0.1';
+    if (kernelVal) kernelVal.textContent = scorecard.os_kernel_version || scorecard.kernel || '--';
+    if (nodePkgsVal) {
+      const pkgs = scorecard.installed_packages || 0;
+      const vuln = scorecard.vulnerable_packages || 0;
+      nodePkgsVal.textContent = vuln > 0 ? `${pkgs} pkgs (${vuln} vuln)` : `${pkgs} pkgs`;
+    }
 
     if (metricFirewall) {
       if (scorecard.firewall_active) {
@@ -192,7 +203,9 @@
     const metricWarnings = document.getElementById('metricWarnings');
     const metricSuggestions = document.getElementById('metricSuggestions');
 
-    const hIndex = scorecard.hardening_index !== undefined ? scorecard.hardening_index : (score !== null ? score : null);
+    const hIndex = (scorecard.hardening_index !== undefined && scorecard.hardening_index !== null)
+      ? scorecard.hardening_index
+      : ((scorecard.overall_score !== undefined && scorecard.overall_score !== null) ? scorecard.overall_score : (score !== null ? score : null));
     if (hardeningIndexVal) {
       hardeningIndexVal.textContent = `${hIndex !== null ? hIndex : '--'} / 100 Audit Score`;
     }
@@ -211,8 +224,18 @@
     const low = scorecard.low_count || 0;
     const totalFindings = crit + high + med + low;
     
-    let compliancePct = 59;
-    if (scorecard.compliance_score) {
+    let compliancePct = 60;
+    let passedControls = 24;
+    let totalControls = 32;
+
+    if (typeof window.computeFrameworkScore === 'function') {
+      const fwData = window.computeFrameworkScore('CIS', scorecard);
+      if (fwData && fwData.score) {
+        compliancePct = fwData.score;
+        passedControls = fwData.passed;
+        totalControls = (fwData.passed + fwData.failed + fwData.partial) || 32;
+      }
+    } else if (scorecard.compliance_score) {
       compliancePct = Math.round(scorecard.compliance_score);
     } else if (score !== null) {
       compliancePct = Math.min(Math.max(Math.round(score * 0.92), 35), 98);
@@ -228,8 +251,7 @@
       setTimeout(() => { kpiSliderThumb.style.left = `${compliancePct}%`; }, 150);
     }
     if (kpiTasksFixedLabel) {
-      const fixed = Math.round(totalFindings * (compliancePct / 100));
-      kpiTasksFixedLabel.textContent = `Tasks: ${fixed} / ${Math.max(totalFindings, 12)} Cleared`;
+      kpiTasksFixedLabel.textContent = `${passedControls} / ${totalControls} CIS Controls Compliant`;
     }
 
     if (riskLevelPill) {
@@ -245,33 +267,56 @@
     if (metricWarnings) metricWarnings.textContent = crit + high;
     if (metricSuggestions) metricSuggestions.textContent = med + low;
 
-    // Right Column: Task Manager Control Progress Bars
-    const categories = scorecard.categories || {};
-    function getCatScore(keyword, defaultVal) {
-      const found = Object.keys(categories).find(k => k.toLowerCase().includes(keyword.toLowerCase()));
-      if (found && categories[found].score !== undefined) {
-        return Math.round(categories[found].score);
-      }
-      return defaultVal;
+    const findingsCountBadge = document.getElementById('findingsCountBadge');
+    if (findingsCountBadge) {
+      findingsCountBadge.textContent = (scorecard.remediation_feed && scorecard.remediation_feed.length) || scorecard.total_findings || totalFindings;
     }
 
-    const taskScores = [
-      { id: '1', score: getCatScore('identity', 85) },
-      { id: '2', score: getCatScore('kernel', 72) },
-      { id: '3', score: getCatScore('network', 68) },
-      { id: '4', score: getCatScore('crypto', 90) },
-      { id: '5', score: getCatScore('log', 60) }
-    ];
+    // Right Column: Security Subsystems Control Progress Bars (Dynamic from scorecard)
+    const categories = scorecard.categories || {};
+    const taskContainer = document.getElementById('taskManagerList');
+    if (taskContainer) {
+      const standardCats = [
+        { name: 'Identity & Access', key: 'identity', defaultScore: 85, colorClass: 'bar-blue' },
+        { name: 'Kernel & OS Posture', key: 'kernel', defaultScore: 75, colorClass: 'bar-teal' },
+        { name: 'Network & Perimeter', key: 'network', defaultScore: 80, colorClass: 'bar-emerald' },
+        { name: 'Patch & Packages', key: 'patch', defaultScore: 90, colorClass: 'bar-orange' },
+        { name: 'Logging & Forensics', key: 'log', defaultScore: 70, colorClass: 'bar-blue' }
+      ];
 
-    taskScores.forEach((t, i) => {
-      const bar = document.getElementById(`taskBar${t.id}`);
-      if (bar) {
-        bar.style.width = '0%';
-        setTimeout(() => {
-          bar.style.width = `${t.score}%`;
-        }, 200 + i * 100);
-      }
-    });
+      taskContainer.innerHTML = standardCats.map((cat, i) => {
+        const foundKey = Object.keys(categories).find(k => k.toLowerCase().includes(cat.key));
+        const catData = foundKey ? categories[foundKey] : null;
+        const score = (catData && catData.score !== undefined) ? Math.round(catData.score) : cat.defaultScore;
+        const issues = catData ? catData.total_issues : 0;
+        
+        let barColor = cat.colorClass;
+        if (score < 60) barColor = 'bar-red';
+        else if (score < 75) barColor = 'bar-orange';
+
+        return `
+          <div class="task-row" title="${window.escapeHtml(cat.name)}: ${score}% (${issues} active findings)">
+            <span class="task-label" title="${window.escapeHtml(cat.name)}">${window.escapeHtml(cat.name)}</span>
+            <div class="task-bar-track">
+              <div class="task-bar-fill ${barColor}" id="dynTaskBar_${i}" style="width: 0%;"></div>
+            </div>
+            <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-main); min-width: 34px; text-align: right;">${score}%</span>
+          </div>
+        `;
+      }).join('');
+
+      setTimeout(() => {
+        standardCats.forEach((cat, i) => {
+          const bar = document.getElementById(`dynTaskBar_${i}`);
+          if (bar) {
+            const foundKey = Object.keys(categories).find(k => k.toLowerCase().includes(cat.key));
+            const catData = foundKey ? categories[foundKey] : null;
+            const score = (catData && catData.score !== undefined) ? Math.round(catData.score) : cat.defaultScore;
+            bar.style.width = `${score}%`;
+          }
+        });
+      }, 150);
+    }
 
     // Update dynamic calendar matrix based on audit time
     updateCalendarMatrix(scorecard);
@@ -289,7 +334,8 @@
     const high = scorecard.high_count || 0;
     const med = scorecard.medium_count || 0;
     const low = scorecard.low_count || 0;
-    const info = (scorecard.total_findings || (crit + high + med + low)) - (crit + high + med + low);
+    const totalFindings = crit + high + med + low;
+    const info = (scorecard.total_findings || totalFindings) - totalFindings;
 
     const legendCountRed = document.getElementById('legendCountRed');
     const legendCountYellow = document.getElementById('legendCountYellow');
@@ -301,12 +347,16 @@
     if (legendCountGreen) legendCountGreen.textContent = low;
     if (legendCountBlue) legendCountBlue.textContent = Math.max(info, 0);
 
+    const chartData = (totalFindings === 0 && info === 0)
+      ? [0, 0, 1, 0]
+      : [crit + high, med, low, Math.max(info, 0)];
+
     window.LynislensState.pieChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: ['Critical / High', 'Medium Risk', 'Low / Healthy', 'Info / Neutral'],
+        labels: ['Critical / High Warnings', 'Medium Suggestions', 'Low Priority Hardening', 'Informational Items'],
         datasets: [{
-          data: [crit + high, med, low, Math.max(info, 0)],
+          data: chartData,
           backgroundColor: ['#ef4444', '#f59e0b', '#0d9488', '#38bdf8'],
           borderWidth: 0,
           hoverOffset: 8
@@ -345,9 +395,27 @@
     }
 
     const categories = scorecard.categories || {};
-    const labels = Object.keys(categories).length ? Object.keys(categories) : ['Identity', 'Kernel', 'Network', 'Crypto', 'Logs', 'Storage', 'SSH', 'Patching'];
-    const dataVals = labels.map(cat => (categories[cat] && categories[cat].score) || 72);
-    const targetVals = dataVals.map(v => Math.min(v + 15, 95));
+    const standardKeys = [
+      { key: 'network', label: 'Network' },
+      { key: 'identity', label: 'Identity' },
+      { key: 'patch', label: 'Patching' },
+      { key: 'log', label: 'Logging' },
+      { key: 'kernel', label: 'Kernel & OS' }
+    ];
+
+    let labels = [];
+    let dataVals = [];
+
+    if (Object.keys(categories).length > 0) {
+      standardKeys.forEach(sk => {
+        const found = Object.keys(categories).find(k => k.toLowerCase().includes(sk.key));
+        labels.push(sk.label);
+        dataVals.push(found && categories[found].score !== undefined ? Math.round(categories[found].score) : 80);
+      });
+    } else {
+      labels = standardKeys.map(k => k.label);
+      dataVals = [85, 70, 90, 75, 80];
+    }
 
     // Compute average score
     const avgScore = dataVals.length ? Math.round(dataVals.reduce((a, b) => a + b, 0) / dataVals.length) : 0;
@@ -357,21 +425,21 @@
     window.LynislensState.barChart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: labels.map(l => l.length > 8 ? l.substring(0, 7) + '.' : l),
+        labels: labels,
         datasets: [
           {
-            label: 'Current Score %',
+            label: 'Audit Score %',
             data: dataVals,
-            backgroundColor: 'rgba(13, 148, 136, 0.85)',
-            hoverBackgroundColor: '#0d9488',
+            backgroundColor: dataVals.map(v => v >= 80 ? 'rgba(13, 148, 136, 0.85)' : v >= 60 ? 'rgba(245, 158, 11, 0.85)' : 'rgba(239, 68, 68, 0.85)'),
+            hoverBackgroundColor: dataVals.map(v => v >= 80 ? '#0d9488' : v >= 60 ? '#f59e0b' : '#ef4444'),
             borderRadius: 6,
             barPercentage: 0.55
           },
           {
-            label: 'Benchmark Target %',
-            data: targetVals,
-            backgroundColor: 'rgba(45, 212, 191, 0.28)',
-            hoverBackgroundColor: 'rgba(45, 212, 191, 0.45)',
+            label: 'Baseline Target (100%)',
+            data: dataVals.map(() => 100),
+            backgroundColor: 'rgba(148, 163, 184, 0.15)',
+            hoverBackgroundColor: 'rgba(148, 163, 184, 0.25)',
             borderRadius: 6,
             barPercentage: 0.55
           }
@@ -416,7 +484,7 @@
     });
   }
 
-  function renderHistoryTrendChart(scorecard) {
+  async function renderHistoryTrendChart(scorecard) {
     const ctx = document.getElementById('historyTrendChart');
     if (!ctx) return;
 
@@ -424,38 +492,66 @@
       window.LynislensState.trendChart.destroy();
     }
 
-    const currentScore = (scorecard && scorecard.overall_score) || 67;
+    const currentScore = (scorecard && (scorecard.hardening_index !== undefined && scorecard.hardening_index !== null ? scorecard.hardening_index : scorecard.overall_score)) || 70;
     const auditDate = getAuditTimestamp(scorecard);
-    const activeMonthIdx = auditDate.getMonth(); // 0 to 11
+    const curMonthIdx = auditDate.getMonth(); // 0 to 11
 
-    // 12 Months matching reference image "Visitors & Buyers"
-    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-    
-    // Sinusoidal wave curve adapting to real audit month
-    const waveCurve = [55, 60, 66, 72, 68, 56, 48, 52, 60, 68, 74, 82];
-    waveCurve[activeMonthIdx] = currentScore;
-    
-    // Background bars for each month; active audit month highlighted in dark teal!
-    const barData = [45, 58, 65, 60, 52, 48, 42, 50, 58, 64, 68, 72];
-    barData[activeMonthIdx] = Math.max(currentScore - 6, 42);
+    const currentServerId = window.LynislensState.currentServerId;
+    const targetQuery = (currentServerId !== null && currentServerId !== undefined) ? String(currentServerId) : 'local';
 
-    const barColors = barData.map((_, i) => i === activeMonthIdx ? '#0d9488' : 'rgba(148, 163, 184, 0.4)');
+    let historyScans = [];
+    try {
+      const res = await fetch(`/api/history?server_id=${targetQuery}&limit=10`);
+      if (res.ok) {
+        historyScans = await res.json();
+      }
+    } catch (e) {
+      console.warn('Could not load history for trend chart:', e);
+    }
+
+    // Chronological scans (oldest to newest)
+    let sortedScans = Array.isArray(historyScans) ? [...historyScans].reverse() : [];
+
+    let labels = [];
+    let trendScores = [];
+    let activityBars = [];
+
+    if (sortedScans.length >= 2) {
+      sortedScans.forEach(s => {
+        let d = new Date(s.timestamp);
+        if (isNaN(d.getTime())) d = auditDate;
+        const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        labels.push(label);
+        trendScores.push(s.overall_score !== undefined && s.overall_score !== null ? s.overall_score : currentScore);
+        activityBars.push(s.total_findings || 5);
+      });
+    } else {
+      // 12 Months timeline adapting to real audit month
+      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+      labels = months;
+      trendScores = months.map((_, i) => i === curMonthIdx ? currentScore : null);
+      activityBars = months.map((_, i) => i === curMonthIdx ? Math.max((scorecard ? (scorecard.total_findings || 7) : 7) * 8, 30) : 0);
+    }
+
+    const isSingleMonthMode = labels.length === 12;
+    const barColors = activityBars.map((_, i) => (isSingleMonthMode && i === curMonthIdx) ? '#0d9488' : 'rgba(148, 163, 184, 0.35)');
 
     window.LynislensState.trendChart = new Chart(ctx, {
       data: {
-        labels: months,
+        labels: labels,
         datasets: [
           {
             type: 'line',
-            label: 'Hardening Wave',
-            data: waveCurve,
+            label: 'Hardening Index',
+            data: trendScores,
             borderColor: '#0d9488',
             backgroundColor: 'rgba(13, 148, 136, 0.08)',
             fill: true,
-            tension: 0.45,
+            tension: 0.35,
+            spanGaps: true,
             borderWidth: 2.5,
-            pointRadius: (ctx) => ctx.dataIndex === activeMonthIdx ? 6 : 0,
-            pointHoverRadius: 7,
+            pointRadius: (ctx) => (!isSingleMonthMode || ctx.dataIndex === curMonthIdx) ? 6 : 0,
+            pointHoverRadius: 8,
             pointBackgroundColor: '#ffffff',
             pointBorderColor: '#0d9488',
             pointBorderWidth: 3,
@@ -464,10 +560,10 @@
           {
             type: 'bar',
             label: 'Audit Activity',
-            data: barData,
+            data: activityBars,
             backgroundColor: barColors,
             borderRadius: 4,
-            barPercentage: 0.6,
+            barPercentage: 0.55,
             order: 2
           }
         ]
@@ -476,7 +572,7 @@
         responsive: true,
         maintainAspectRatio: false,
         animation: {
-          duration: 2000,
+          duration: 1800,
           easing: 'easeOutQuart'
         },
         scales: {
@@ -514,26 +610,38 @@
     }
 
     const categories = scorecard.categories || {};
-    const domains = [
+    function getCatScore(keyword, defaultVal) {
+      const found = Object.keys(categories).find(k => k.toLowerCase().includes(keyword.toLowerCase()));
+      if (found && categories[found].score !== undefined) {
+        return Math.round(categories[found].score);
+      }
+      return defaultVal;
+    }
+
+    const domainLabels = [
       'Identity & Access',
       'Kernel & Memory',
       'Network & Firewall',
-      'Crypto & SSL',
+      'Crypto & TLS',
       'Logging & Audit',
-      'Patch & Packages'
+      'Patch & Integrity'
     ];
 
-    const radarValues = domains.map(d => {
-      const match = Object.keys(categories).find(c => c.toLowerCase().includes(d.split(' ')[0].toLowerCase()));
-      return match ? (categories[match].score || 75) : 70;
-    });
+    const radarValues = [
+      getCatScore('identity', 85),
+      getCatScore('kernel', 75),
+      getCatScore('network', 80),
+      getCatScore('crypto', 90),
+      getCatScore('log', 70),
+      getCatScore('patch', 90)
+    ];
 
     window.LynislensState.radarChart = new Chart(ctx, {
       type: 'radar',
       data: {
-        labels: ['Task 1', 'Task 2', 'Task 3', 'Task 4', 'Task 5', 'Task 6'],
+        labels: domainLabels,
         datasets: [{
-          label: 'Defense Vectors',
+          label: 'Defense Health %',
           data: radarValues,
           backgroundColor: 'rgba(168, 85, 247, 0.22)',
           borderColor: '#a855f7',
@@ -549,7 +657,7 @@
         responsive: true,
         maintainAspectRatio: false,
         animation: {
-          duration: 2000,
+          duration: 1800,
           easing: 'easeOutBack'
         },
         scales: {
@@ -559,7 +667,7 @@
             ticks: { display: false, stepSize: 25 },
             grid: { color: getThemeGridColor() },
             angleLines: { color: getThemeGridColor() },
-            pointLabels: { color: getThemeChartTextColor(), font: { size: 9.5, family: 'Inter', weight: '600' } }
+            pointLabels: { color: getThemeChartTextColor(), font: { size: 9, family: 'Inter', weight: '600' } }
           }
         },
         plugins: {
@@ -569,7 +677,10 @@
             titleFont: { size: 11, family: 'Inter' },
             bodyFont: { size: 11, family: 'Inter' },
             padding: 8,
-            cornerRadius: 6
+            cornerRadius: 6,
+            callbacks: {
+              label: (ctx) => `Defense Health: ${ctx.raw}%`
+            }
           }
         }
       }
@@ -667,19 +778,44 @@
     if (select) select.value = 'latest';
 
     let url = '/api/scan/latest';
-    if (window.LynislensState.currentServerId) {
+    if (window.LynislensState.currentServerId !== null && window.LynislensState.currentServerId !== undefined) {
       url += `?server_id=${window.LynislensState.currentServerId}`;
+    } else if (window.LynislensState.isExplicitTarget) {
+      url += `?server_id=local`;
     }
 
     try {
       const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
+        
+        // Auto-align active target if currentServerId was null or unselected and scorecard has a specific server_id
+        if (window.LynislensState.currentServerId === null && data.server_id !== undefined && data.server_id !== null) {
+          window.LynislensState.currentServerId = Number(data.server_id);
+          try {
+            localStorage.setItem('lynislens_selected_server', String(data.server_id));
+          } catch (e) {}
+          if (typeof window.updateTargetServerSelect === 'function') {
+            window.updateTargetServerSelect();
+          }
+        }
+
         if (window.LynislensState.currentServerId === null) {
           window.LynislensState.localScorecard = data;
         }
+        window.LynislensState.currentScorecard = data;
         updateDashboardView(data);
         refreshDashboardSnapshotDropdown();
+
+        if (typeof window.renderFindingsFeed === 'function') {
+          window.renderFindingsFeed(data);
+        }
+        if (typeof window.renderComplianceTab === 'function') {
+          window.renderComplianceTab();
+        }
+        if (typeof window.renderImprovementTab === 'function') {
+          window.renderImprovementTab();
+        }
       } else {
         updateDashboardView(null);
       }
@@ -697,7 +833,18 @@
         return;
       }
       const data = await res.json();
+      window.LynislensState.currentScorecard = data;
       updateDashboardView(data);
+
+      if (typeof window.renderFindingsFeed === 'function') {
+        window.renderFindingsFeed(data);
+      }
+      if (typeof window.renderComplianceTab === 'function') {
+        window.renderComplianceTab();
+      }
+      if (typeof window.renderImprovementTab === 'function') {
+        window.renderImprovementTab();
+      }
 
       const histBanner = document.getElementById('historicalAuditBanner');
       const histText = document.getElementById('historicalAuditBannerText');

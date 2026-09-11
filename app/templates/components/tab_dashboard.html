@@ -100,7 +100,7 @@
       <div class="dash-executive-canvas">
 
         <!-- Historical Snapshot Notice Banner (Time-Travel Inspection) -->
-        <div id="historicalAuditBanner"
+        <div id="historicalAudritBanner"
           style="display:none; background: linear-gradient(90deg, rgba(245, 158, 11, 0.16), rgba(217, 119, 6, 0.08)); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 8px; padding: 10px 16px; margin-bottom: 16px; display: none; align-items: center; justify-content: space-between; gap: 12px;">
           <div style="display: flex; align-items: center; gap: 10px;">
             <span class="badge badge-warning"
@@ -118,23 +118,28 @@
 
         <!-- 1. TOP KPI METRICS ROW (4 Floating Elevated Cards exactly matching reference image) -->
         <div class="kpi-metrics-row">
-          <!-- Card 1: Visitors & Buyers / Node Telemetry -->
+          <!-- Card 1: Node Telemetry & Host Profile -->
           <div class="ref-kpi-card">
             <div class="ref-kpi-icon-bubble icon-cyan">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                 stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                <line x1="6" y1="18" x2="6.01" y2="18"></line>
               </svg>
             </div>
             <div class="ref-kpi-body">
               <div class="ref-kpi-value" id="hostNameVal">Local Machine</div>
               <div class="ref-kpi-label">Target Node Telemetry</div>
-              <div class="ref-kpi-sub"><span id="osNameVal">Linux OS</span> • <span id="metricFirewall"><span
-                    class="badge-status status-connected"><i class="fas fa-shield-alt"></i> Active &
-                    Filtering</span></span></div>
+              <div class="ref-kpi-sub" style="line-height: 1.45;">
+                <div><span id="osNameVal">Linux OS</span> (<span id="nodeIpVal">127.0.0.1</span>)</div>
+                <div style="font-size: 11px; opacity: 0.88; margin-top: 2px;">
+                  <span id="kernelVal">Kernel --</span> • <span id="nodePkgsVal">-- pkgs</span> • <span
+                    id="metricFirewall"><span class="badge-status status-connected"><i class="fas fa-shield-alt"></i>
+                      Active</span></span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -154,7 +159,7 @@
             </div>
           </div>
 
-          <!-- Card 3: Profit / Security Posture & Grade -->
+          <!-- Card 3: Security Posture & Grade -->
           <div class="ref-kpi-card centered-card">
             <div class="ref-kpi-body" style="text-align: center;">
               <div class="ref-kpi-value" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -162,13 +167,17 @@
                   style="font-size: 1.15rem; padding: 4px 14px; border-radius: 999px;">Grade --</span>
               </div>
               <div class="ref-kpi-label" style="margin-top: 4px;">Security Posture</div>
-              <div class="ref-kpi-sub"><span id="riskLevelPill">Moderate Risk</span> • <span
-                  id="metricWarnings">0</span> Warnings <span id="metricSuggestions" style="display:none;">0</span>
+              <div class="ref-kpi-sub" style="margin-top: 2px;">
+                <span id="riskLevelPill">Moderate Risk</span> •
+                <span id="metricWarningsPill"><strong id="metricWarnings" style="color: #ef4444;">0</strong>
+                  Warnings</span> •
+                <span id="metricSuggestionsPill"><strong id="metricSuggestions" style="color: #f59e0b;">0</strong>
+                  Suggestions</span>
               </div>
             </div>
           </div>
 
-          <!-- Card 4: Tasks / Remediation Rate with Slider Header -->
+          <!-- Card 4: Remediation Rate with Slider Header -->
           <div class="ref-kpi-card">
             <div class="ref-kpi-slider-header">
               <div class="ref-slider-track">
@@ -179,7 +188,7 @@
             <div class="ref-kpi-body" style="text-align: center; margin-top: 4px;">
               <div class="ref-kpi-value teal-highlight" id="kpiRemediationPercent">--%</div>
               <div class="ref-kpi-label">Remediation & Compliance</div>
-              <div class="ref-kpi-sub" id="kpiTasksFixedLabel">Tasks: 18 / 24 Cleared</div>
+              <div class="ref-kpi-sub" id="kpiTasksFixedLabel">-- / -- Controls Passing</div>
             </div>
           </div>
         </div>
@@ -187,9 +196,9 @@
         <!-- 2. MAIN 3-COLUMN REFERENCE LAYOUT (Matching image) -->
         <div class="dash-ref-layout">
 
-          <!-- COLUMN 1 (LEFT): Visitors & Buyers Timeline + Profit Performance Breakdown -->
+          <!-- COLUMN 1 (LEFT): Hardening Timeline + Security Domain Health Breakdown -->
           <div class="dash-col dash-col-left">
-            <!-- Top: Hardening Timeline Curve (Like Visitors & Buyers) -->
+            <!-- Top: Hardening Timeline Curve -->
             <div class="ref-chart-card">
               <div class="ref-card-header">
                 <span class="ref-card-title">Hardening Posture</span>
@@ -200,10 +209,10 @@
               </div>
             </div>
 
-            <!-- Bottom: Category Breakdown Bar Chart (Like Profit Performance) -->
+            <!-- Bottom: Category Breakdown Bar Chart -->
             <div class="ref-chart-card">
               <div class="ref-card-header">
-                <span class="ref-card-title">Profit Performance (Domain Security)</span>
+                <span class="ref-card-title">Security Domain Health Breakdown</span>
                 <span id="categoryAvgBadge" class="ref-card-badge">Avg: --%</span>
               </div>
               <div class="ref-chart-canvas-wrap" style="height: 195px; position: relative;">
@@ -212,12 +221,12 @@
             </div>
           </div>
 
-          <!-- COLUMN 2 (CENTER): Hero Score Donut Gauge (Top) & Funding Sources Radar (Bottom) -->
+          <!-- COLUMN 2 (CENTER): Hero Score Donut Gauge (Top) & Defense Radar (Bottom) -->
           <div class="dash-col dash-col-center">
-            <!-- Top: Centered Hero Donut Gauge with Center Score (Conversion) -->
+            <!-- Top: Centered Hero Donut Gauge with Center Score -->
             <div class="ref-chart-card donut-hero-card">
               <div class="ref-card-header" style="justify-content: center;">
-                <span class="ref-card-title">Conversion - Overall Security Score</span>
+                <span class="ref-card-title">Overall Security Score</span>
               </div>
               <div class="donut-hero-container">
                 <div class="donut-chart-box">
@@ -225,7 +234,6 @@
                   <!-- Floating Center Metric -->
                   <div class="donut-center-anchor">
                     <span id="scoreNumber" class="donut-center-score">--</span>
-                    <span class="donut-center-sub">COMPLIANCE</span>
                   </div>
                 </div>
                 <!-- Clean Minimalist Legend Pills -->
@@ -234,7 +242,7 @@
                       id="legendCountRed">0</strong></span>
                   <span class="donut-legend-pill"><i class="dot-yellow"></i> Med: <strong
                       id="legendCountYellow">0</strong></span>
-                  <span class="donut-legend-pill"><i class="dot-green"></i> Clean: <strong
+                  <span class="donut-legend-pill"><i class="dot-green"></i> Low: <strong
                       id="legendCountGreen">0</strong></span>
                   <span class="donut-legend-pill"><i class="dot-blue"></i> Info: <strong
                       id="legendCountBlue">0</strong></span>
@@ -242,10 +250,10 @@
               </div>
             </div>
 
-            <!-- Bottom: 6-Domain Defense Radar (Funding Sources by Tasks) -->
+            <!-- Bottom: 6-Domain Defense Radar -->
             <div class="ref-chart-card">
               <div class="ref-card-header" style="justify-content: center;">
-                <span class="ref-card-title">Funding Sources by Tasks (Defense Vectors)</span>
+                <span class="ref-card-title">Defense Vectors & Surface Analysis</span>
               </div>
               <div class="ref-chart-canvas-wrap" style="height: 200px; position: relative;">
                 <canvas id="defenseRadarChart"></canvas>
@@ -253,44 +261,15 @@
             </div>
           </div>
 
-          <!-- COLUMN 3 (RIGHT): Task Manager Progress Bars & Calendar Matrix -->
+          <!-- COLUMN 3 (RIGHT): Security Subsystems & Calendar Matrix -->
           <div class="dash-col dash-col-right">
-            <!-- Top: Task Manager Progress Bars (Matching right side of reference) -->
+            <!-- Top: Security Subsystems Progress Bars -->
             <div class="ref-chart-card">
               <div class="ref-card-header" style="justify-content: center;">
-                <span class="ref-card-title">Task Manager</span>
+                <span class="ref-card-title">Security Subsystems & Baselines</span>
               </div>
               <div class="task-manager-list" id="taskManagerList">
-                <div class="task-row">
-                  <span class="task-label">Task 1: Identity & Access</span>
-                  <div class="task-bar-track">
-                    <div class="task-bar-fill bar-blue" id="taskBar1" style="width: 82%;"></div>
-                  </div>
-                </div>
-                <div class="task-row">
-                  <span class="task-label">Task 2: Kernel & OS Posture</span>
-                  <div class="task-bar-track">
-                    <div class="task-bar-fill bar-teal" id="taskBar2" style="width: 74%;"></div>
-                  </div>
-                </div>
-                <div class="task-row">
-                  <span class="task-label">Task 3: Critical Remediations</span>
-                  <div class="task-bar-track">
-                    <div class="task-bar-fill bar-red" id="taskBar3" style="width: 58%;"></div>
-                  </div>
-                </div>
-                <div class="task-row">
-                  <span class="task-label">Task 4: Crypto & SSL Services</span>
-                  <div class="task-bar-track">
-                    <div class="task-bar-fill bar-orange" id="taskBar4" style="width: 88%;"></div>
-                  </div>
-                </div>
-                <div class="task-row">
-                  <span class="task-label">Task 5: Logging & Audit Logs</span>
-                  <div class="task-bar-track">
-                    <div class="task-bar-fill bar-emerald" id="taskBar5" style="width: 80%;"></div>
-                  </div>
-                </div>
+                <!-- Dynamically bound to scorecard categories -->
               </div>
             </div>
 
@@ -380,7 +359,7 @@
             <span id="batchSelectedCountBadge" class="badge-status status-info"
               style="display: none; font-size: 10px;">0 Selected</span>
           </div>
-          <button type="button" id="btnGenerateBatchPlaybook" class="btn btn-sm btn-primary btn-copy-cmd"
+          <button type="button" id="btnGenerateBatchPlaybook" class="btn btn-sm btn-primary"
             style="padding: 4px 10px; font-size: 11px;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>

@@ -48,34 +48,77 @@
       try {
         const data = JSON.parse(event.data);
 
-        if (data.status === 'in_progress') {
-          const stepNum = data.step || 1;
-          const pct = Math.min(Math.max(stepNum * 25, 10), 95);
-          if (radarProgressBar) radarProgressBar.style.width = `${pct}%`;
-          if (radarStageTitle) radarStageTitle.textContent = data.stage || 'Executing Security Tests...';
-          if (radarTickerMessage) radarTickerMessage.textContent = data.message || 'Analyzing security posture...';
-
-          if (stepNum >= 2 && step2) step2.className = 'step active';
-          if (stepNum >= 3 && step3) step3.className = 'step active';
-          if (stepNum >= 4 && step4) step4.className = 'step active';
-        } else if (data.status === 'completed') {
-          evtSource.close();
-          if (radarProgressBar) radarProgressBar.style.width = '100%';
-          if (radarStageTitle) radarStageTitle.textContent = 'Audit Completed!';
-          if (radarTickerMessage) radarTickerMessage.textContent = 'Ingesting report scorecard...';
-
-          setTimeout(() => {
-            if (typeof window.fetchLatestScan === 'function') {
-              window.fetchLatestScan();
-            }
-            window.showToast('Security audit completed successfully!', 'success');
-          }, 600);
-        } else if (data.status === 'error') {
+        // 1. Error handling
+        if (data.error || data.stage === 'Failed' || data.status === 'error') {
           evtSource.close();
           if (stateScanning) stateScanning.classList.remove('active');
           if (stateEmpty) stateEmpty.classList.add('active');
-          window.showToast(data.message || 'Audit execution encountered an error.', 'error');
+          window.showToast(data.message || data.error || 'Audit execution encountered an error.', 'error');
+          return;
         }
+
+        // 2. Scan Completion handling
+        if (data.is_complete || data.stage === 'Completed' || data.status === 'completed' || (data.progress_percent && data.progress_percent >= 100)) {
+          evtSource.close();
+          if (radarProgressBar) radarProgressBar.style.width = '100%';
+          if (radarStageTitle) radarStageTitle.textContent = 'Audit Completed!';
+          if (radarTickerMessage) radarTickerMessage.textContent = data.message || 'Ingesting report scorecard...';
+
+          if (step1) step1.className = 'step active';
+          if (step2) step2.className = 'step active';
+          if (step3) step3.className = 'step active';
+          if (step4) step4.className = 'step active';
+
+          setTimeout(() => {
+            if (data.scorecard) {
+              const eventServerId = data.server_id !== undefined && data.server_id !== null ? Number(data.server_id) : null;
+              if (eventServerId !== null) {
+                window.LynislensState.currentServerId = eventServerId;
+                try { localStorage.setItem('lynislens_selected_server', String(eventServerId)); } catch(e){}
+                if (typeof window.updateTargetServerSelect === 'function') {
+                  window.updateTargetServerSelect();
+                }
+              }
+              if (window.LynislensState.currentServerId === null) {
+                window.LynislensState.localScorecard = data.scorecard;
+              }
+              window.LynislensState.currentScorecard = data.scorecard;
+              if (typeof window.updateDashboardView === 'function') {
+                window.updateDashboardView(data.scorecard);
+              }
+              if (typeof window.renderFindingsFeed === 'function') {
+                window.renderFindingsFeed(data.scorecard);
+              }
+              if (typeof window.refreshDashboardSnapshotDropdown === 'function') {
+                window.refreshDashboardSnapshotDropdown();
+              }
+            } else if (typeof window.fetchLatestScan === 'function') {
+              window.fetchLatestScan();
+            }
+
+            if (typeof window.renderComplianceTab === 'function') {
+              window.renderComplianceTab();
+            }
+            if (typeof window.renderImprovementTab === 'function') {
+              window.renderImprovementTab();
+            }
+            if (typeof window.fetchServersList === 'function') {
+              window.fetchServersList();
+            }
+            window.showToast('Security audit completed successfully!', 'success');
+          }, 600);
+          return;
+        }
+
+        // 3. Live in-progress updates
+        const pct = data.progress_percent || 10;
+        if (radarProgressBar) radarProgressBar.style.width = `${pct}%`;
+        if (radarStageTitle) radarStageTitle.textContent = data.stage || 'Executing Security Tests...';
+        if (radarTickerMessage) radarTickerMessage.textContent = data.message || 'Analyzing security posture...';
+
+        if (pct >= 25 && step2) step2.className = 'step active';
+        if (pct >= 50 && step3) step3.className = 'step active';
+        if (pct >= 75 && step4) step4.className = 'step active';
       } catch (err) {
         console.error('SSE Message parsing error:', err);
       }
@@ -105,21 +148,51 @@
       ambientSource.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          if (data.is_complete || data.stage === 'Completed' || data.scorecard) {
+          if (data.is_complete || data.stage === 'Completed' || data.status === 'completed' || data.scorecard) {
             // Always refresh servers fleet list in background
             if (typeof window.fetchServersList === 'function') {
               window.fetchServersList();
             }
 
-            // Only refresh the main dashboard view if the event belongs to the currently active target
             const activeServerId = window.LynislensState.currentServerId;
             const eventServerId = data.server_id !== undefined && data.server_id !== null ? Number(data.server_id) : null;
             
+            const snapshotSelect = document.getElementById('dashboardSnapshotSelect');
+            const isViewingLatest = !snapshotSelect || snapshotSelect.value === 'latest';
+
             const isLocalMatch = (activeServerId === null && eventServerId === null);
             const isServerMatch = (activeServerId !== null && eventServerId !== null && Number(activeServerId) === eventServerId);
 
-            if (isLocalMatch || isServerMatch) {
-              if (typeof window.fetchLatestScan === 'function') {
+            // Update if exact target match OR if currently viewing live latest audit
+            if (isLocalMatch || isServerMatch || isViewingLatest) {
+              if (data.scorecard) {
+                if (eventServerId !== null && (activeServerId === null || isViewingLatest)) {
+                  window.LynislensState.currentServerId = eventServerId;
+                  try { localStorage.setItem('lynislens_selected_server', String(eventServerId)); } catch(e){}
+                  if (typeof window.updateTargetServerSelect === 'function') {
+                    window.updateTargetServerSelect();
+                  }
+                }
+                if (window.LynislensState.currentServerId === null) {
+                  window.LynislensState.localScorecard = data.scorecard;
+                }
+                window.LynislensState.currentScorecard = data.scorecard;
+                if (typeof window.updateDashboardView === 'function') {
+                  window.updateDashboardView(data.scorecard);
+                }
+                if (typeof window.renderFindingsFeed === 'function') {
+                  window.renderFindingsFeed(data.scorecard);
+                }
+                if (typeof window.renderComplianceTab === 'function') {
+                  window.renderComplianceTab();
+                }
+                if (typeof window.renderImprovementTab === 'function') {
+                  window.renderImprovementTab();
+                }
+                if (typeof window.refreshDashboardSnapshotDropdown === 'function') {
+                  window.refreshDashboardSnapshotDropdown();
+                }
+              } else if (typeof window.fetchLatestScan === 'function') {
                 window.fetchLatestScan();
               }
             }

@@ -192,10 +192,10 @@
     }
 
     const sysSetupHealthCheckCmd = document.getElementById('sysSetupHealthCheckCmd');
-    if (sysSetupHealthCheckCmd) sysSetupHealthCheckCmd.textContent = `curl -I ${hubUrl}/health`;
+    if (sysSetupHealthCheckCmd) sysSetupHealthCheckCmd.textContent = `curl ${hubUrl}/health`;
 
     const agentHealthCheckCmd = document.getElementById('agentHealthCheckCmd');
-    if (agentHealthCheckCmd) agentHealthCheckCmd.textContent = `curl -I ${hubUrl}/health`;
+    if (agentHealthCheckCmd) agentHealthCheckCmd.textContent = `curl ${hubUrl}/health`;
 
     const sysSetupNativeCheckCmd = document.getElementById('sysSetupNativeCheckCmd');
     if (sysSetupNativeCheckCmd) sysSetupNativeCheckCmd.textContent = `curl -s ${hubUrl}/api/lynis/license/`;
@@ -425,8 +425,7 @@
           const token = window.LynislensState.activeEnrollmentToken || 'LL-TOKEN-DEFAULT';
           const cronVal = (sysCronIntervalSelect || agentCronIntervalSelect || settingsCronIntervalSelect)?.value || 'daily';
           const cmd = `curl -sSL ${hubUrl}/install.sh | sudo bash -s -- --token ${token} --server ${hubUrl} --cron ${cronVal}`;
-          navigator.clipboard.writeText(cmd);
-          window.showToast('1-Line install command copied to clipboard!', 'success');
+          window.copyToClipboard(cmd, btn, '1-Line install command copied to clipboard!');
         });
       }
     });

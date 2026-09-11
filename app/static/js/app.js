@@ -23,7 +23,7 @@
       await window.fetchServersList();
     }
     if (typeof window.fetchLatestScan === 'function') {
-      window.fetchLatestScan();
+      await window.fetchLatestScan();
     }
     if (typeof window.fetchEnrollmentToken === 'function') {
       window.fetchEnrollmentToken();

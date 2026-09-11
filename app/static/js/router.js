@@ -114,7 +114,16 @@
     }
 
     // Tab-specific trigger updates
-    if (tabId === 'tabSystems' && typeof window.renderSystemsTab === 'function') {
+    if (tabId === 'tabDashboard') {
+      if (window.LynislensState && window.LynislensState.currentScorecard) {
+        if (typeof window.updateDashboardView === 'function') {
+          window.updateDashboardView(window.LynislensState.currentScorecard);
+        }
+        if (typeof window.renderFindingsFeed === 'function') {
+          window.renderFindingsFeed(window.LynislensState.currentScorecard);
+        }
+      }
+    } else if (tabId === 'tabSystems' && typeof window.renderSystemsTab === 'function') {
       window.renderSystemsTab();
     } else if (tabId === 'tabCompliance' && typeof window.renderComplianceTab === 'function') {
       window.renderComplianceTab();
@@ -138,11 +147,17 @@
       if (btnExecutive) btnExecutive.classList.remove('active');
       if (viewExecutive) viewExecutive.style.display = 'none';
       if (viewFindings) viewFindings.style.display = 'block';
+      if (window.LynislensState && window.LynislensState.currentScorecard && typeof window.renderFindingsFeed === 'function') {
+        window.renderFindingsFeed(window.LynislensState.currentScorecard);
+      }
     } else {
       if (btnExecutive) btnExecutive.classList.add('active');
       if (btnFindings) btnFindings.classList.remove('active');
       if (viewExecutive) viewExecutive.style.display = 'block';
       if (viewFindings) viewFindings.style.display = 'none';
+      if (window.LynislensState && window.LynislensState.currentScorecard && typeof window.updateDashboardView === 'function') {
+        window.updateDashboardView(window.LynislensState.currentScorecard);
+      }
     }
   }
 

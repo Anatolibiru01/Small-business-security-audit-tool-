@@ -74,8 +74,16 @@ def save_scan_record(
     cursor = conn.cursor()
     
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    scorecard.server_id = server_id
+    if server_name:
+        scorecard.server_name = server_name
+    elif not scorecard.server_name:
+        scorecard.server_name = scorecard.hostname
+
     scorecard_dict = scorecard.model_dump()
     scorecard_dict["scan_time"] = timestamp
+    scorecard_dict["server_id"] = server_id
+    scorecard_dict["server_name"] = scorecard.server_name
     
     cursor.execute("""
         INSERT INTO scan_records (
@@ -86,7 +94,7 @@ def save_scan_record(
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         server_id,
-        server_name or scorecard.hostname,
+        scorecard.server_name,
         timestamp,
         scorecard.hostname,
         scorecard.os_name,
@@ -105,6 +113,14 @@ def save_scan_record(
     record_id = cursor.lastrowid or 0
     conn.commit()
     conn.close()
+
+    if server_id is not None:
+        try:
+            from app.core.servers import update_server_last_scan
+            update_server_last_scan(server_id, scorecard.overall_score, scorecard.letter_grade)
+        except Exception:
+            pass
+
     return record_id
 
 
@@ -222,7 +238,7 @@ def get_scan_by_id(scan_id: int) -> Optional[AuditScorecard]:
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT scorecard_json, timestamp FROM scan_records WHERE id = ?", (scan_id,))
+    cursor.execute("SELECT id, server_id, server_name, scorecard_json, timestamp FROM scan_records WHERE id = ?", (scan_id,))
     row = cursor.fetchone()
     conn.close()
     
@@ -230,30 +246,40 @@ def get_scan_by_id(scan_id: int) -> Optional[AuditScorecard]:
         data = json.loads(row["scorecard_json"])
         if not data.get("scan_time") and row["timestamp"]:
             data["scan_time"] = row["timestamp"]
+        if row["server_id"] is not None:
+            data["server_id"] = row["server_id"]
+        if row["server_name"] is not None:
+            data["server_name"] = row["server_name"]
         return _enrich_scorecard_data(data)
     return None
 
 
 def get_latest_scan_for_server(server_id: Optional[Union[int, str]] = None) -> Optional[AuditScorecard]:
     """
-    Retrieve the most recent AuditScorecard, strictly isolating Localhost vs Remote Servers.
-    - server_id is None or 'local': queries WHERE server_id IS NULL (Localhost machine)
+    Retrieve the most recent AuditScorecard.
+    - server_id == 'local' or 'localhost': queries WHERE server_id IS NULL (Localhost machine)
     - server_id is an integer (or numeric str): queries WHERE server_id = ? (Remote server)
+    - server_id is None, '', 'latest', or 'all': queries most recent overall scan across all targets
     """
     init_history_db()
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    if server_id is not None and str(server_id).lower() not in ["local", "localhost", "none", ""]:
+    if server_id is not None and str(server_id).lower() in ["local", "localhost"]:
         cursor.execute("""
-            SELECT scorecard_json, timestamp FROM scan_records
+            SELECT id, server_id, server_name, scorecard_json, timestamp FROM scan_records
+            WHERE server_id IS NULL
+            ORDER BY id DESC LIMIT 1
+        """)
+    elif server_id is not None and str(server_id).isdigit():
+        cursor.execute("""
+            SELECT id, server_id, server_name, scorecard_json, timestamp FROM scan_records
             WHERE server_id = ?
             ORDER BY id DESC LIMIT 1
         """, (int(server_id),))
     else:
         cursor.execute("""
-            SELECT scorecard_json, timestamp FROM scan_records
-            WHERE server_id IS NULL
+            SELECT id, server_id, server_name, scorecard_json, timestamp FROM scan_records
             ORDER BY id DESC LIMIT 1
         """)
         
@@ -264,6 +290,10 @@ def get_latest_scan_for_server(server_id: Optional[Union[int, str]] = None) -> O
         data = json.loads(row["scorecard_json"])
         if not data.get("scan_time") and row["timestamp"]:
             data["scan_time"] = row["timestamp"]
+        if row["server_id"] is not None:
+            data["server_id"] = row["server_id"]
+        if row["server_name"] is not None:
+            data["server_name"] = row["server_name"]
         return _enrich_scorecard_data(data)
     return None
 

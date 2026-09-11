@@ -185,6 +185,7 @@ fi
 EOF_RUNNER
 
 chmod +x /usr/local/bin/lynislens-scan
+ln -sf /usr/local/bin/lynislens-scan /usr/sbin/lynislens-scan
 
 # 4. Configure Automated Scheduled Cron Job (/etc/cron.d/lynislens-audit)
 mkdir -p /etc/cron.d
